@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="appPrimaryLight">#6D9DF1</color>
+    <color name="appPrimaryLightDark">#5B6171</color>
+    <color name="appPrimaryNight">#FF6D9DF1</color>
+    <color name="appPrimaryNightDark">#C2CBDC</color>
+    <color name="appAccent">#FFFF0000</color>
+    <color name="bla">#FF000000</color>
+    <color name="whi">#FFFFFFFF</color>
+    <color name="bbd">#FF1F1F1F</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

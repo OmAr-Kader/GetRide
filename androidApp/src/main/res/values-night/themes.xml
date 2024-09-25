@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Sociality.App" parent="Dark">
+        <item name="android:colorPrimary">@color/appPrimaryNight</item>
+        <item name="android:colorPrimaryDark">@color/appPrimaryNightDark</item>
+        <item name="android:colorControlNormal">@color/appPrimaryNight</item>
+        <item name="android:colorForeground">@color/appPrimaryNight</item>
+        <item name="android:colorAccent">@color/appAccent</item>
+        <item name="android:textColorPrimary">@color/whi</item>
+        <item name="android:windowBackground">@color/bbd</item>
+        <item name="android:statusBarColor">@color/bbd</item>
+        <item name="android:itemBackground">@color/bbd</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@color/bbd</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenAnimationDuration" tools:targetApi="s">400</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="s">shortEdges</item>
+        <item name="android:windowSplashScreenBehavior" tools:ignore="NewApi" tools:targetApi="s">icon_preferred</item>
+        <!--item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowClipToOutline" tools:targetApi="s">false</item-->
+        <item name="android:windowElevation" tools:targetApi="s">7dp</item>
+    </style>
+
+    <style name="Dark" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:textColorSecondary">@color/whi</item>
+        <item name="android:textColor">@color/whi</item>
+        <!--item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item-->
+        <item name="android:navigationBarColor">@color/bbd</item>
+        <item name="android:windowBackground">@color/bbd</item>
+        <item name="android:itemBackground">@color/bbd</item>
+    </style>
+
+</resources>

@@ -1,0 +1,71 @@
+[versions]
+agp = "8.5.1"
+flexibleBottomsheetMaterial3 = "0.1.5"
+koinCore = "4.0.0"
+kotlin = "2.0.20"
+compose = "1.7.2"
+compose-material3 = "1.3.0"
+androidx-activityCompose = "1.9.2"
+kotlinxCoroutinesCore = "1.9.0"
+kotlinxDatetime = "0.6.1"
+kvault = "1.12.0"
+lifecycleViewmodelKtx = "2.8.6"
+coil = "2.7.0"
+logging = "1.5.0"
+realm = "2.3.0"
+navigationCompose = "2.8.1"
+statelyCommon = "2.1.0"
+supabase-ver = "2.6.1"
+ktor = "2.3.12"
+zoomable = "1.6.2"
+
+[libraries]
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelKtx" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewmodelKtx" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+flexible-bottomsheet-material3 = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "flexibleBottomsheetMaterial3" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCore" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinCore" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
+compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kvault = { module = "com.liftric:kvault", version.ref = "kvault" }
+coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil" }
+logging = { module = "org.lighthousegames:logging", version.ref = "logging" }
+realm-base = { module = "io.realm.kotlin:library-base", version.ref = "realm" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+stately-common = { module = "co.touchlab:stately-common", version.ref = "statelyCommon" }
+stately-iso-collections = { module = "co.touchlab:stately-iso-collections", version.ref = "statelyCommon" }
+stately-iso-collections-iosx64 = { module = "co.touchlab:stately-iso-collections-iosx64", version.ref = "statelyCommon" }
+stately-isolate = { module = "co.touchlab:stately-isolate", version.ref = "statelyCommon" }
+supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase-ver" }
+supabase-gotrue = { module = "io.github.jan-tennert.supabase:gotrue-kt", version.ref = "supabase-ver" }
+supabase-realtime = { module = "io.github.jan-tennert.supabase:realtime-kt", version.ref = "supabase-ver" }
+supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "supabase-ver" }
+supabase-storage = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "supabase-ver" }
+supabase-auth = { module = "io.github.jan-tennert.supabase:compose-auth", version.ref = "supabase-ver" }
+supabase-auth-ui = { module = "io.github.jan-tennert.supabase:compose-auth-ui", version.ref = "supabase-ver" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+realm = { id = "io.realm.kotlin", version.ref = "realm" }
+

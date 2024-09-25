@@ -1,0 +1,17 @@
+*.iml
+.gradle
+.idea
+.DS_Store
+build
+captures
+.externalNativeBuild
+.cxx
+local.properties
+xcuserdata
+Views.kt
+Auth.kt
+Storage.kt
+BaseRepoImp.kt
+Converter.kt
+AppModule.kt
+ConstSecure.kt
