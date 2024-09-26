@@ -49,7 +49,6 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
             launchBack {
                 registerAuth(
                     UserBase(
-                        username = state.email.split(regex = Regex("@")).firstOrNull() ?: state.email,
                         email = state.email,
                         name = state.name
                     ), state.password, invoke = {
@@ -70,10 +69,9 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
         userInfo()?.let { userBase ->
             project.user.addNewUser(
                 User(
-                    userId = userBase.id,
+                    authId = userBase.id,
                     name = state.name,
                     email = userBase.email,
-                    username = userBase.username
                 )
             )?.let { user ->
                 project.pref.updatePref(listOf(PreferenceData(PREF_NAME, state.name), PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture))).also {
@@ -94,7 +92,7 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
         signInAuth(state.email, state.password, invoke = {
             launchBack {
                 userInfo()?.let {
-                    project.user.getProfileOnUserId(it.id)?.also { user ->
+                    project.user.getUserOnAuthId(it.id)?.also { user ->
                         project.pref.updatePref(
                             listOf(PreferenceData(PREF_NAME, state.name), PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture))
                         ).also {
