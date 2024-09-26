@@ -4,7 +4,7 @@ import kotlin.reflect.full.isSubclassOf
 
 sealed class Screen {
 
-    data class ProfileRoute(val userId: String) : Screen()
+    data class UserRoute(val userId: String) : Screen()
 }
 
 inline fun <reified T : Screen> List<Screen>.valueOf(): T? = filterIsInstance<T>().firstOrNull()

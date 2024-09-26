@@ -68,7 +68,7 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
     private suspend fun doSignUp(state: State, invoke: () -> Unit, failed: () -> Unit) {
         //signInAuth(state.email, state.password, invoke = {
         userInfo()?.let { userBase ->
-            project.profile.addNewUser(
+            project.user.addNewUser(
                 User(
                     userId = userBase.id,
                     name = state.name,
@@ -94,7 +94,7 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
         signInAuth(state.email, state.password, invoke = {
             launchBack {
                 userInfo()?.let {
-                    project.profile.getProfileOnUserId(it.id)?.also { user ->
+                    project.user.getProfileOnUserId(it.id)?.also { user ->
                         project.pref.updatePref(
                             listOf(PreferenceData(PREF_NAME, state.name), PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture))
                         ).also {

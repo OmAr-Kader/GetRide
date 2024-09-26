@@ -13,23 +13,40 @@ import kotlinx.serialization.json.jsonObject
 data class Driver(
     @SerialName("id")
     val id: Long = 0,
-    @SerialName("driver_id")
-    val driverId: String = "",
+    @SerialName("auth_id")
+    val authId: String = "",
     @SerialName("email")
     val email: String = "",
+    @SerialName("phone")
+    val phone: String = "",
     @SerialName("driver_name")
     val driverName: String = "",
+    @SerialName("car")
+    val car: DriverCar = DriverCar(),
+    @SerialName("profile_picture")
+    val profilePicture: String = ""
+): BaseObject() {
+
+    constructor() : this(0L, "",  "", "", "", DriverCar(),"")
+
+    override fun json(): JsonObject {
+        return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject.toMutableMap().apply {
+            remove("id")
+        }.let(::JsonObject)
+    }
+}
+
+@Serializable
+data class DriverCar(
     @SerialName("driver_car")
     val driverCar: String = "",
     @SerialName("driver_car_number")
     val driverCarNumber: String = "",
     @SerialName("driver_car_color")
     val driverCarColor: String = "",
-    @SerialName("profile_picture")
-    val profilePicture: String = ""
 ): BaseObject() {
 
-    constructor() : this(0L, "",  "", "", "", "","","")
+    constructor() : this( "",  "", "")
 
     override fun json(): JsonObject {
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject.toMutableMap().apply {
@@ -96,5 +113,16 @@ data class DriverDetails(
 @Serializable
 data class DriverAllDetails(
     @SerialName(SUPA_DRIVER_RATE) val driverRate: DriverRate = DriverRate(),
-    @SerialName(SUPA_DRIVER_LICENCE) val requests: DriverLicences = DriverLicences()
+    @SerialName(SUPA_DRIVER_LICENCE) val driverLicences: DriverLicences = DriverLicences()
+)
+
+data class DriverData(
+    val driver: Driver,
+    val driverRate: DriverRate,
+)
+
+data class DriverAdminData(
+    val driver: Driver,
+    val driverRate: DriverRate,
+    val driverLicences: DriverLicences
 )
