@@ -1,4 +1,4 @@
-package com.ramo.getride.android.ui.sign
+package com.ramo.getride.android.ui.user.sign
 
 import com.ramo.getride.android.global.navigation.BaseViewModel
 import com.ramo.getride.data.model.PreferenceData
@@ -22,6 +22,12 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
     fun setName(it: String) {
         _uiState.update { state ->
             state.copy(name = it)
+        }
+    }
+
+    fun setPhone(it: String) {
+        _uiState.update { state ->
+            state.copy(phone = it)
         }
     }
 
@@ -65,13 +71,13 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
     }
 
     private suspend fun doSignUp(state: State, invoke: () -> Unit, failed: () -> Unit) {
-        //signInAuth(state.email, state.password, invoke = {
         userInfo()?.let { userBase ->
             project.user.addNewUser(
                 User(
                     authId = userBase.id,
                     name = state.name,
                     email = userBase.email,
+                    phone = state.phone
                 )
             )?.let { user ->
                 project.pref.updatePref(listOf(PreferenceData(PREF_NAME, state.name), PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture))).also {
@@ -131,6 +137,7 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
     data class State(
         val name: String = "",
         val email: String = "",
+        val phone: String = "",
         val password: String = "",
         val isLoginScreen: Boolean = false,
         val isProcess: Boolean = false,

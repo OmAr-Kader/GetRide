@@ -1,4 +1,4 @@
-package com.ramo.getride.android.ui.sign
+package com.ramo.getride.android.ui.user.sign
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
@@ -72,6 +72,18 @@ fun AuthScreen(appViewModel: AppViewModel, navigateHome: suspend (String) -> Uni
                         singleLine = true,
                         colors = theme.outlinedTextFieldStyle(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = state.phone,
+                        onValueChange = viewModel::setPhone,
+                        shape = RoundedCornerShape(12.dp),
+                        placeholder = { Text(text = "Enter your Phone", fontSize = 14.sp) },
+                        label = { Text(text = "Phone", fontSize = 14.sp) },
+                        singleLine = true,
+                        colors = theme.outlinedTextFieldStyle(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }

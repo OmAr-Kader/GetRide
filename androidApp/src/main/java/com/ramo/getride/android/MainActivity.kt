@@ -25,10 +25,14 @@ import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.navigation.Screen
 import com.ramo.getride.android.global.ui.OnLaunchScreenScope
 import com.ramo.getride.android.global.ui.rememberSocial
-import com.ramo.getride.android.ui.sign.AuthScreen
+import com.ramo.getride.android.ui.TempScreen
+import com.ramo.getride.android.ui.driver.sign.AuthDriverScreen
+import com.ramo.getride.android.ui.user.sign.AuthScreen
+import com.ramo.getride.global.base.AUTH_DRIVER_SCREEN_ROUTE
 import com.ramo.getride.global.base.AUTH_SCREEN_ROUTE
 import com.ramo.getride.global.base.HOME_SCREEN_ROUTE
 import com.ramo.getride.global.base.SPLASH_SCREEN_ROUTE
+import com.ramo.getride.global.base.TEMP_SCREEN_ROUTE
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -83,8 +87,16 @@ fun Main() {
                     composable(route = SPLASH_SCREEN_ROUTE) {
                         SplashScreen(navigateHome = navigateHome, appViewModel = appViewModel)
                     }
+
+                    composable(route = TEMP_SCREEN_ROUTE) {
+                        TempScreen(navigateHome = navigateHome)
+                    }
+
                     composable(route = AUTH_SCREEN_ROUTE) {
                         AuthScreen(appViewModel = appViewModel, navigateHome = navigateHome)
+                    }
+                    composable(route = AUTH_DRIVER_SCREEN_ROUTE) {
+                        AuthDriverScreen(appViewModel = appViewModel, navigateHome = navigateHome)
                     }
                 }
             }
@@ -102,7 +114,7 @@ fun SplashScreen(
     OnLaunchScreenScope {
         appViewModel.findUserLive {
             scope.launch {
-                navigateHome(if (it == null) AUTH_SCREEN_ROUTE else HOME_SCREEN_ROUTE)
+                navigateHome(if (it == null) TEMP_SCREEN_ROUTE else HOME_SCREEN_ROUTE) // AUTH_SCREEN_ROUTE
             }
         }
     }

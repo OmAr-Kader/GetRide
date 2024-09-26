@@ -4,6 +4,8 @@ import android.app.Application
 import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.base.generateTheme
 import com.ramo.getride.android.global.util.isDarkMode
+import com.ramo.getride.android.ui.driver.sign.AuthDriverViewModel
+import com.ramo.getride.android.ui.user.sign.AuthViewModel
 import com.ramo.getride.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -19,6 +21,8 @@ class App : Application() {
             modules(appModule(BuildConfig.DEBUG) + module {
                 single<Theme> { generateTheme(isDarkMode = isDarkMode) }
                 viewModel { AppViewModel(get()) }
+                viewModel { AuthViewModel(get()) }
+                viewModel { AuthDriverViewModel(get()) }
                 //single { HomeViewModel(get()) }
             })
         }

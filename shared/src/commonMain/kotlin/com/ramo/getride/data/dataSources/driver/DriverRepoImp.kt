@@ -4,6 +4,7 @@ import com.ramo.getride.data.model.Driver
 import com.ramo.getride.data.model.DriverAdminData
 import com.ramo.getride.data.model.DriverAllDetails
 import com.ramo.getride.data.model.DriverData
+import com.ramo.getride.data.model.DriverDetails
 import com.ramo.getride.data.model.DriverLicences
 import com.ramo.getride.data.model.DriverRate
 import com.ramo.getride.data.util.BaseRepoImp
@@ -32,7 +33,7 @@ class DriverRepoImp(supabase: Supabase) : BaseRepoImp(supabase), DriverRepo {
         queryWithForeign(SUPA_DRIVER, Columns.raw("*, $SUPA_DRIVER_RATE(*)")) {
             Driver::id eq id
         }?.apply {
-            toListOfObject<DriverAllDetails>(kotlinx.serialization.json.Json {
+            toListOfObject<DriverDetails>(kotlinx.serialization.json.Json {
                 ignoreUnknownKeys = true
             })?.firstOrNull().let { result ->
                 toListOfObject<Driver>(kotlinx.serialization.json.Json {

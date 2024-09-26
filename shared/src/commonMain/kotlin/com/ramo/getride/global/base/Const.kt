@@ -3,7 +3,11 @@ package com.ramo.getride.global.base
 const val SCHEMA_LOCAL_VERSION: Long = 1L
 
 const val SPLASH_SCREEN_ROUTE: String = "splash_screen_route"
+
+const val TEMP_SCREEN_ROUTE: String = "temp_screen_route"
+
 const val AUTH_SCREEN_ROUTE: String = "auth_screen_route"
+const val AUTH_DRIVER_SCREEN_ROUTE: String = "auth_driver_screen_route"
 const val HOME_SCREEN_ROUTE: String = "home_screen_route"
 const val USER_SCREEN_ROUTE: String = "profile_screen_route"
 

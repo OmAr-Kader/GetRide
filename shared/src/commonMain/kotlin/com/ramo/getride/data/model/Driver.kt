@@ -67,10 +67,10 @@ data class DriverRate(
     val raters: List<Long> = listOf()
 ): BaseObject() {
 
-    val rateStr: String
+    /*val rateStr: String
         get() {
             return rate.toString()
-        }
+        }*/
 
     constructor() : this(0L, "",  5F, listOf())
 

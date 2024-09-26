@@ -23,11 +23,9 @@ data class User(
     val name: String = "",
     @SerialName("profile_picture")
     val profilePicture: String = "",
-    @Transient
-    val mode: Int = 0, // Addable = 0, Cancelable = -1, Acceptable = -2, Not Addable = 1, Own = 2
 ): BaseObject() {
 
-    constructor() : this(0L, "", "", "", "", "", 0)
+    constructor() : this(0L, "", "", "", "", "")
 
     override fun json(): JsonObject {
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject.toMutableMap().apply {
@@ -35,7 +33,6 @@ data class User(
         }.let(::JsonObject)
     }
 }
-
 
 @Serializable
 data class UserRate(
@@ -49,10 +46,10 @@ data class UserRate(
     val raters: List<Long> = listOf()
 ): BaseObject() {
 
-    val rateStr: String
+    /*val rateStr: String
         get() {
             return rate.toString()
-        }
+        }*/
 
     constructor() : this(0L, 0L,  5F, listOf())
 
