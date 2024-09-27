@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.ramo.getride.android.global.ui
 
 import androidx.compose.runtime.Composable
@@ -8,7 +10,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
@@ -337,436 +338,126 @@ fun rememberChat(color: Color): ImageVector {
 }
 
 @Composable
-fun rememberSocial(): ImageVector {
+fun rememberTaxi(color: Color): ImageVector {
     return remember {
         ImageVector.Builder(
-            name = "Safety collection",
-            defaultWidth = 40.dp,
-            defaultHeight = 40.dp,
-            viewportWidth = 40f,
-            viewportHeight = 40f
+            name = "CarTaxiFront",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
         ).apply {
-            group {
-                path(
-                    fill = SolidColor(Color(0xFFE8D47B)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(35.5f, 15.5f)
-                    arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 31.5f, 19.5f)
-                    arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 27.5f, 15.5f)
-                    arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 35.5f, 15.5f)
-                    close()
-                }
-                group {
-                    path(
-                        fill = SolidColor(Color(0xFFBA9B48)),
-                        fillAlpha = 1.0f,
-                        stroke = null,
-                        strokeAlpha = 1.0f,
-                        strokeLineWidth = 1.0f,
-                        strokeLineCap = StrokeCap.Butt,
-                        strokeLineJoin = StrokeJoin.Miter,
-                        strokeLineMiter = 1.0f,
-                        pathFillType = PathFillType.NonZero
-                    ) {
-                        moveTo(31.5f, 12f)
-                        curveToRelative(1.93f, 0f, 3.5f, 1.57f, 3.5f, 3.5f)
-                        reflectiveCurveTo(33.43f, 19f, 31.5f, 19f)
-                        reflectiveCurveTo(28f, 17.43f, 28f, 15.5f)
-                        reflectiveCurveTo(29.57f, 12f, 31.5f, 12f)
-                        moveTo(31.5f, 11f)
-                        curveToRelative(-2.485f, 0f, -4.5f, 2.015f, -4.5f, 4.5f)
-                        curveToRelative(0f, 2.485f, 2.015f, 4.5f, 4.5f, 4.5f)
-                        reflectiveCurveToRelative(4.5f, -2.015f, 4.5f, -4.5f)
-                        curveTo(36f, 13.015f, 33.985f, 11f, 31.5f, 11f)
-                        lineTo(31.5f, 11f)
-                        close()
-                    }
-                }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(10f, 2f)
+                horizontalLineToRelative(4f)
             }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF99C99E)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(24.516f, 28.5f)
-                    curveToRelative(0.241f, -3.903f, 3.281f, -7f, 6.984f, -7f)
-                    reflectiveCurveToRelative(6.743f, 3.097f, 6.984f, 7f)
-                    horizontalLineTo(24.516f)
-                    close()
-                }
-                group {
-                    path(
-                        fill = SolidColor(Color(0xFF5E9C76)),
-                        fillAlpha = 1.0f,
-                        stroke = null,
-                        strokeAlpha = 1.0f,
-                        strokeLineWidth = 1.0f,
-                        strokeLineCap = StrokeCap.Butt,
-                        strokeLineJoin = StrokeJoin.Miter,
-                        strokeLineMiter = 1.0f,
-                        pathFillType = PathFillType.NonZero
-                    ) {
-                        moveTo(31.5f, 22f)
-                        curveToRelative(3.269f, 0f, 5.982f, 2.612f, 6.434f, 6f)
-                        horizontalLineTo(25.066f)
-                        curveTo(25.518f, 24.612f, 28.231f, 22f, 31.5f, 22f)
-                        moveTo(31.5f, 21f)
-                        curveToRelative(-4.142f, 0f, -7.5f, 3.582f, -7.5f, 8f)
-                        horizontalLineToRelative(15f)
-                        curveTo(39f, 24.582f, 35.642f, 21f, 31.5f, 21f)
-                        lineTo(31.5f, 21f)
-                        close()
-                    }
-                }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(21f, 8f)
+                lineToRelative(-2f, 2f)
+                lineToRelative(-1.5f, -3.7f)
+                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = false, 15.646f, 5f)
+                horizontalLineTo(8.4f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = false, -1.903f, 1.257f)
+                lineTo(5f, 10f)
+                lineTo(3f, 8f)
             }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFFE8D47B)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(12.5f, 15.5f)
-                    arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 8.5f, 19.5f)
-                    arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 4.5f, 15.5f)
-                    arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 12.5f, 15.5f)
-                    close()
-                }
-                group {
-                    path(
-                        fill = SolidColor(Color(0xFFBA9B48)),
-                        fillAlpha = 1.0f,
-                        stroke = null,
-                        strokeAlpha = 1.0f,
-                        strokeLineWidth = 1.0f,
-                        strokeLineCap = StrokeCap.Butt,
-                        strokeLineJoin = StrokeJoin.Miter,
-                        strokeLineMiter = 1.0f,
-                        pathFillType = PathFillType.NonZero
-                    ) {
-                        moveTo(8.5f, 12f)
-                        curveToRelative(1.93f, 0f, 3.5f, 1.57f, 3.5f, 3.5f)
-                        reflectiveCurveTo(10.43f, 19f, 8.5f, 19f)
-                        reflectiveCurveTo(5f, 17.43f, 5f, 15.5f)
-                        reflectiveCurveTo(6.57f, 12f, 8.5f, 12f)
-                        moveTo(8.5f, 11f)
-                        curveTo(6.015f, 11f, 4f, 13.015f, 4f, 15.5f)
-                        curveTo(4f, 17.985f, 6.015f, 20f, 8.5f, 20f)
-                        reflectiveCurveToRelative(4.5f, -2.015f, 4.5f, -4.5f)
-                        curveTo(13f, 13.015f, 10.985f, 11f, 8.5f, 11f)
-                        lineTo(8.5f, 11f)
-                        close()
-                    }
-                }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(7f, 14f)
+                horizontalLineToRelative(0.01f)
             }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF99C99E)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(1.516f, 28.5f)
-                    curveToRelative(0.241f, -3.903f, 3.281f, -7f, 6.984f, -7f)
-                    reflectiveCurveToRelative(6.743f, 3.097f, 6.984f, 7f)
-                    horizontalLineTo(1.516f)
-                    close()
-                }
-                group {
-                    path(
-                        fill = SolidColor(Color(0xFF5E9C76)),
-                        fillAlpha = 1.0f,
-                        stroke = null,
-                        strokeAlpha = 1.0f,
-                        strokeLineWidth = 1.0f,
-                        strokeLineCap = StrokeCap.Butt,
-                        strokeLineJoin = StrokeJoin.Miter,
-                        strokeLineMiter = 1.0f,
-                        pathFillType = PathFillType.NonZero
-                    ) {
-                        moveTo(8.5f, 22f)
-                        curveToRelative(3.269f, 0f, 5.982f, 2.612f, 6.434f, 6f)
-                        horizontalLineTo(2.066f)
-                        curveTo(2.518f, 24.612f, 5.231f, 22f, 8.5f, 22f)
-                        moveTo(8.5f, 21f)
-                        curveTo(4.358f, 21f, 1f, 24.582f, 1f, 29f)
-                        horizontalLineToRelative(15f)
-                        curveTo(16f, 24.582f, 12.642f, 21f, 8.5f, 21f)
-                        lineTo(8.5f, 21f)
-                        close()
-                    }
-                }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(17f, 14f)
+                horizontalLineToRelative(0.01f)
             }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFFE8D47B)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(24.5f, 19f)
-                    arcTo(4.5f, 4.5f, 0f, isMoreThanHalf = false, isPositiveArc = true, 20f, 23.5f)
-                    arcTo(4.5f, 4.5f, 0f, isMoreThanHalf = false, isPositiveArc = true, 15.5f, 19f)
-                    arcTo(4.5f, 4.5f, 0f, isMoreThanHalf = false, isPositiveArc = true, 24.5f, 19f)
-                    close()
-                }
-                group {
-                    path(
-                        fill = SolidColor(Color(0xFFBA9B48)),
-                        fillAlpha = 1.0f,
-                        stroke = null,
-                        strokeAlpha = 1.0f,
-                        strokeLineWidth = 1.0f,
-                        strokeLineCap = StrokeCap.Butt,
-                        strokeLineJoin = StrokeJoin.Miter,
-                        strokeLineMiter = 1.0f,
-                        pathFillType = PathFillType.NonZero
-                    ) {
-                        moveTo(20f, 15f)
-                        curveToRelative(2.206f, 0f, 4f, 1.794f, 4f, 4f)
-                        reflectiveCurveToRelative(-1.794f, 4f, -4f, 4f)
-                        reflectiveCurveToRelative(-4f, -1.794f, -4f, -4f)
-                        reflectiveCurveTo(17.794f, 15f, 20f, 15f)
-                        moveTo(20f, 14f)
-                        curveToRelative(-2.761f, 0f, -5f, 2.239f, -5f, 5f)
-                        reflectiveCurveToRelative(2.239f, 5f, 5f, 5f)
-                        reflectiveCurveToRelative(5f, -2.239f, 5f, -5f)
-                        reflectiveCurveTo(22.761f, 14f, 20f, 14f)
-                        lineTo(20f, 14f)
-                        close()
-                    }
-                }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(5f, 10f)
+                horizontalLineTo(19f)
+                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 21f, 12f)
+                verticalLineTo(16f)
+                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 19f, 18f)
+                horizontalLineTo(5f)
+                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 3f, 16f)
+                verticalLineTo(12f)
+                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 5f, 10f)
+                close()
             }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFFD8F0DA)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(12.5f, 33.5f)
-                    verticalLineToRelative(-0.786f)
-                    curveToRelative(0f, -3.978f, 3.364f, -7.214f, 7.5f, -7.214f)
-                    reflectiveCurveToRelative(7.5f, 3.236f, 7.5f, 7.214f)
-                    verticalLineTo(33.5f)
-                    horizontalLineTo(12.5f)
-                    close()
-                }
-                group {
-                    path(
-                        fill = SolidColor(Color(0xFF5E9C76)),
-                        fillAlpha = 1.0f,
-                        stroke = null,
-                        strokeAlpha = 1.0f,
-                        strokeLineWidth = 1.0f,
-                        strokeLineCap = StrokeCap.Butt,
-                        strokeLineJoin = StrokeJoin.Miter,
-                        strokeLineMiter = 1.0f,
-                        pathFillType = PathFillType.NonZero
-                    ) {
-                        moveTo(20f, 26f)
-                        curveToRelative(3.86f, 0f, 7f, 3.012f, 7f, 6.714f)
-                        verticalLineTo(33f)
-                        horizontalLineTo(13f)
-                        verticalLineToRelative(-0.286f)
-                        curveTo(13f, 29.012f, 16.14f, 26f, 20f, 26f)
-                        moveTo(20f, 25f)
-                        curveToRelative(-4.418f, 0f, -8f, 3.454f, -8f, 7.714f)
-                        curveToRelative(0f, 0f, 0f, 0.383f, 0f, 1.286f)
-                        horizontalLineToRelative(16f)
-                        curveToRelative(0f, -0.903f, 0f, -1.286f, 0f, -1.286f)
-                        curveTo(28f, 28.454f, 24.418f, 25f, 20f, 25f)
-                        lineTo(20f, 25f)
-                        close()
-                    }
-                }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(5f, 18f)
+                verticalLineToRelative(2f)
             }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(2.715f, 1.032f)
-                    horizontalLineTo(5.248f)
-                    verticalLineTo(6.931f)
-                    horizontalLineTo(2.715f)
-                    verticalLineTo(1.032f)
-                    close()
-                }
-            }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(9f, 2f)
-                    lineTo(9f, 9f)
-                    lineTo(2f, 9f)
-                    close()
-                }
-            }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(1.032f, 34.752f)
-                    horizontalLineTo(6.931f)
-                    verticalLineTo(37.285f)
-                    horizontalLineTo(1.032f)
-                    verticalLineTo(34.752f)
-                    close()
-                }
-            }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(2f, 31f)
-                    lineTo(9f, 31f)
-                    lineTo(9f, 38f)
-                    close()
-                }
-            }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(33.069f, 2.715f)
-                    horizontalLineTo(38.968f)
-                    verticalLineTo(5.248f)
-                    horizontalLineTo(33.069f)
-                    verticalLineTo(2.715f)
-                    close()
-                }
-            }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(31f, 2f)
-                    lineTo(31f, 9f)
-                    lineTo(38f, 9f)
-                    close()
-                }
-            }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(34.752f, 33.069f)
-                    horizontalLineTo(37.285f)
-                    verticalLineTo(38.968f)
-                    horizontalLineTo(34.752f)
-                    verticalLineTo(33.069f)
-                    close()
-                }
-            }
-            group {
-                path(
-                    fill = SolidColor(Color(0xFF4E7AB5)),
-                    fillAlpha = 1.0f,
-                    stroke = null,
-                    strokeAlpha = 1.0f,
-                    strokeLineWidth = 1.0f,
-                    strokeLineCap = StrokeCap.Butt,
-                    strokeLineJoin = StrokeJoin.Miter,
-                    strokeLineMiter = 1.0f,
-                    pathFillType = PathFillType.NonZero
-                ) {
-                    moveTo(38f, 31f)
-                    lineTo(31f, 31f)
-                    lineTo(31f, 38f)
-                    close()
-                }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(19f, 18f)
+                verticalLineToRelative(2f)
             }
         }.build()
     }

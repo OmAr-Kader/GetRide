@@ -44,8 +44,8 @@ fun generateTheme(isDarkMode: Boolean): Theme {
         Theme(
             isDarkMode = true,
             isDarkStatusBarText = false,
-            primary = Color(red = 109, green = 157, blue = 241),
-            secondary = Color(red = 65, green = 130, blue = 237),
+            primary = Color(red = 255, green = 74, blue = 74),//rgb(255, 74, 74)
+            secondary = Color(red = 231, green = 83, blue = 83, alpha = 255),
             background = Color(red = 31, green = 31, blue = 31, alpha = 255),
             backDark = Color(50, 50, 50),
             backDarkSec = Color(100, 100, 100),
@@ -62,8 +62,8 @@ fun generateTheme(isDarkMode: Boolean): Theme {
         Theme(
             isDarkMode = false,
             isDarkStatusBarText = true,
-            primary = Color(red = 109, green = 157, blue = 241),
-            secondary = Color(red = 65, green = 130, blue = 237),
+            primary = Color(red = 255, green = 74, blue = 74),//rgb(255, 74, 74)
+            secondary = Color(red = 231, green = 83, blue = 83, alpha = 255),
             background = Color.White,
             backDark = Color(230, 230, 230),
             backDarkSec = Color(200, 200, 200),

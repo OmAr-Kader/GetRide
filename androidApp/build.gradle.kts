@@ -37,8 +37,11 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
-
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
     buildToolsVersion = "35.0.0"
     compileOptions {
@@ -59,6 +62,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.compose.animation)
     implementation(libs.compose.foundation)
+    implementation(libs.play.services.location)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
@@ -71,5 +75,9 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.video)
     implementation(libs.flexible.bottomsheet.material3)
+
+    api(libs.maps.compose)
+    implementation(libs.maps.utils.ktx)
+
 }
 

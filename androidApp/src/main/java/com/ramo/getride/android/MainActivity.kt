@@ -1,5 +1,6 @@
 package com.ramo.getride.android
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,7 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -24,15 +27,16 @@ import com.ramo.getride.android.global.base.MyApplicationTheme
 import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.navigation.Screen
 import com.ramo.getride.android.global.ui.OnLaunchScreenScope
-import com.ramo.getride.android.global.ui.rememberSocial
-import com.ramo.getride.android.ui.TempScreen
+import com.ramo.getride.android.ui.driver.home.HomeDriverScreen
 import com.ramo.getride.android.ui.driver.sign.AuthDriverScreen
+import com.ramo.getride.android.ui.user.home.HomeScreen
 import com.ramo.getride.android.ui.user.sign.AuthScreen
-import com.ramo.getride.global.base.AUTH_DRIVER_SCREEN_ROUTE
+import com.ramo.getride.global.base.AUTH_SCREEN_DRIVER_ROUTE
 import com.ramo.getride.global.base.AUTH_SCREEN_ROUTE
+import com.ramo.getride.global.base.HOME_SCREEN_DRIVER_ROUTE
 import com.ramo.getride.global.base.HOME_SCREEN_ROUTE
 import com.ramo.getride.global.base.SPLASH_SCREEN_ROUTE
-import com.ramo.getride.global.base.TEMP_SCREEN_ROUTE
+import com.ramo.getride.global.base.TEMP_IS_DRIVER
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -40,8 +44,30 @@ import org.koin.compose.koinInject
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestLocationPermission()
         setContent {
             Main()
+        }
+    }
+
+    private fun requestLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(
+                this@MainActivity,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this@MainActivity,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this@MainActivity,
+                arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1
+            )
         }
     }
 }
@@ -87,16 +113,17 @@ fun Main() {
                     composable(route = SPLASH_SCREEN_ROUTE) {
                         SplashScreen(navigateHome = navigateHome, appViewModel = appViewModel)
                     }
-
-                    composable(route = TEMP_SCREEN_ROUTE) {
-                        TempScreen(navigateHome = navigateHome)
-                    }
-
                     composable(route = AUTH_SCREEN_ROUTE) {
                         AuthScreen(appViewModel = appViewModel, navigateHome = navigateHome)
                     }
-                    composable(route = AUTH_DRIVER_SCREEN_ROUTE) {
+                    composable(route = AUTH_SCREEN_DRIVER_ROUTE) {
                         AuthDriverScreen(appViewModel = appViewModel, navigateHome = navigateHome)
+                    }
+                    composable(route = HOME_SCREEN_ROUTE) {
+                        HomeScreen(stateApp.userPref, navigateToScreen = navigateToScreen, navigateHome =navigateHome)
+                    }
+                    composable(route = HOME_SCREEN_DRIVER_ROUTE) {
+                        HomeDriverScreen(stateApp.userPref, navigateToScreen = navigateToScreen, navigateHome =navigateHome)
                     }
                 }
             }
@@ -114,7 +141,10 @@ fun SplashScreen(
     OnLaunchScreenScope {
         appViewModel.findUserLive {
             scope.launch {
-                navigateHome(if (it == null) TEMP_SCREEN_ROUTE else HOME_SCREEN_ROUTE) // AUTH_SCREEN_ROUTE
+                navigateHome(
+                    if (it == null) (if (TEMP_IS_DRIVER) AUTH_SCREEN_DRIVER_ROUTE else AUTH_SCREEN_ROUTE)
+                    else (if (TEMP_IS_DRIVER) HOME_SCREEN_DRIVER_ROUTE else HOME_SCREEN_ROUTE)
+                )
             }
         }
     }
@@ -128,7 +158,7 @@ fun SplashScreen(
                 label = "AppIcon"
             ) {
                 Image(
-                    imageVector = rememberSocial(),
+                    painter = painterResource(R.drawable.ic_get_ride),
                     contentScale = ContentScale.Fit,
                     contentDescription = "AppIcon",
                 )

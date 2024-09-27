@@ -45,130 +45,138 @@ fun AuthScreen(appViewModel: AppViewModel, navigateHome: suspend (String) -> Uni
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
-            AnimatedText(
-                if (state.isLoginScreen) "Login" else "Sign Up"
-            ) { str ->
-                Text(
-                    text = str,
-                    color = theme.textColor,
-                    style = MaterialTheme.typography.headlineLarge
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Column {
-                AnimatedVisibility(
-                    visible = !state.isLoginScreen
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.name,
-                        onValueChange = viewModel::setName,
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text(text = "Enter your Name", fontSize = 14.sp) },
-                        label = { Text(text = "Name", fontSize = 14.sp) },
-                        singleLine = true,
-                        colors = theme.outlinedTextFieldStyle(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.phone,
-                        onValueChange = viewModel::setPhone,
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text(text = "Enter your Phone", fontSize = 14.sp) },
-                        label = { Text(text = "Phone", fontSize = 14.sp) },
-                        singleLine = true,
-                        colors = theme.outlinedTextFieldStyle(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = state.email,
-                onValueChange = viewModel::setEmail,
-                shape = RoundedCornerShape(12.dp),
-                placeholder = { Text(text = "Enter your email", fontSize = 14.sp) },
-                label = { Text(text = "Email", fontSize = 14.sp) },
-                singleLine = true,
-                colors = theme.outlinedTextFieldStyle(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = state.password,
-                onValueChange = viewModel::setPassword,
-                shape = RoundedCornerShape(12.dp),
-                placeholder = { Text(text = "Enter password", fontSize = 14.sp) },
-                label = { Text(text = "Password", fontSize = 14.sp) },
-                singleLine = true,
-                colors = theme.outlinedTextFieldStyle(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    if (state.isLoginScreen) {
-                        viewModel.loginUser({
-                            appViewModel.findUser {
-                                scope.launch {
-                                    if (it != null) {
-                                        navigateHome(HOME_SCREEN_ROUTE)
-                                    } else {
-                                        scope.launch { scaffoldState.showSnackbar("Failed") }
-                                    }
-                                }
-                            }
-                        }) {
-                            scope.launch {
-                                scaffoldState.showSnackbar("Failed")
-                            }
-                        }
-                    } else {
-                        viewModel.createNewUser({
-                            appViewModel.findUser {
-                                scope.launch {
-                                    if (it != null) {
-                                        navigateHome(HOME_SCREEN_ROUTE)
-                                    } else {
-                                        scope.launch { scaffoldState.showSnackbar("Failed") }
-                                    }
-                                }
-                            }
-                        }) {
-                            scope.launch { scaffoldState.showSnackbar("Failed") }
-                        }
-                    }
-
-                },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(start = 10.dp, end = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 AnimatedText(
                     if (state.isLoginScreen) "Login" else "Sign Up"
                 ) { str ->
                     Text(
                         text = str,
-                        color = theme.textColor
+                        color = theme.textColor,
+                        style = MaterialTheme.typography.headlineLarge
                     )
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            TextButton(
-                onClick = viewModel::toggleScreen,
-            ) {
-                AnimatedText(
-                    if (state.isLoginScreen) "Don't have an account? Sign Up" else "Already have an account? Login"
-                ) { str ->
-                    Text(
-                        text = str,
-                        color = theme.textColor
-                    )
+                Spacer(modifier = Modifier.height(16.dp))
+                Column {
+                    AnimatedVisibility(
+                        visible = !state.isLoginScreen
+                    ) {
+                        Column {
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.name,
+                                onValueChange = viewModel::setName,
+                                shape = RoundedCornerShape(12.dp),
+                                placeholder = { Text(text = "Enter your Name", fontSize = 14.sp) },
+                                label = { Text(text = "Name", fontSize = 14.sp) },
+                                singleLine = true,
+                                colors = theme.outlinedTextFieldStyle(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.phone,
+                                onValueChange = viewModel::setPhone,
+                                shape = RoundedCornerShape(12.dp),
+                                placeholder = { Text(text = "Enter your Phone", fontSize = 14.sp) },
+                                label = { Text(text = "Phone", fontSize = 14.sp) },
+                                singleLine = true,
+                                colors = theme.outlinedTextFieldStyle(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                }
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = state.email,
+                    onValueChange = viewModel::setEmail,
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = { Text(text = "Enter your email", fontSize = 14.sp) },
+                    label = { Text(text = "Email", fontSize = 14.sp) },
+                    singleLine = true,
+                    colors = theme.outlinedTextFieldStyle(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = state.password,
+                    onValueChange = viewModel::setPassword,
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = { Text(text = "Enter password", fontSize = 14.sp) },
+                    label = { Text(text = "Password", fontSize = 14.sp) },
+                    singleLine = true,
+                    colors = theme.outlinedTextFieldStyle(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        if (state.isLoginScreen) {
+                            viewModel.loginUser({
+                                appViewModel.findUser {
+                                    scope.launch {
+                                        if (it != null) {
+                                            navigateHome(HOME_SCREEN_ROUTE)
+                                        } else {
+                                            scope.launch { scaffoldState.showSnackbar("Failed") }
+                                        }
+                                    }
+                                }
+                            }) {
+                                scope.launch {
+                                    scaffoldState.showSnackbar("Failed")
+                                }
+                            }
+                        } else {
+                            viewModel.createNewUser({
+                                appViewModel.findUser {
+                                    scope.launch {
+                                        if (it != null) {
+                                            navigateHome(HOME_SCREEN_ROUTE)
+                                        } else {
+                                            scope.launch { scaffoldState.showSnackbar("Failed") }
+                                        }
+                                    }
+                                }
+                            }) {
+                                scope.launch { scaffoldState.showSnackbar("Failed") }
+                            }
+                        }
+
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    AnimatedText(
+                        if (state.isLoginScreen) "Login" else "Sign Up"
+                    ) { str ->
+                        Text(
+                            text = str,
+                            color = theme.textColor
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                TextButton(
+                    onClick = viewModel::toggleScreen,
+                ) {
+                    AnimatedText(
+                        if (state.isLoginScreen) "Don't have an account? Sign Up" else "Already have an account? Login"
+                    ) { str ->
+                        Text(
+                            text = str,
+                            color = theme.textColor
+                        )
+                    }
                 }
             }
         }

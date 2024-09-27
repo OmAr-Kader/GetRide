@@ -39,9 +39,9 @@ data class Ride(
 @Serializable
 data class Location(
     @SerialName("latitude")
-    val latitude: Float = 0F,
+    val latitude: Double = 0.0,
     @SerialName("longitude")
-    val longitude: Float = 0F,
+    val longitude: Double = 0.0,
 ): BaseObject() {
 
     override fun json(): JsonObject {

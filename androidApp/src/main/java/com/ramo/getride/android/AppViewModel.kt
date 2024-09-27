@@ -6,7 +6,7 @@ import com.ramo.getride.android.global.navigation.replace
 import com.ramo.getride.android.global.navigation.valueOf
 import com.ramo.getride.android.global.navigation.values
 import com.ramo.getride.data.model.PreferenceData
-import com.ramo.getride.data.model.UserBase
+import com.ramo.getride.data.model.UserPref
 import com.ramo.getride.data.supaBase.SessionStatusData
 import com.ramo.getride.data.supaBase.fetchSupaBaseUser
 import com.ramo.getride.data.supaBase.userInfo
@@ -37,14 +37,14 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun findUser(invoke: (UserBase?) -> Unit) {
+    fun findUser(invoke: (UserPref?) -> Unit) {
         launchBack {
             findPrefString(PREF_NAME) { name ->
                 findPrefString(PREF_PROFILE_IMAGE) { profileImage ->
                     launchBack {
                         userInfo()?.copy(name = name ?: "", profilePicture = profileImage ?: "")?.let {
                             _uiState.update { state ->
-                                state.copy(userBase = it)
+                                state.copy(userPref = it)
                             }
                             invoke(it)
                         } ?: invoke(null)
@@ -54,7 +54,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun findUserLive(invoke: (UserBase?) -> Unit) {
+    fun findUserLive(invoke: (UserPref?) -> Unit) {
         launchBack {
             fetchSupaBaseUser { userBase, status ->
                 if (userBase != null) {
@@ -62,7 +62,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
                         findPrefString(PREF_PROFILE_IMAGE) { profileImage ->
                             userBase.copy(name = name ?: "", profilePicture = profileImage ?: "").let {
                                 _uiState.update { state ->
-                                    state.copy(userBase = it, sessionStatus = status)
+                                    state.copy(userPref = it, sessionStatus = status)
                                 }
                                 invoke(it)
                             }
@@ -103,7 +103,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
 
     data class State(
         val isProcess: Boolean = false,
-        val userBase: UserBase = UserBase(),
+        val userPref: UserPref = UserPref(),
         val sessionStatus: SessionStatusData = SessionStatusData.LoadingFromStorage,
         val args: List<Screen> = values(),
         val preferences: List<PreferenceData> = listOf(),

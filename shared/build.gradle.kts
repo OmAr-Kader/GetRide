@@ -51,6 +51,9 @@ kotlin {
             implementation(libs.supabase.auth.ui)
             implementation(libs.supabase.storage)
             implementation(libs.ktor.client.core)
+            /*implementation(libs.ktor.client.json)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.serialization.kotlinx.json)*/
             api(libs.logging)
             implementation(libs.stately.common)
         }

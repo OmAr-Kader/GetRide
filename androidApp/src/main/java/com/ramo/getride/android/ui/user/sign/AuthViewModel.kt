@@ -3,7 +3,7 @@ package com.ramo.getride.android.ui.user.sign
 import com.ramo.getride.android.global.navigation.BaseViewModel
 import com.ramo.getride.data.model.PreferenceData
 import com.ramo.getride.data.model.User
-import com.ramo.getride.data.model.UserBase
+import com.ramo.getride.data.model.UserPref
 import com.ramo.getride.data.supaBase.registerAuth
 import com.ramo.getride.data.supaBase.signInAuth
 import com.ramo.getride.data.supaBase.userInfo
@@ -21,40 +21,44 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
 
     fun setName(it: String) {
         _uiState.update { state ->
-            state.copy(name = it)
+            state.copy(name = it, isErrorPressed = false)
         }
     }
 
     fun setPhone(it: String) {
         _uiState.update { state ->
-            state.copy(phone = it)
+            state.copy(phone = it, isErrorPressed = false)
         }
     }
 
     fun setEmail(it: String) {
         _uiState.update { state ->
-            state.copy(email = it)
+            state.copy(email = it, isErrorPressed = false)
         }
     }
 
     fun setPassword(it: String) {
         _uiState.update { state ->
-            state.copy(password = it)
+            state.copy(password = it, isErrorPressed = false)
         }
     }
 
     fun toggleScreen() {
         _uiState.update { state ->
-            state.copy(isLoginScreen = !state.isLoginScreen)
+            state.copy(isLoginScreen = !state.isLoginScreen, isErrorPressed = false)
         }
     }
 
     fun createNewUser(invoke: () -> Unit, failed: () -> Unit) {
         uiState.value.let { state ->
+            if (state.email.isEmpty() || state.password.isEmpty() || state.name.isEmpty() || state.email.isEmpty() || state.phone.isEmpty()) {
+                setIsError(true)
+                return
+            }
             setIsProcess(true)
             launchBack {
                 registerAuth(
-                    UserBase(
+                    UserPref(
                         email = state.email,
                         name = state.name
                     ), state.password, invoke = {
@@ -121,10 +125,20 @@ class AuthViewModel(project: Project) : BaseViewModel(project) {
 
     fun loginUser(invoke: () -> Unit, failed: () -> Unit) {
         uiState.value.let { state ->
+            if (state.email.isEmpty() || state.password.isEmpty()) {
+                setIsError(true)
+                return
+            }
             setIsProcess(true)
             launchBack {
                 doLogin(state, invoke, failed)
             }
+        }
+    }
+
+    private fun setIsError(@Suppress("SameParameterValue") it: Boolean) {
+        _uiState.update { state ->
+            state.copy(isErrorPressed = it)
         }
     }
 

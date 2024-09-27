@@ -72,7 +72,7 @@ data class UserData(
 )
 
 @Serializable
-data class UserBase(
+data class UserPref(
     @SerialName("id")
     val id: String = "",
     @SerialName("email")

@@ -34,7 +34,7 @@ import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.base.outlinedTextFieldStyle
 import com.ramo.getride.android.global.ui.AnimatedText
 import com.ramo.getride.android.global.ui.LoadingScreen
-import com.ramo.getride.global.base.HOME_SCREEN_ROUTE
+import com.ramo.getride.global.base.HOME_SCREEN_DRIVER_ROUTE
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -54,167 +54,175 @@ fun AuthDriverScreen(appViewModel: AppViewModel, navigateHome: suspend (String) 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(padding)
         ) {
-            AnimatedText(
-                if (state.isLoginScreen) "Login" else "Sign Up"
-            ) { str ->
-                Text(
-                    text = str,
-                    color = theme.textColor,
-                    style = MaterialTheme.typography.headlineLarge
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Column {
-                AnimatedVisibility(
-                    visible = !state.isLoginScreen
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.name,
-                        onValueChange = viewModel::setName,
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text(text = "Enter your Name", fontSize = 14.sp) },
-                        label = { Text(text = "Name", fontSize = 14.sp) },
-                        singleLine = true,
-                        colors = theme.outlinedTextFieldStyle(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.phone,
-                        onValueChange = viewModel::setPhone,
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text(text = "Enter your Phone", fontSize = 14.sp) },
-                        label = { Text(text = "Phone", fontSize = 14.sp) },
-                        singleLine = true,
-                        colors = theme.outlinedTextFieldStyle(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.carModule,
-                        onValueChange = viewModel::setCarModule,
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text(text = "Enter your Car Module", fontSize = 14.sp) },
-                        label = { Text(text = "Car Module", fontSize = 14.sp) },
-                        singleLine = true,
-                        colors = theme.outlinedTextFieldStyle(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.carNumber,
-                        onValueChange = viewModel::setCarNumber,
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text(text = "Enter your Car Plate", fontSize = 14.sp) },
-                        label = { Text(text = "Car Plate", fontSize = 14.sp) },
-                        singleLine = true,
-                        colors = theme.outlinedTextFieldStyle(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.carColor,
-                        onValueChange = viewModel::setCarColor,
-                        shape = RoundedCornerShape(12.dp),
-                        placeholder = { Text(text = "Enter your Car Color", fontSize = 14.sp) },
-                        label = { Text(text = "Car Color", fontSize = 14.sp) },
-                        singleLine = true,
-                        colors = theme.outlinedTextFieldStyle(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = state.email,
-                onValueChange = viewModel::setEmail,
-                shape = RoundedCornerShape(12.dp),
-                placeholder = { Text(text = "Enter your email", fontSize = 14.sp) },
-                label = { Text(text = "Email", fontSize = 14.sp) },
-                singleLine = true,
-                colors = theme.outlinedTextFieldStyle(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = state.password,
-                onValueChange = viewModel::setPassword,
-                shape = RoundedCornerShape(12.dp),
-                placeholder = { Text(text = "Enter password", fontSize = 14.sp) },
-                label = { Text(text = "Password", fontSize = 14.sp) },
-                singleLine = true,
-                colors = theme.outlinedTextFieldStyle(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    if (state.isLoginScreen) {
-                        viewModel.loginDriver({
-                            appViewModel.findUser {
-                                scope.launch {
-                                    if (it != null) {
-                                        navigateHome(HOME_SCREEN_ROUTE)
-                                    } else {
-                                        scope.launch { scaffoldState.showSnackbar("Failed") }
-                                    }
-                                }
-                            }
-                        }) {
-                            scope.launch {
-                                scaffoldState.showSnackbar("Failed")
-                            }
-                        }
-                    } else {
-                        viewModel.createNewDriver({
-                            appViewModel.findUser {
-                                scope.launch {
-                                    if (it != null) {
-                                        navigateHome(HOME_SCREEN_ROUTE)
-                                    } else {
-                                        scope.launch { scaffoldState.showSnackbar("Failed") }
-                                    }
-                                }
-                            }
-                        }) {
-                            scope.launch { scaffoldState.showSnackbar("Failed") }
-                        }
-                    }
-
-                },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(start = 10.dp, end = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 AnimatedText(
                     if (state.isLoginScreen) "Login" else "Sign Up"
                 ) { str ->
                     Text(
                         text = str,
-                        color = theme.textColor
+                        color = theme.textColor,
+                        style = MaterialTheme.typography.headlineLarge
                     )
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            TextButton(
-                onClick = viewModel::toggleScreen,
-            ) {
-                AnimatedText(
-                    if (state.isLoginScreen) "Don't have an account? Sign Up" else "Already have an account? Login"
-                ) { str ->
-                    Text(
-                        text = str,
-                        color = theme.textColor
-                    )
+                Spacer(modifier = Modifier.height(16.dp))
+                Column {
+                    AnimatedVisibility(
+                        visible = !state.isLoginScreen
+                    ) {
+                        Column {
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.name,
+                                onValueChange = viewModel::setName,
+                                shape = RoundedCornerShape(12.dp),
+                                placeholder = { Text(text = "Enter your Name", fontSize = 14.sp) },
+                                label = { Text(text = "Name", fontSize = 14.sp) },
+                                singleLine = true,
+                                colors = theme.outlinedTextFieldStyle(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.phone,
+                                onValueChange = viewModel::setPhone,
+                                shape = RoundedCornerShape(12.dp),
+                                placeholder = { Text(text = "Enter your Phone", fontSize = 14.sp) },
+                                label = { Text(text = "Phone", fontSize = 14.sp) },
+                                singleLine = true,
+                                colors = theme.outlinedTextFieldStyle(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.carModule,
+                                onValueChange = viewModel::setCarModule,
+                                shape = RoundedCornerShape(12.dp),
+                                placeholder = { Text(text = "Enter your Car Module", fontSize = 14.sp) },
+                                label = { Text(text = "Car Module", fontSize = 14.sp) },
+                                singleLine = true,
+                                colors = theme.outlinedTextFieldStyle(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.carNumber,
+                                onValueChange = viewModel::setCarNumber,
+                                shape = RoundedCornerShape(12.dp),
+                                placeholder = { Text(text = "Enter your Car Plate", fontSize = 14.sp) },
+                                label = { Text(text = "Car Plate", fontSize = 14.sp) },
+                                singleLine = true,
+                                colors = theme.outlinedTextFieldStyle(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.carColor,
+                                onValueChange = viewModel::setCarColor,
+                                shape = RoundedCornerShape(12.dp),
+                                placeholder = { Text(text = "Enter your Car Color", fontSize = 14.sp) },
+                                label = { Text(text = "Car Color", fontSize = 14.sp) },
+                                singleLine = true,
+                                colors = theme.outlinedTextFieldStyle(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                }
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = state.email,
+                    onValueChange = viewModel::setEmail,
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = { Text(text = "Enter your email", fontSize = 14.sp) },
+                    label = { Text(text = "Email", fontSize = 14.sp) },
+                    singleLine = true,
+                    colors = theme.outlinedTextFieldStyle(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = state.password,
+                    onValueChange = viewModel::setPassword,
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = { Text(text = "Enter password", fontSize = 14.sp) },
+                    label = { Text(text = "Password", fontSize = 14.sp) },
+                    singleLine = true,
+                    colors = theme.outlinedTextFieldStyle(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        if (state.isLoginScreen) {
+                            viewModel.loginDriver({
+                                appViewModel.findUser {
+                                    scope.launch {
+                                        if (it != null) {
+                                            navigateHome(HOME_SCREEN_DRIVER_ROUTE)
+                                        } else {
+                                            scope.launch { scaffoldState.showSnackbar("Failed") }
+                                        }
+                                    }
+                                }
+                            }) {
+                                scope.launch {
+                                    scaffoldState.showSnackbar("Failed")
+                                }
+                            }
+                        } else {
+                            viewModel.createNewDriver({
+                                appViewModel.findUser {
+                                    scope.launch {
+                                        if (it != null) {
+                                            navigateHome(HOME_SCREEN_DRIVER_ROUTE)
+                                        } else {
+                                            scope.launch { scaffoldState.showSnackbar("Failed") }
+                                        }
+                                    }
+                                }
+                            }) {
+                                scope.launch { scaffoldState.showSnackbar("Failed") }
+                            }
+                        }
+
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    AnimatedText(
+                        if (state.isLoginScreen) "Login" else "Sign Up"
+                    ) { str ->
+                        Text(
+                            text = str,
+                            color = theme.textColor
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                TextButton(
+                    onClick = viewModel::toggleScreen,
+                ) {
+                    AnimatedText(
+                        if (state.isLoginScreen) "Don't have an account? Sign Up" else "Already have an account? Login"
+                    ) { str ->
+                        Text(
+                            text = str,
+                            color = theme.textColor
+                        )
+                    }
                 }
             }
         }
