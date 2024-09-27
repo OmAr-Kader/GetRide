@@ -17,4 +17,4 @@ AppModule.kt
 ConstSecure.kt
 common
 map
-AndroidManifest.xml
+androidApp/src/main/AndroidManifest.xml
