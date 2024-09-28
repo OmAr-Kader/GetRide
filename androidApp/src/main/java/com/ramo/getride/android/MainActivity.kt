@@ -26,7 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ramo.getride.android.global.base.MyApplicationTheme
 import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.navigation.Screen
-import com.ramo.getride.android.global.ui.OnLaunchScreenScope
+import com.ramo.getride.android.global.ui.OnLaunchScreen
 import com.ramo.getride.android.ui.driver.home.HomeDriverScreen
 import com.ramo.getride.android.ui.driver.sign.AuthDriverScreen
 import com.ramo.getride.android.ui.user.home.HomeScreen
@@ -88,6 +88,7 @@ fun Main() {
     val navigateTo: suspend (String) -> Unit = { route ->
         navController.navigate(route = route)
     }
+    val findPreference: (String, (it: String?) -> Unit) -> Unit = appViewModel::findPrefString
     val navigateToScreen: suspend (Screen, String) -> Unit = { screen , route ->
         appViewModel.writeArguments(screen)
         kotlinx.coroutines.coroutineScope {
@@ -120,10 +121,10 @@ fun Main() {
                         AuthDriverScreen(appViewModel = appViewModel, navigateHome = navigateHome)
                     }
                     composable(route = HOME_SCREEN_ROUTE) {
-                        HomeScreen(stateApp.userPref, navigateToScreen = navigateToScreen, navigateHome =navigateHome)
+                        HomeScreen(stateApp.userPref, findPreference = findPreference, navigateToScreen = navigateToScreen, navigateHome =navigateHome)
                     }
                     composable(route = HOME_SCREEN_DRIVER_ROUTE) {
-                        HomeDriverScreen(stateApp.userPref, navigateToScreen = navigateToScreen, navigateHome =navigateHome)
+                        HomeDriverScreen(stateApp.userPref, findPreference = findPreference, navigateToScreen = navigateToScreen, navigateHome =navigateHome)
                     }
                 }
             }
@@ -138,7 +139,7 @@ fun SplashScreen(
     theme: Theme = koinInject(),
 ) {
     val scope = rememberCoroutineScope()
-    OnLaunchScreenScope {
+    OnLaunchScreen {
         appViewModel.findUserLive {
             scope.launch {
                 navigateHome(

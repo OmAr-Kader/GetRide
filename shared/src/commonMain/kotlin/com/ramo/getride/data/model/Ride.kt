@@ -61,17 +61,19 @@ data class RideRequest(
     val from: Location = Location(),
     @SerialName("to")
     val to: Location = Location(),
-    @SerialName("drivers")
-    val drivers: List<RideProposal> = listOf(),
+    @SerialName("duration_distance")
+    val durationDistance: String = "",
     @SerialName("fare")
     val fare: Int = 0,
+    @SerialName("drivers")
+    val drivers: List<RideProposal> = listOf(),
     @SerialName("chosen_one")
     val chosenDriver: Long = 0,
     @SerialName("chosen_ride")
     val chosenDriverRide: Long = 0,
 ): BaseObject() {
 
-    constructor() : this(0L, 0L, Location(), Location(),  listOf(), 0)
+    constructor() : this(0L, 0L, Location(), Location(), "", 0, listOf())
 
     fun isDriverChosen(driverId: Long): Boolean = driverId == chosenDriver
 

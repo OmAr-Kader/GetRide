@@ -1,6 +1,5 @@
 package com.ramo.getride.android.global.util
 
-
 internal val android.content.Context.isDarkMode: Boolean
     get() {
         val nightModeFlags: Int =
@@ -12,6 +11,17 @@ internal val android.content.Context.isDarkMode: Boolean
             else -> true
         }
     }
+
+fun android.content.Context.bitmapDescriptorFromVector(id: Int): com.google.android.gms.maps.model.BitmapDescriptor {
+    val vectorDrawable = androidx.core.content.ContextCompat.getDrawable(this, id)!!
+    val h = (50 * resources.displayMetrics.density).toInt()
+    val w = (50 * resources.displayMetrics.density).toInt()
+    vectorDrawable.setBounds(0, 0, w, h)
+    val bm = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(bm)
+    vectorDrawable.draw(canvas)
+    return com.google.android.gms.maps.model.BitmapDescriptorFactory.fromBitmap(bm)
+}
 
 internal val android.content.Context.imageBuildr: (String) -> coil.request.ImageRequest
     get() = {

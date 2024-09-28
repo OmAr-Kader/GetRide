@@ -18,15 +18,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     }
 
     data class State(
-        val name: String = "",
-        val email: String = "",
-        val phone: String = "",
-        val carModule: String = "",
-        val carNumber: String = "",
-        val carColor: String = "",
-        val password: String = "",
-        val isLoginScreen: Boolean = false,
         val isProcess: Boolean = false,
-        val isErrorPressed: Boolean = false,
     )
 }

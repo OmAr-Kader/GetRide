@@ -25,6 +25,7 @@ android {
                 languageSettings {
                     //optIn("kotlin.RequiresOptIn")
                     optIn("androidx.compose.foundation.ExperimentalFoundationApi")
+                    optIn("androidx.compose.material3.ExperimentalMaterial3Api")
                 }
             }
         }
@@ -74,9 +75,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.coil)
     implementation(libs.coil.video)
-    implementation(libs.flexible.bottomsheet.material3)
 
     api(libs.maps.compose)
+    //implementation(libs.places)
     implementation(libs.maps.utils.ktx)
 
 }

@@ -80,7 +80,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    private fun findPrefString(
+    fun findPrefString(
         key: String,
         value: (it: String?) -> Unit,
     ) {

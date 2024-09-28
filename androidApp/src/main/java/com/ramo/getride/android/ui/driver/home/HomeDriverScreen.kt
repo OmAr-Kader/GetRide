@@ -26,6 +26,7 @@ import org.koin.compose.koinInject
 @Composable
 fun HomeDriverScreen(
     userPref: UserPref,
+    findPreference: (String, (it: String?) -> Unit) -> Unit,
     navigateToScreen: suspend (Screen, String) -> Unit,
     navigateHome: suspend (String) -> Unit,
     viewModel: HomeDriverViewModel = koinViewModel(),
