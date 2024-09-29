@@ -73,8 +73,10 @@ data class UserData(
 
 @Serializable
 data class UserPref(
+    @SerialName("auth_id")
+    val authId: String = "",
     @SerialName("id")
-    val id: String = "",
+    val id: Long = 0L,// Not From Supabase userInfo()
     @SerialName("email")
     val email: String = "",
     @SerialName("phone")
@@ -84,6 +86,5 @@ data class UserPref(
     @Transient
     val profilePicture: String = ""
 ) {
-    constructor() : this("", "", "", "", "")
-
+    constructor() : this("", 0L, "", "", "", "")
 }

@@ -11,8 +11,11 @@ import com.ramo.getride.data.supaBase.SessionStatusData
 import com.ramo.getride.data.supaBase.fetchSupaBaseUser
 import com.ramo.getride.data.supaBase.userInfo
 import com.ramo.getride.di.Project
+import com.ramo.getride.global.base.PREF_ID
 import com.ramo.getride.global.base.PREF_NAME
 import com.ramo.getride.global.base.PREF_PROFILE_IMAGE
+import com.ramo.getride.global.util.logger
+import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -39,15 +42,18 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
 
     fun findUser(invoke: (UserPref?) -> Unit) {
         launchBack {
-            findPrefString(PREF_NAME) { name ->
-                findPrefString(PREF_PROFILE_IMAGE) { profileImage ->
-                    launchBack {
-                        userInfo()?.copy(name = name ?: "", profilePicture = profileImage ?: "")?.let {
-                            _uiState.update { state ->
-                                state.copy(userPref = it)
-                            }
-                            invoke(it)
-                        } ?: invoke(null)
+            findPrefString(PREF_ID) { id ->
+                findPrefString(PREF_NAME) { name ->
+                    findPrefString(PREF_PROFILE_IMAGE) { profileImage ->
+                        launchBack {
+                            loggerError("++++",error = id.toString())
+                            userInfo()?.copy(id = id?.toLongOrNull() ?: 0L,name = name ?: "", profilePicture = profileImage ?: "")?.let {
+                                _uiState.update { state ->
+                                    state.copy(userPref = it)
+                                }
+                                invoke(it)
+                            } ?: invoke(null)
+                        }
                     }
                 }
             }
@@ -58,13 +64,16 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
         launchBack {
             fetchSupaBaseUser { userBase, status ->
                 if (userBase != null) {
-                    findPrefString(PREF_NAME) { name ->
-                        findPrefString(PREF_PROFILE_IMAGE) { profileImage ->
-                            userBase.copy(name = name ?: "", profilePicture = profileImage ?: "").let {
-                                _uiState.update { state ->
-                                    state.copy(userPref = it, sessionStatus = status)
+                    findPrefString(PREF_ID) { id ->
+                        findPrefString(PREF_NAME) { name ->
+                            findPrefString(PREF_PROFILE_IMAGE) { profileImage ->
+                                loggerError("++++",error = id.toString())
+                                userBase.copy(id = id?.toLongOrNull() ?: 0L, name = name ?: "", profilePicture = profileImage ?: "").let {
+                                    _uiState.update { state ->
+                                        state.copy(userPref = it, sessionStatus = status)
+                                    }
+                                    invoke(it)
                                 }
-                                invoke(it)
                             }
                         }
                     }

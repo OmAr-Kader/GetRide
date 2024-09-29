@@ -8,6 +8,7 @@ import com.ramo.getride.data.supaBase.registerAuth
 import com.ramo.getride.data.supaBase.signInAuth
 import com.ramo.getride.data.supaBase.userInfo
 import com.ramo.getride.di.Project
+import com.ramo.getride.global.base.PREF_ID
 import com.ramo.getride.global.base.PREF_NAME
 import com.ramo.getride.global.base.PREF_PROFILE_IMAGE
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,18 +97,22 @@ class AuthDriverViewModel(project: Project) : BaseViewModel(project) {
         userInfo()?.let { userBase ->
             project.driver.addNewDriver(
                 Driver(
-                    authId = userBase.id,
+                    authId = userBase.authId,
                     driverName = state.name,
                     email = userBase.email,
                     phone = state.phone,
                 )
             )?.let { user ->
-                project.pref.updatePref(listOf(PreferenceData(PREF_NAME, state.name), PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture))).also {
-                    setIsProcess(false)
+                project.pref.updatePref(
+                    listOf(
+                        PreferenceData(PREF_ID, user.id.toString()),
+                        PreferenceData(PREF_NAME, user.driverName),
+                        PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture)
+                    )
+                ).also {
                     invoke()
                 }
             } ?: kotlin.run {
-                setIsProcess(false)
                 invoke()
             }
         } ?: kotlin.run {
@@ -120,15 +125,17 @@ class AuthDriverViewModel(project: Project) : BaseViewModel(project) {
         signInAuth(state.email, state.password, invoke = {
             launchBack {
                 userInfo()?.let {
-                    project.driver.getDriverOnAuthId(it.id)?.also { user ->
+                    project.driver.getDriverOnAuthId(it.authId)?.also { user ->
                         project.pref.updatePref(
-                            listOf(PreferenceData(PREF_NAME, state.name), PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture))
+                            listOf(
+                                PreferenceData(PREF_ID, user.id.toString()),
+                                PreferenceData(PREF_NAME, user.driverName),
+                                PreferenceData(PREF_PROFILE_IMAGE, user.profilePicture)
+                            )
                         ).also {
-                            setIsProcess(false)
                             invoke()
                         }
                     } ?: kotlin.run {
-                        setIsProcess(false)
                         invoke()
                     }
                 } ?: kotlin.run {
@@ -160,7 +167,7 @@ class AuthDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    private fun setIsProcess(it: Boolean) {
+    fun setIsProcess(it: Boolean) {
         _uiState.update { state ->
             state.copy(isProcess = it)
         }

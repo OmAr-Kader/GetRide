@@ -170,6 +170,7 @@ fun AuthDriverScreen(appViewModel: AppViewModel, navigateHome: suspend (String) 
                         if (state.isLoginScreen) {
                             viewModel.loginDriver({
                                 appViewModel.findUser {
+                                    viewModel.setIsProcess(false)
                                     scope.launch {
                                         if (it != null) {
                                             navigateHome(HOME_SCREEN_DRIVER_ROUTE)
@@ -186,6 +187,7 @@ fun AuthDriverScreen(appViewModel: AppViewModel, navigateHome: suspend (String) 
                         } else {
                             viewModel.createNewDriver({
                                 appViewModel.findUser {
+                                    viewModel.setIsProcess(false)
                                     scope.launch {
                                         if (it != null) {
                                             navigateHome(HOME_SCREEN_DRIVER_ROUTE)

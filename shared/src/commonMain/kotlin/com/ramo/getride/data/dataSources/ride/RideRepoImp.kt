@@ -2,19 +2,27 @@ package com.ramo.getride.data.dataSources.ride
 
 import com.ramo.getride.data.model.Location
 import com.ramo.getride.data.model.Ride
+import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 import com.ramo.getride.data.util.BaseRepoImp
 import com.ramo.getride.global.base.AREA_RIDE_FIRST_PHASE
 import com.ramo.getride.global.base.SUPA_RIDE
 import com.ramo.getride.global.base.SUPA_RIDE_REQUEST
 import com.ramo.getride.global.base.Supabase
+import com.ramo.getride.global.util.loggerError
+import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
+import io.github.jan.supabase.postgrest.rpc
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.put
 
 class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun getRideById(rideId: Long, invoke: suspend (Ride) -> Unit) {
-        querySingleRealTime(SUPA_RIDE_REQUEST, primaryKey = Ride::id, block =  {
+        querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
             Ride::id eq rideId
         }, invoke = invoke)
     }
@@ -57,9 +65,27 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }
     }
 
+    override suspend fun getRideRequestById(rideRequestId: Long, invoke: suspend (RideRequest?) -> Unit) {
+        querySingleRealTime(SUPA_RIDE_REQUEST, primaryKey = RideRequest::id, block =  {
+            RideRequest::id eq rideRequestId
+        }, invoke = invoke)
+    }
+
     override suspend fun addNewRideRequest(item: RideRequest): RideRequest? = insert(SUPA_RIDE_REQUEST, item)
 
     override suspend fun editRideRequest(item: RideRequest): RideRequest? = edit(SUPA_RIDE_REQUEST, item.id, item)
+
+    override suspend fun editAddDriverProposal(rideId: Long, rideProposal: RideProposal): Int = try {
+        buildJsonObject {
+            put("item_id", rideId) // First parameter (TEXT)
+            put("new_proposal", Json.encodeToJsonElement(rideProposal)) // Second parameter (Object as JSON)
+        }.let {
+            rpc("append_to_requests", it)
+        }
+    } catch (e: Exception) {
+        loggerError(error = e.stackTraceToString())
+        -2
+    }
 
     override suspend fun deleteRideRequest(id: Long): Int = delete(SUPA_RIDE_REQUEST, id)
 }

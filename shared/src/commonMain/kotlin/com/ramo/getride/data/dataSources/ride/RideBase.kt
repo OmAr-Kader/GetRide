@@ -2,6 +2,7 @@ package com.ramo.getride.data.dataSources.ride
 
 import com.ramo.getride.data.model.Location
 import com.ramo.getride.data.model.Ride
+import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 
 class RideBase(
@@ -17,7 +18,9 @@ class RideBase(
         location: Location,
         invoke: suspend (List<RideRequest>) -> Unit
     ) = repo.getNearRideRequestsForDriver(location, invoke)
+    suspend fun getRideRequestById(rideRequestId: Long, invoke: suspend (RideRequest?) -> Unit) = repo.getRideRequestById(rideRequestId, invoke)
     suspend fun addNewRideRequest(item: RideRequest): RideRequest? = repo.addNewRideRequest(item)
     suspend fun editRideRequest(item: RideRequest): RideRequest? = repo.editRideRequest(item)
+    suspend fun editAddDriverProposal(rideId: Long, rideProposal: RideProposal): Int = repo.editAddDriverProposal(rideId, rideProposal)
     suspend fun deleteRideRequest(id: Long): Int = repo.deleteRideRequest(id)
 }

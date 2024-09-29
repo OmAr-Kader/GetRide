@@ -124,6 +124,7 @@ fun AuthScreen(appViewModel: AppViewModel, navigateHome: suspend (String) -> Uni
                         if (state.isLoginScreen) {
                             viewModel.loginUser({
                                 appViewModel.findUser {
+                                    viewModel.setIsProcess(false)
                                     scope.launch {
                                         if (it != null) {
                                             navigateHome(HOME_SCREEN_ROUTE)
@@ -140,6 +141,7 @@ fun AuthScreen(appViewModel: AppViewModel, navigateHome: suspend (String) -> Uni
                         } else {
                             viewModel.createNewUser({
                                 appViewModel.findUser {
+                                    viewModel.setIsProcess(false)
                                     scope.launch {
                                         if (it != null) {
                                             navigateHome(HOME_SCREEN_ROUTE)
