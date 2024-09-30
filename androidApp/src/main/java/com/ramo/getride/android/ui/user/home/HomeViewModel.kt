@@ -51,15 +51,15 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                                         _uiState.update { state ->
                                             state.mapData.copy(
                                                 routePoints = points,
-                                                duration = duration,
-                                                durationText = durationText,
-                                                distance = distance,
-                                                distanceText = distanceText,
                                                 durationDistance = durationDistance,
-                                                fare = calculateFare(duration = duration, distance = distance)
                                             ).also(invoke).let { newMapData ->
                                                 state.copy(
                                                     mapData = newMapData,
+                                                    duration = duration,
+                                                    durationText = durationText,
+                                                    distance = distance,
+                                                    distanceText = distanceText,
+                                                    fare = calculateFare(duration = duration, distance = distance),
                                                     isProcess = false
                                                 )
                                             }
@@ -101,7 +101,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun setMapMarks(startPoint: GoogleLatLng? = null, endPoint: GoogleLatLng? = null, currentLocation: GoogleLatLng? = null, invoke: (MapData) -> Unit) {
+    fun setMapMarks(startPoint: GoogleLatLng? = null, endPoint: GoogleLatLng? = null, invoke: (MapData) -> Unit) {
         checkForPlacesNames(startPoint = startPoint, endPoint = endPoint)
         checkForRoutes(startPoint = startPoint, endPoint = endPoint, invoke = invoke)
         _uiState.update { state ->
@@ -109,7 +109,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                 mapData = state.mapData.copy(
                     startPoint = startPoint ?: state.mapData.startPoint,
                     endPoint = endPoint ?: state.mapData.endPoint,
-                    currentLocation = currentLocation ?: state.mapData.currentLocation
                 )
             )
         }
@@ -185,14 +184,14 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                 mapData = state.mapData.copy(
                     startPoint = null,
                     fromText = "",
-                    duration = null,
-                    durationText = "",
-                    distance = null,
-                    distanceText = "",
                     durationDistance = "",
-                    fare = 0.0,
                     routePoints = emptyList()
                 ),
+                duration = null,
+                durationText = "",
+                distance = null,
+                distanceText = "",
+                fare = 0.0,
                 fromText = "",
             )
         }
@@ -234,28 +233,28 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                 mapData = state.mapData.copy(
                     endPoint = null,
                     toText = "",
-                    duration = null,
-                    durationText = "",
-                    distance = null,
-                    distanceText = "",
                     durationDistance = "",
-                    fare = 0.0,
                     routePoints = emptyList()
                 ),
+                duration = null,
+                durationText = "",
+                distance = null,
+                distanceText = "",
+                fare = 0.0,
                 toText = "",
             )
         }
     }
 
-    fun updateCurrentLocation(lastLocation: GoogleLatLng) {
+    fun updateCurrentLocation(currentLocation: GoogleLatLng) {
         _uiState.update { state ->
-            state.copy(mapData = state.mapData.copy(currentLocation = lastLocation))
+            state.copy(mapData = state.mapData.copy(currentLocation = currentLocation))
         }
         launchBack {
             project.pref.updatePref(
                 listOf(
-                    PreferenceData(PREF_LAST_LATITUDE, lastLocation.latitude.toString()),
-                    PreferenceData(PREF_LAST_LONGITUDE, lastLocation.longitude.toString()))
+                    PreferenceData(PREF_LAST_LATITUDE, currentLocation.latitude.toString()),
+                    PreferenceData(PREF_LAST_LONGITUDE, currentLocation.longitude.toString()))
             )
         }
     }
@@ -280,50 +279,29 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
 
     fun pushRideRequest(userId: Long) {
         setIsProcess(true)
-        uiState.value.mapData.also { mapData ->
-            launchBack {
-                mapData.startPoint?.also { from ->
-                    mapData.endPoint?.also { to ->
-                        RideRequest(
-                            0L,
-                            userId = userId,
-                            from = Location(from.latitude, from.longitude),
-                            to = Location(to.latitude, to.longitude),
-                            durationDistance = mapData.durationDistance,
-                            fare = mapData.fare,
-                        ).also {
-                            project.ride.addNewRideRequest(it)?.also { rideRequest ->
-                                fetchRequestLive(rideRequest.id)
-                            } ?: setIsProcess(false)
+        uiState.value.also { state ->
+            state.mapData.also { mapData ->
+                launchBack {
+                    mapData.startPoint?.also { from ->
+                        mapData.endPoint?.also { to ->
+                            RideRequest(
+                                0L,
+                                userId = userId,
+                                from = Location(from.latitude, from.longitude),
+                                to = Location(to.latitude, to.longitude),
+                                durationDistance = mapData.durationDistance,
+                                fare = state.fare,
+                            ).also {
+                                project.ride.addNewRideRequest(it)?.also { rideRequest ->
+                                    fetchRequestLive(rideRequest.id)
+                                } ?: setIsProcess(false)
+                            }
                         }
                     }
                 }
             }
         }
     }
-
-    /*private fun testDriver(rideId: Long, fare: Double,) {
-        launchBack {
-            kotlinx.coroutines.delay(2000L)
-            kotlinx.coroutines.coroutineScope {
-                loggerError(error = fare.toString())
-                project.ride.editAddDriverProposal(
-                    rideId, RideProposal(driverId = 1, driverName = "Test Driver Name", rate = 5.0F, fare = fare)
-                ).also {
-                    loggerError(error = it.toString())
-                }
-            }
-            kotlinx.coroutines.delay(4000L)
-            kotlinx.coroutines.coroutineScope {
-                loggerError(error = fare.toString())
-                project.ride.editAddDriverProposal(
-                    rideId, RideProposal(driverId = 1, driverName = "Driver Name", rate = 5.0F, fare = fare)
-                ).also {
-                    loggerError(error = it.toString())
-                }
-            }
-        }
-    }*/
 
     fun cancelRideRequest(rideRequest: RideRequest) {
         _uiState.update { state ->
@@ -346,9 +324,9 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     fare = proposal.fare,
                     status = 0,
                     date = dateNow,
+                    durationDistance = rideRequest.durationDistance,
                 )
             )?.also { ride ->
-                project.ride.deleteRideRequest(rideRequest.id)
                 fetchRide(rideId = ride.id)
             } ?: kotlin.run {
                 setIsProcess(false)
@@ -385,6 +363,11 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
 
     data class State(
         val mapData: MapData = MapData(),
+        val duration: Long? = null,
+        val durationText: String = "",
+        val distance: Long? = null,
+        val distanceText: String = "",
+        val fare: Double = 0.0,
         val fromText: String = "",
         val toText: String = "",
         val locationsFrom: List<Location> = emptyList(),

@@ -28,9 +28,11 @@ data class Ride(
     @SerialName("fare")
     val fare: Double = 0.0,
     @SerialName("status")
-    val status: Int = 0, // Driver on Way = 0, Driver Cancel = -1, User Cancel = -2, Driver Arrived = 1, Here We Go = 2
+    val status: Int = 0, // Driver Not Moved = 0, Driver on Way = 1, Driver Arrived = 2, Ride Done = 4, Here We Go = 3, Driver Cancel = -1, User Cancel = -2,
     @SerialName("date")
-    val date: String = ""
+    val date: String = "",
+    @SerialName("duration_distance")
+    val durationDistance: String = "",
 ): BaseObject() {
 
     val dat: Instant get() = Instant.parse(date)
@@ -121,6 +123,8 @@ data class RideProposal(
     val rate: Float = 5F,
     @SerialName("fare")
     val fare: Double = 0.9,
+    @SerialName("current_driver")
+    val currentDriver: Location = Location(),
 ): BaseObject() {
     override fun json(): JsonObject {
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject.toMutableMap().apply {
