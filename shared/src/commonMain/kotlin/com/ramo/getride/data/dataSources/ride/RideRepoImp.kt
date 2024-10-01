@@ -10,10 +10,8 @@ import com.ramo.getride.global.base.SUPA_RIDE
 import com.ramo.getride.global.base.SUPA_RIDE_REQUEST
 import com.ramo.getride.global.base.Supabase
 import com.ramo.getride.global.util.loggerError
-import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
-import io.github.jan.supabase.postgrest.rpc
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -21,9 +19,63 @@ import kotlinx.serialization.json.put
 
 class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
-    override suspend fun getRideById(rideId: Long, invoke: suspend (Ride) -> Unit) {
+    override suspend fun getRideById(rideId: Long, invoke: suspend (Ride?) -> Unit) {
         querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
             Ride::id eq rideId
+        }, invoke = invoke)
+    }
+
+    override suspend fun getAllRidesForUser(userId: Long): List<Ride> = query(SUPA_RIDE) {
+        and {
+            Ride::userId eq userId
+            Ride::status neq 0
+            Ride::status neq 1
+            Ride::status neq 2
+        }
+    }
+
+    override suspend fun getAllRidesForDriver(driverId: Long): List<Ride> = query(SUPA_RIDE) {
+        and {
+            Ride::driverId eq driverId
+            Ride::status neq 0
+            Ride::status neq 1
+            Ride::status neq 2
+        }
+    }
+
+    override suspend fun getActiveRidesForUser(userId: Long, invoke: suspend (Ride?) -> Unit) {
+        querySingle<Ride>(SUPA_RIDE) {
+            and {
+                Ride::userId eq userId
+                or {
+                    Ride::status eq 0
+                    Ride::status eq 1
+                    Ride::status eq 2
+                }
+            }
+        }
+        querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
+            and {
+                Ride::userId eq userId
+                or {
+                    Ride::status eq 0
+                    Ride::status eq 1
+                    Ride::status eq 2
+                }
+            }
+        }, invoke = invoke)
+    }
+
+    override suspend fun getActiveRidesForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) {
+        querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
+            and {
+                Ride::driverId eq driverId
+                or {
+                    Ride::status eq 0
+                    Ride::status eq 1
+                    Ride::status eq 2
+                }
+            }
         }, invoke = invoke)
     }
 

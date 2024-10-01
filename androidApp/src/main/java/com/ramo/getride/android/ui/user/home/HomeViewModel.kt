@@ -22,6 +22,7 @@ import com.ramo.getride.di.Project
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
 import com.ramo.getride.global.util.dateNow
+import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -33,6 +34,23 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     val uiState = _uiState.asStateFlow()
 
     private var jobRideRequest: kotlinx.coroutines.Job? = null
+
+    fun checkForActiveRide(userId: Long) {
+        launchBack {
+            project.ride.getActiveRidesForUser(userId = userId) { ride ->
+                _uiState.update { state ->
+                    state.copy(ride = ride, isProcess = false)
+                }
+            }
+        }
+    }
+
+
+    fun setLastLocation(lat: Double, lng: Double) {
+        _uiState.update { state ->
+            state.copy(mapData = state.mapData.copy(currentLocation = GoogleLatLng(lat, lng)))
+        }
+    }
 
     private fun fetchRoute(start: GoogleLatLng, end: GoogleLatLng, invoke: (MapData) -> Unit) {
         setIsProcess(true)
@@ -138,12 +156,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     _uiState.update { state -> state.copy(mapData = state.mapData.copy(toText = name), toText = name) }
                 }
             }
-        }
-    }
-
-    fun setLastLocation(lat: Double, lng: Double) {
-        _uiState.update { state ->
-            state.copy(mapData = state.mapData.copy(currentLocation = GoogleLatLng(lat, lng)))
         }
     }
 
@@ -374,6 +386,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         val locationsTo: List<Location> = emptyList(),
         val rideRequest: RideRequest? = null,
         val ride: Ride? = null,
-        val isProcess: Boolean = false,
+        val isProcess: Boolean = true,
     )
 }

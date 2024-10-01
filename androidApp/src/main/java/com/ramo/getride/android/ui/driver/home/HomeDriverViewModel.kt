@@ -1,6 +1,6 @@
 package com.ramo.getride.android.ui.driver.home
 
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLng as GoogleLatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.PolyUtil
 import com.ramo.getride.android.global.navigation.BaseViewModel
@@ -15,12 +15,10 @@ import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 import com.ramo.getride.data.supaBase.signOutAuth
 import com.ramo.getride.data.util.REALM_SUCCESS
-import com.ramo.getride.data.util.calculateFare
-import com.ramo.getride.data.util.convertMetersToKmAndMeters
-import com.ramo.getride.data.util.convertSecondsToHoursMinutes
 import com.ramo.getride.di.Project
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
+import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -32,12 +30,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
 
     private var jobRideRequest: kotlinx.coroutines.Job? = null
 
-    private fun setIsProcess(it: Boolean) {
-        _uiState.update { state ->
-            state.copy(isProcess = it)
-        }
-    }
-
     private fun loadRequests(currentLocation: Location) {
         jobRideRequest = launchBack {
             project.ride.getNearRideRequestsForDriver(currentLocation) { requests ->
@@ -48,7 +40,23 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun showOnMap(start: LatLng, end: LatLng, invoke: (MapData) -> Unit) {
+    fun checkForActiveRide(driverId: Long) {
+        launchBack {
+            project.ride.getActiveRidesForDriver(driverId = driverId) { ride ->
+                _uiState.update { state ->
+                    state.copy(ride = ride, isProcess = false)
+                }
+            }
+        }
+    }
+
+    fun setLastLocation(lat: Double, lng: Double) {
+        _uiState.update { state ->
+            state.copy(mapData = state.mapData.copy(currentLocation = GoogleLatLng(lat, lng)))
+        }
+    }
+
+    fun showOnMap(start: GoogleLatLng, end: GoogleLatLng, invoke: (MapData) -> Unit) {
         setIsProcess(true)
         launchBack {
             fetchAndDecodeRoute(
@@ -86,7 +94,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun updateCurrentLocation(currentLocation: LatLng) {
+    fun updateCurrentLocation(currentLocation: GoogleLatLng) {
         _uiState.update { state ->
             state.copy(mapData = state.mapData.copy(currentLocation = currentLocation))
         }
@@ -98,12 +106,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                     PreferenceData(PREF_LAST_LONGITUDE, currentLocation.longitude.toString())
                 )
             )
-        }
-    }
-
-    fun setLastLocation(lat: Double, lng: Double) {
-        _uiState.update { state ->
-            state.copy(mapData = state.mapData.copy(currentLocation = LatLng(lat, lng)))
         }
     }
 
@@ -139,10 +141,16 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
+    private fun setIsProcess(it: Boolean) {
+        _uiState.update { state ->
+            state.copy(isProcess = it)
+        }
+    }
+
     data class State(
         val requests: List<RideRequest> = emptyList(),
         val mapData: MapData = MapData(),
         val ride: Ride? = null,
-        val isProcess: Boolean = false,
+        val isProcess: Boolean = true,
     )
 }

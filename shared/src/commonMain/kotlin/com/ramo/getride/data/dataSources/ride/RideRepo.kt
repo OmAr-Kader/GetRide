@@ -7,7 +7,11 @@ import com.ramo.getride.data.model.RideRequest
 
 interface RideRepo {
 
-    suspend fun getRideById(rideId: Long, invoke: suspend (Ride) -> Unit) // From Both
+    suspend fun getRideById(rideId: Long, invoke: suspend (Ride?) -> Unit) // From Both
+    suspend fun getAllRidesForUser(userId: Long): List<Ride> // From User
+    suspend fun getAllRidesForDriver(driverId: Long): List<Ride> // From Driver
+    suspend fun getActiveRidesForUser(userId: Long, invoke: suspend (Ride?) -> Unit) // From User
+    suspend fun getActiveRidesForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) // From Driver
     suspend fun addNewRide(item: Ride): Ride? // From User
     suspend fun editRide(item: Ride): Ride? // From Driver
     suspend fun deleteRide(id: Long): Int

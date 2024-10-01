@@ -104,7 +104,10 @@ fun HomeDriverScreen(
             findPreference(PREF_LAST_LONGITUDE) { longitude ->
                 latitude?.toDoubleOrNull()?.also { lat ->
                     longitude?.toDoubleOrNull()?.also { lng ->
-                        viewModel.setLastLocation(lat = lat, lng = lng)
+                        scope.launch {
+                            kotlinx.coroutines.coroutineScope { viewModel.setLastLocation(lat = lat , lng = lng) }
+                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id) }
+                        }
                     }
                 }
             }

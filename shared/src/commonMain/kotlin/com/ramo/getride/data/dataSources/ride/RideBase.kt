@@ -9,7 +9,11 @@ class RideBase(
     private val repo: RideRepo
 ) {
 
-    suspend fun getRideById(rideId: Long, invoke: suspend (Ride) -> Unit) = repo.getRideById(rideId, invoke)
+    suspend fun getRideById(rideId: Long, invoke: suspend (Ride?) -> Unit) = repo.getRideById(rideId, invoke)
+    suspend fun getAllRidesForUser(userId: Long): List<Ride> = repo.getAllRidesForUser(userId = userId)
+    suspend fun getAllRidesForDriver(driverId: Long): List<Ride> = repo.getAllRidesForDriver(driverId = driverId)
+    suspend fun getActiveRidesForUser(userId: Long, invoke: suspend (Ride?) -> Unit) = repo.getActiveRidesForUser(userId = userId, invoke)
+    suspend fun getActiveRidesForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) = repo.getActiveRidesForDriver(driverId = driverId, invoke)
     suspend fun addNewRide(item: Ride): Ride? = repo.addNewRide(item)
     suspend fun editRide(item: Ride): Ride? = repo.editRide(item)
     suspend fun deleteRide(id: Long): Int = repo.deleteRide(id)

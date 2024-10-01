@@ -27,6 +27,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
     val uiState = _uiState.asStateFlow()
 
     private var prefsJob: kotlinx.coroutines.Job? = null
+    private var userJob: kotlinx.coroutines.Job? = null
 
     private fun inti(invoke: List<PreferenceData>.() -> Unit) {
         prefsJob?.cancel()
@@ -61,7 +62,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
     }
 
     fun findUserLive(invoke: (UserPref?) -> Unit) {
-        launchBack {
+        userJob = launchBack {
             fetchSupaBaseUser { userBase, status ->
                 if (userBase != null) {
                     findPrefString(PREF_ID) { id ->
@@ -72,6 +73,8 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
                                     _uiState.update { state ->
                                         state.copy(userPref = it, sessionStatus = status)
                                     }
+                                    userJob?.cancel()
+                                    userJob = null
                                     invoke(it)
                                 }
                             }
