@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.ramo.getride.data.model
 
 import com.ramo.getride.data.util.BaseObject
@@ -7,6 +9,7 @@ import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
@@ -28,13 +31,16 @@ data class Ride(
     @SerialName("fare")
     val fare: Double = 0.0,
     @SerialName("status")
-    val status: Int = 0, // Driver Not Moved = 0, Driver on Way = 1, Driver Arrived = 2, Ride Done = 4, Here We Go = 3, Driver Cancel = -1, User Cancel = -2,
+    val status: Int = 0, // Driver Not Moved = 0, Driver on Way = 1, Driver Arrived = 2, Here We Go = 3, Ride Done = 4, Driver Cancel = -1, User Cancel = -2,
     @SerialName("date")
     val date: String = "",
     @SerialName("duration_distance")
     val durationDistance: String = "",
+    @SerialName("driver_name")
+    val driverName: String = "",
 ): BaseObject() {
 
+    @Suppress("MemberVisibilityCanBePrivate")
     val dat: Instant get() = Instant.parse(date)
 
     val timestamp: String get() {
@@ -43,7 +49,7 @@ data class Ride(
         })
     }
 
-    constructor() : this(0L, 0L, 0L, Location(), Location(), Location(), 0.0, 0)
+    constructor() : this(0L, 0L, 0L, Location(), Location(), Location(), 0.0, 0, "")
 
     override fun json(): JsonObject {
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject.toMutableMap().apply {
@@ -89,11 +95,16 @@ data class RideRequest(
     @SerialName("chosen_one")
     val chosenDriver: Long = 0,
     @SerialName("chosen_ride")
-    val chosenDriverRide: Long = 0,
+    val chosenRide: Long = 0,
     @SerialName("date")
-    val date: String = ""
+    val date: String = "",
+    @Transient
+    val isDriverCanSubmit: Boolean = true, // For Driver,
+    @Transient
+    val requestHadSubmit: Boolean = false, // For Driver
 ): BaseObject() {
 
+    @Suppress("MemberVisibilityCanBePrivate")
     val dat: Instant get() = Instant.parse(date)
 
     val timestamp: String get() {

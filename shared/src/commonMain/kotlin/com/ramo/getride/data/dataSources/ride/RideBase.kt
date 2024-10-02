@@ -5,6 +5,7 @@ import com.ramo.getride.data.model.Ride
 import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 
+@Suppress("unused")
 class RideBase(
     private val repo: RideRepo
 ) {
@@ -12,8 +13,8 @@ class RideBase(
     suspend fun getRideById(rideId: Long, invoke: suspend (Ride?) -> Unit) = repo.getRideById(rideId, invoke)
     suspend fun getAllRidesForUser(userId: Long): List<Ride> = repo.getAllRidesForUser(userId = userId)
     suspend fun getAllRidesForDriver(driverId: Long): List<Ride> = repo.getAllRidesForDriver(driverId = driverId)
-    suspend fun getActiveRidesForUser(userId: Long, invoke: suspend (Ride?) -> Unit) = repo.getActiveRidesForUser(userId = userId, invoke)
-    suspend fun getActiveRidesForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) = repo.getActiveRidesForDriver(driverId = driverId, invoke)
+    suspend fun getActiveRideForUser(userId: Long, invoke: suspend (Ride?) -> Unit) = repo.getActiveRideForUser(userId = userId, invoke)
+    suspend fun getActiveRideForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) = repo.getActiveRideForDriver(driverId = driverId, invoke)
     suspend fun addNewRide(item: Ride): Ride? = repo.addNewRide(item)
     suspend fun editRide(item: Ride): Ride? = repo.editRide(item)
     suspend fun deleteRide(id: Long): Int = repo.deleteRide(id)
@@ -25,6 +26,7 @@ class RideBase(
     suspend fun getRideRequestById(rideRequestId: Long, invoke: suspend (RideRequest?) -> Unit) = repo.getRideRequestById(rideRequestId, invoke)
     suspend fun addNewRideRequest(item: RideRequest): RideRequest? = repo.addNewRideRequest(item)
     suspend fun editRideRequest(item: RideRequest): RideRequest? = repo.editRideRequest(item)
-    suspend fun editAddDriverProposal(rideId: Long, rideProposal: RideProposal): Int = repo.editAddDriverProposal(rideId, rideProposal)
+    suspend fun editAddDriverProposal(rideRequestId: Long, rideProposal: RideProposal): Int = repo.editAddDriverProposal(rideRequestId, rideProposal)
+    suspend fun editRemoveDriverProposal(rideRequestId: Long, driverId: Long): Int = repo.editRemoveDriverProposal(rideRequestId, driverId)
     suspend fun deleteRideRequest(id: Long): Int = repo.deleteRideRequest(id)
 }

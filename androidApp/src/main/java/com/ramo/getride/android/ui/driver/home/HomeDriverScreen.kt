@@ -106,7 +106,7 @@ fun HomeDriverScreen(
                     longitude?.toDoubleOrNull()?.also { lng ->
                         scope.launch {
                             kotlinx.coroutines.coroutineScope { viewModel.setLastLocation(lat = lat , lng = lng) }
-                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id) }
+                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
                         }
                     }
                 }
@@ -154,9 +154,14 @@ fun HomeDriverScreen(
                     theme,
                     showOnMap = { from, to ->
                         viewModel.showOnMap(start = from.toGoogleLatLng(), end = to.toGoogleLatLng(), invoke = refreshScope)
+                    },
+                    submitProposal = { request ->
+                        state.mapData.currentLocation?.toLocation()?.let {
+                            viewModel.submitProposal(rideRequestId = request.id, driverId = userPref.id, fare = request.fare, location = it)
+                        }
                     }
                 ) { request ->
-                    state.mapData.currentLocation?.toLocation()?.let { viewModel.submitProposal(userPref.id, fare = request.fare, location = it) }
+                    state.mapData.currentLocation?.toLocation()?.let { viewModel.cancelProposal(rideRequestId = request.id, driverId = userPref.id) }
                 }
             }
         ) { padding ->
@@ -171,7 +176,10 @@ fun HomeDriverScreen(
                 MapScreen(
                     mapData = state.mapData,
                     cameraPositionState = cameraPositionState,
-                    updateCurrentLocation = viewModel::updateCurrentLocation,
+                    updateCurrentLocation = { currentLocation ->
+                        viewModel.updateCurrentLocation(currentLocation)
+                        viewModel.loadRequests(userPref.id, currentLocation.toLocation(), popUpSheet)
+                    },
                     theme = theme
                 ) { _, _ ->
 
@@ -279,7 +287,8 @@ fun RideRequestsDriverSheet(
     requests: List<RideRequest>,
     theme: Theme,
     showOnMap: (from: Location, to: Location) -> Unit,
-    submitProposal: (RideRequest) -> Unit
+    submitProposal: (RideRequest) -> Unit,
+    cancelSubmitProposal: (RideRequest) -> Unit
 ) {
     LazyColumn(
         Modifier
@@ -325,17 +334,32 @@ fun RideRequestsDriverSheet(
                             color = Color.Black
                         )
                     }
-                    Button(
-                        onClick = {
-                            submitProposal(request)
-                        },
-                        colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Green, contentColor = Color.Black),
-                        contentPadding = PaddingValues(start = 30.dp, top = 7.dp, end = 30.dp, bottom = 7.dp)
-                    ) {
-                        Text(
-                            text = "Submit Proposal",
-                            color = Color.Black
-                        )
+                    if (request.isDriverCanSubmit) {
+                        Button(
+                            onClick = {
+                                submitProposal(request)
+                            },
+                            colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Green, contentColor = Color.Black),
+                            contentPadding = PaddingValues(start = 30.dp, top = 7.dp, end = 30.dp, bottom = 7.dp)
+                        ) {
+                            Text(
+                                text = "Submit Proposal",
+                                color = Color.Black
+                            )
+                        }
+                    } else if (request.requestHadSubmit) {
+                        Button(
+                            onClick = {
+                                cancelSubmitProposal(request)
+                            },
+                            colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Green, contentColor = Color.Black),
+                            contentPadding = PaddingValues(start = 30.dp, top = 7.dp, end = 30.dp, bottom = 7.dp)
+                        ) {
+                            Text(
+                                text = "Cancel Proposal",
+                                color = Color.Black
+                            )
+                        }
                     }
                 }
             }
@@ -369,7 +393,7 @@ fun DriverDragHandler(isDriverHaveRide: Boolean, theme: Theme) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(7.dp), text = if (isDriverHaveRide) "Update Status Of Your Ride" else "Searching for Ride Requests", color = theme.textColor,
+                .padding(7.dp), text = if (isDriverHaveRide) "Ride Status" else "Searching for Ride Requests", color = theme.textColor,
             fontSize = 16.sp
         )
         Column(

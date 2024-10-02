@@ -34,17 +34,27 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     val uiState = _uiState.asStateFlow()
 
     private var jobRideRequest: kotlinx.coroutines.Job? = null
+    private var jobRideInitial: kotlinx.coroutines.Job? = null
+    private var jobRide: kotlinx.coroutines.Job? = null
 
-    fun checkForActiveRide(userId: Long) {
-        launchBack {
-            project.ride.getActiveRidesForUser(userId = userId) { ride ->
+    fun checkForActiveRide(userId: Long, invoke: () -> Unit) {
+        jobRideInitial = launchBack {
+            project.ride.getActiveRideForUser(userId = userId) { ride ->
                 _uiState.update { state ->
+                    if (state.ride == null) {
+                        invoke()
+                    }
                     state.copy(ride = ride, isProcess = false)
                 }
             }
         }
     }
 
+    fun cancelRideFromUser(ride: Ride) {
+        launchBack {
+            project.ride.editRide(ride.copy(status = -2))
+        }
+    }
 
     fun setLastLocation(lat: Double, lng: Double) {
         _uiState.update { state ->
@@ -324,7 +334,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun acceptProposal(userId: Long, rideRequest: RideRequest, proposal: RideProposal, failed: () -> Unit) {
+    fun acceptProposal(userId: Long, rideRequest: RideRequest, proposal: RideProposal, invoke: () -> Unit, failed: () -> Unit) {
         setIsProcess(true)
         launchBack {
             project.ride.addNewRide(
@@ -339,7 +349,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     durationDistance = rideRequest.durationDistance,
                 )
             )?.also { ride ->
-                fetchRide(rideId = ride.id)
+                fetchRide(rideId = ride.id, invoke)
             } ?: kotlin.run {
                 setIsProcess(false)
                 failed()
@@ -350,6 +360,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     private fun fetchRequestLive(rideRequestId: Long) {
         jobRideRequest = launchBack {
             project.ride.getRideRequestById(rideRequestId) { rideRequest ->
+                loggerError("getRideRequestById", rideRequest.toString())
                 _uiState.update { state ->
                     state.copy(rideRequest = rideRequest, isProcess = false)
                 }
@@ -357,10 +368,13 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    private fun fetchRide(rideId: Long) {
-        jobRideRequest = launchBack {
+    private fun fetchRide(rideId: Long, invoke: () -> Unit) {
+        jobRide = launchBack {
             project.ride.getRideById(rideId) { ride ->
                 _uiState.update { state ->
+                    if (state.ride == null) {
+                        invoke()
+                    }
                     state.copy(ride = ride, isProcess = false)
                 }
             }
@@ -371,6 +385,16 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         _uiState.update { state ->
             state.copy(isProcess = it)
         }
+    }
+
+    override fun onCleared() {
+        jobRideRequest?.cancel()
+        jobRideInitial?.cancel()
+        jobRide?.cancel()
+        jobRideRequest = null
+        jobRideInitial = null
+        jobRide =null
+        super.onCleared()
     }
 
     data class State(

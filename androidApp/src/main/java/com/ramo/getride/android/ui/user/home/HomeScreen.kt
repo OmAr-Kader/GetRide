@@ -59,6 +59,7 @@ import com.ramo.getride.android.ui.common.MapData
 import com.ramo.getride.android.ui.common.MapScreen
 import com.ramo.getride.android.ui.common.MapSheetUser
 import com.ramo.getride.android.ui.common.defaultLocation
+import com.ramo.getride.data.model.Ride
 import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 import com.ramo.getride.data.model.UserPref
@@ -88,6 +89,10 @@ fun HomeScreen(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(state.mapData.currentLocation ?: defaultLocation, 15F) // Default position
     }
+
+    val popUpSheet: () -> Unit = {
+        scope.launch { sheetState.bottomSheetState.show() }
+    }
     val refreshScope: (MapData) -> Unit = remember {
         { mapData ->
             scope.launch {
@@ -107,7 +112,7 @@ fun HomeScreen(
                     longitude?.toDoubleOrNull()?.also { lng ->
                         scope.launch {
                             kotlinx.coroutines.coroutineScope { viewModel.setLastLocation(lat = lat , lng = lng) }
-                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id) }
+                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
                         }
                     }
                 }
@@ -140,10 +145,14 @@ fun HomeScreen(
             containerColor = theme.backDark,
             contentColor = theme.textColor,
             sheetDragHandle = {
-                RideSheetDragHandler(theme)
+                RideSheetDragHandler(state.ride != null, theme)
             },
             sheetContent = {
-                MapSheetUser( userId = userPref.id,viewModel = viewModel, state = state, refreshScope = refreshScope, theme = theme) { txt ->
+                state.ride?.also { ride ->
+                    RideSheet(ride = ride, theme = theme) {
+                        viewModel.cancelRideFromUser(ride = ride)
+                    }
+                } ?: MapSheetUser(userId = userPref.id, viewModel = viewModel, state = state, refreshScope = refreshScope, theme = theme) { txt ->
                     scope.launch {
                         sheetState.snackbarHostState.showSnackbar(txt)
                     }
@@ -178,7 +187,7 @@ fun HomeScreen(
                         state.rideRequest?.let { viewModel.cancelRideRequest(it) }
                     }
                 ) { proposal ->
-                    viewModel.acceptProposal(userId = userPref.id, rideRequest = rideRequest, proposal = proposal) {
+                    viewModel.acceptProposal(userId = userPref.id, rideRequest = rideRequest, proposal = proposal, invoke = popUpSheet) {
                         scope.launch {
                             sheetState.snackbarHostState.showSnackbar("Failed")
                         }
@@ -186,6 +195,82 @@ fun HomeScreen(
                 }
             }
             LoadingScreen(isLoading = state.isProcess, theme = theme)
+        }
+    }
+}
+
+
+@Composable
+fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
+    val statusTitle: String = when (ride.status) {
+        0 -> { // To Update Status To 1
+            "${ride.driverName} is getting ready to go."
+        }
+        1 -> { // To Update Status To 2
+            "${ride.driverName} on way"
+        }
+        2 -> { // To Update Status To 3
+            "${ride.driverName} waiting for you"
+        }
+        3 -> { // To Update Status To 4
+            "Ride Started"
+        }
+        4 -> { // To Update Status To 4
+            "Give ${ride.driverName} feedback, Please"
+        }
+        else -> "Canceled"
+    }
+    Column(
+        Modifier
+            .padding(start = 20.dp, end = 20.dp)
+            .fillMaxWidth()
+            .height(100.dp)
+    ) {
+        Spacer(Modifier.height(5.dp))
+        Text(
+            text = statusTitle,
+            color = theme.textColor, modifier = Modifier.padding(),
+            fontSize = 18.sp
+        )
+        Spacer(Modifier.height(10.dp))
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding()
+        ) {
+            Text(
+                text = ride.durationDistance,
+                color = theme.textColor, modifier = Modifier.padding(),
+                fontSize = 16.sp
+            )
+            Spacer(Modifier)
+            Text(
+                text = "Fare: $${ride.fare}",
+                color = theme.textColor, modifier = Modifier.padding(),
+                fontSize = 16.sp
+            )
+            Spacer(Modifier)
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            if (ride.status != -2 && ride.status != -1) {
+                Button(
+                    onClick = {
+                        cancelRide()
+                    },
+                    colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Red, contentColor = Color.Black)
+                ) {
+                    Text(
+                        text = "Cancel Ride",
+                        color = Color.Black
+                    )
+                }
+            }
         }
     }
 }
@@ -338,7 +423,7 @@ fun RideRequestSheet(
 }
 
 @Composable
-fun RideSheetDragHandler(theme: Theme) {
+fun RideSheetDragHandler(isUserHaveRide: Boolean, theme: Theme) {
     Surface(
         modifier = Modifier
             .padding(top = 17.dp),
@@ -351,6 +436,14 @@ fun RideSheetDragHandler(theme: Theme) {
                     width = 32.dp,
                     height = 4.0.dp
                 )
+        )
+    }
+    if (isUserHaveRide) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(7.dp), text = "Ride Status", color = theme.textColor,
+            fontSize = 16.sp
         )
     }
     Spacer(Modifier.height(5.dp))

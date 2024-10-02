@@ -43,21 +43,12 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }
     }
 
-    override suspend fun getActiveRidesForUser(userId: Long, invoke: suspend (Ride?) -> Unit) {
-        querySingle<Ride>(SUPA_RIDE) {
-            and {
-                Ride::userId eq userId
-                or {
-                    Ride::status eq 0
-                    Ride::status eq 1
-                    Ride::status eq 2
-                }
-            }
-        }
+    override suspend fun getActiveRideForUser(userId: Long, invoke: suspend (Ride?) -> Unit) {
         querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
             and {
                 Ride::userId eq userId
                 or {
+                    Ride::status eq -1
                     Ride::status eq 0
                     Ride::status eq 1
                     Ride::status eq 2
@@ -66,7 +57,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }, invoke = invoke)
     }
 
-    override suspend fun getActiveRidesForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) {
+    override suspend fun getActiveRideForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) {
         querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
             and {
                 Ride::driverId eq driverId
@@ -74,6 +65,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
                     Ride::status eq 0
                     Ride::status eq 1
                     Ride::status eq 2
+                    Ride::status eq 3
                 }
             }
         }, invoke = invoke)
@@ -127,12 +119,24 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun editRideRequest(item: RideRequest): RideRequest? = edit(SUPA_RIDE_REQUEST, item.id, item)
 
-    override suspend fun editAddDriverProposal(rideId: Long, rideProposal: RideProposal): Int = try {
+    override suspend fun editAddDriverProposal(rideRequestId: Long, rideProposal: RideProposal): Int = try {
         buildJsonObject {
-            put("item_id", rideId) // First parameter (TEXT)
+            put("item_id", rideRequestId) // First parameter (TEXT)
             put("new_proposal", Json.encodeToJsonElement(rideProposal)) // Second parameter (Object as JSON)
         }.let {
             rpc("append_to_requests", it)
+        }
+    } catch (e: Exception) {
+        loggerError(error = e.stackTraceToString())
+        -2
+    }
+
+    override suspend fun editRemoveDriverProposal(rideRequestId: Long, driverId: Long): Int = try {
+        buildJsonObject {
+            put("item_id", rideRequestId) // First parameter
+            put("driver_id", driverId) // Second parameter
+        }.let {
+            rpc("remove_from_requests", it)
         }
     } catch (e: Exception) {
         loggerError(error = e.stackTraceToString())

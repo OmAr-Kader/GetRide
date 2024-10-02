@@ -10,8 +10,8 @@ interface RideRepo {
     suspend fun getRideById(rideId: Long, invoke: suspend (Ride?) -> Unit) // From Both
     suspend fun getAllRidesForUser(userId: Long): List<Ride> // From User
     suspend fun getAllRidesForDriver(driverId: Long): List<Ride> // From Driver
-    suspend fun getActiveRidesForUser(userId: Long, invoke: suspend (Ride?) -> Unit) // From User
-    suspend fun getActiveRidesForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) // From Driver
+    suspend fun getActiveRideForUser(userId: Long, invoke: suspend (Ride?) -> Unit) // From User
+    suspend fun getActiveRideForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) // From Driver
     suspend fun addNewRide(item: Ride): Ride? // From User
     suspend fun editRide(item: Ride): Ride? // From Driver
     suspend fun deleteRide(id: Long): Int
@@ -20,7 +20,8 @@ interface RideRepo {
     suspend fun getRideRequestById(rideRequestId: Long, invoke: suspend (RideRequest?) -> Unit) // // From User
     suspend fun addNewRideRequest(item: RideRequest): RideRequest? // From User
     suspend fun editRideRequest(item: RideRequest): RideRequest? // From User
-    suspend fun editAddDriverProposal(rideId: Long, rideProposal: RideProposal): Int // From Driver
+    suspend fun editAddDriverProposal(rideRequestId: Long, rideProposal: RideProposal): Int // From Driver
+    suspend fun editRemoveDriverProposal(rideRequestId: Long, driverId: Long): Int // From Driver
     suspend fun deleteRideRequest(id: Long): Int // From Driver
 
 }

@@ -5,7 +5,6 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.PolyUtil
 import com.ramo.getride.android.global.navigation.BaseViewModel
 import com.ramo.getride.android.ui.common.MapData
-import com.ramo.getride.android.ui.common.toLocation
 import com.ramo.getride.data.map.GoogleLocation
 import com.ramo.getride.data.map.fetchAndDecodeRoute
 import com.ramo.getride.data.model.Location
@@ -15,10 +14,10 @@ import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 import com.ramo.getride.data.supaBase.signOutAuth
 import com.ramo.getride.data.util.REALM_SUCCESS
+import com.ramo.getride.data.util.toDriverCannotSubmit
 import com.ramo.getride.di.Project
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
-import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -28,22 +27,57 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private val _uiState = MutableStateFlow(State())
     val uiState = _uiState.asStateFlow()
 
-    private var jobRideRequest: kotlinx.coroutines.Job? = null
+    private var jobDriverRideRequests: kotlinx.coroutines.Job? = null
 
-    private fun loadRequests(currentLocation: Location) {
-        jobRideRequest = launchBack {
+    private var jobRideRequest: kotlinx.coroutines.Job? = null
+    private var jobRideInitial: kotlinx.coroutines.Job? = null
+    private var jobRide: kotlinx.coroutines.Job? = null
+
+    fun loadRequests(driverId: Long, currentLocation: Location, invoke: () -> Unit) {
+        jobDriverRideRequests = launchBack {
             project.ride.getNearRideRequestsForDriver(currentLocation) { requests ->
-                _uiState.update { state ->
-                    state.copy(requests = requests)
+                requests.find {
+                    it.isDriverChosen(driverId) && it.chosenRide != 0L
+                }?.also {
+                    fetchRide(it.chosenRide, invoke)
+                }
+                requests.find { request ->
+                    request.driverProposals.any { it.driverId == driverId }
+                }.let { proposalHadSubmit ->
+                    if (proposalHadSubmit != null) {
+                        requests.toDriverCannotSubmit(proposalHadSubmit.id)
+                    } else {
+                        requests
+                    }
+                }.also { requestsForDriver ->
+                    _uiState.update { state ->
+                        state.copy(requests = requestsForDriver)
+                    }
                 }
             }
         }
     }
 
-    fun checkForActiveRide(driverId: Long) {
-        launchBack {
-            project.ride.getActiveRidesForDriver(driverId = driverId) { ride ->
+    private fun fetchRide(rideId: Long, invoke: () -> Unit) {
+        jobRide = launchBack {
+            project.ride.getRideById(rideId) { ride ->
                 _uiState.update { state ->
+                    if (state.ride == null) {
+                        invoke()
+                    }
+                    state.copy(ride = ride, isProcess = false)
+                }
+            }
+        }
+    }
+
+    fun checkForActiveRide(driverId: Long, invoke: () -> Unit) {
+        jobRideInitial = launchBack {
+            project.ride.getActiveRideForDriver(driverId = driverId) { ride ->
+                _uiState.update { state ->
+                    if (state.ride == null) {
+                        invoke()
+                    }
                     state.copy(ride = ride, isProcess = false)
                 }
             }
@@ -85,12 +119,23 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun submitProposal(rideId: Long, fare: Double, location: Location) {
+    fun submitProposal(rideRequestId: Long, driverId: Long, fare: Double, location: Location) {
         setIsProcess(true)
         launchBack {
             project.ride.editAddDriverProposal(
-                rideId, RideProposal(driverId = 1, driverName = "Driver Name", rate = 5.0F, fare = fare, currentDriver = location)
-            )
+                rideRequestId = rideRequestId, RideProposal(driverId = driverId, driverName = "Driver Name", rate = 5.0F, fare = fare, currentDriver = location)
+            ).also {
+                setIsProcess(false)
+            }
+        }
+    }
+
+    fun cancelProposal(rideRequestId: Long, driverId: Long,) {
+        setIsProcess(true)
+        launchBack {
+            project.ride.editRemoveDriverProposal(rideRequestId = rideRequestId, driverId = driverId).also {
+                setIsProcess(false)
+            }
         }
     }
 
@@ -98,7 +143,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         _uiState.update { state ->
             state.copy(mapData = state.mapData.copy(currentLocation = currentLocation))
         }
-        loadRequests(currentLocation.toLocation())
         launchBack {
             project.pref.updatePref(
                 listOf(
@@ -145,6 +189,18 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         _uiState.update { state ->
             state.copy(isProcess = it)
         }
+    }
+
+    override fun onCleared() {
+        jobDriverRideRequests?.cancel()
+        jobRideRequest?.cancel()
+        jobRideInitial?.cancel()
+        jobRide?.cancel()
+        jobDriverRideRequests = null
+        jobRideRequest = null
+        jobRideInitial = null
+        jobRide =null
+        super.onCleared()
     }
 
     data class State(
