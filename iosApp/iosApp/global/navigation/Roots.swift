@@ -11,22 +11,24 @@ extension View {
         navigateHome: @MainActor @escaping (Screen) -> Unit,
         backPress: @MainActor @escaping () -> Unit,
         screenConfig: @MainActor @escaping (Screen) -> (any ScreenConfig)?,
-        findPreferenceMainBack: @MainActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit,
-        findPreferenceMainMain: @MainActor (String, @MainActor @escaping (String?) -> Unit) -> Unit,
-        findPreference: @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) async -> Unit
+        findPreferenceMainBack: @escaping @MainActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit,
+        findPreferenceMainMain: @escaping @MainActor (String, @MainActor @escaping (String?) -> Unit) -> Unit,
+        findPreference: @escaping @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) async -> Unit
     ) -> some View {
         switch target {
         case .AUTH_SCREEN_ROUTE:
-            SplashScreen()
+            AuthScreen(app: app)
         case .HOME_SCREEN_ROUTE:
-            SplashScreen()
+            HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreferenceMainBack: findPreferenceMainBack, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
         case .AUTH_SCREEN_DRIVER_ROUTE:
-            SplashScreen()
+            AuthDriverScreen(app: app)
         case .HOME_SCREEN_DRIVER_ROUTE:
-            SplashScreen()
+            HomeDriverScreen(userPref: app.state.userPref ?? UserPref(), findPreferenceMainBack: findPreferenceMainBack, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
         }
     }
 }
+
+let TEMP_IS_DRIVER = false
 
 enum Screen : Hashable {
     case AUTH_SCREEN_ROUTE

@@ -19,7 +19,9 @@ struct iOSApp: App {
                                 logger(String(isInjected))
                                 if !isInjected {
                                     withAnimation {
-                                        delegate.app.navigateHomeNoAnimation(it != nil ? .HOME_SCREEN_ROUTE : .AUTH_SCREEN_ROUTE)
+                                        delegate.app.navigateHomeNoAnimation(
+                                            it == nil ? (TEMP_IS_DRIVER ? .AUTH_SCREEN_DRIVER_ROUTE : .AUTH_SCREEN_ROUTE) : (TEMP_IS_DRIVER ? .HOME_SCREEN_DRIVER_ROUTE : .HOME_SCREEN_ROUTE)
+                                        )
                                         isInjected.toggle()
                                     }
                                 }
