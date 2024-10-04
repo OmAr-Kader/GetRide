@@ -41,7 +41,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         jobRideInitial = launchBack {
             project.ride.getActiveRideForUser(userId = userId) { ride ->
                 _uiState.update { state ->
-                    if (state.ride == null) {
+                    if (state.ride == null && ride != null) {
                         invoke()
                     }
                     state.copy(ride = ride, isProcess = false)
@@ -343,13 +343,17 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     driverId = proposal.driverId,
                     from = rideRequest.from,
                     to = rideRequest.to,
+                    currentDriver = proposal.currentDriver,
                     fare = proposal.fare,
                     status = 0,
                     date = dateNow,
                     durationDistance = rideRequest.durationDistance,
+                    driverName = proposal.driverName,
                 )
-            )?.also { ride ->
-                fetchRide(rideId = ride.id, invoke)
+            )?.let { ride ->
+                project.ride.editRideRequest(rideRequest.copy(chosenRide = ride.id, chosenDriver = proposal.driverId))?.also {
+                    fetchRide(rideId = ride.id, invoke)
+                }
             } ?: kotlin.run {
                 setIsProcess(false)
                 failed()
@@ -375,7 +379,9 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     if (state.ride == null) {
                         invoke()
                     }
-                    state.copy(ride = ride, isProcess = false)
+                    jobRideRequest?.cancel()
+                    jobRideRequest = null
+                    state.copy(ride = ride, rideRequest = null, isProcess = false)
                 }
             }
         }

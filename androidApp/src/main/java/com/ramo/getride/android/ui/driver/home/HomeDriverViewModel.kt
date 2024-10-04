@@ -18,6 +18,7 @@ import com.ramo.getride.data.util.toDriverCannotSubmit
 import com.ramo.getride.di.Project
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
+import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -34,6 +35,10 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private var jobRide: kotlinx.coroutines.Job? = null
 
     fun loadRequests(driverId: Long, currentLocation: Location, invoke: () -> Unit) {
+        // @OmAr-Kader => Live Not Work
+
+        // @OmAr-Kader => Replace Maps.kt, BaseRepoImp.kt, AndroidManifest.xml
+        // @OmAr-Kader => Edit Sign In both Screens in SwiftUI
         jobDriverRideRequests = launchBack {
             project.ride.getNearRideRequestsForDriver(currentLocation) { requests ->
                 requests.find {
@@ -41,7 +46,9 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                 }?.also {
                     fetchRide(it.chosenRide, invoke)
                 }
+                loggerError("request ==", driverId.toString())
                 requests.find { request ->
+                    loggerError("request", request.toString())
                     request.driverProposals.any { it.driverId == driverId }
                 }.let { proposalHadSubmit ->
                     if (proposalHadSubmit != null) {
@@ -73,11 +80,14 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
 
     fun checkForActiveRide(driverId: Long, invoke: () -> Unit) {
         jobRideInitial = launchBack {
+            loggerError("checkForActiveRide", "1")
             project.ride.getActiveRideForDriver(driverId = driverId) { ride ->
+                loggerError("checkForActiveRide", ride.toString())
                 _uiState.update { state ->
-                    if (state.ride == null) {
+                    if (state.ride == null && ride != null) {
                         invoke()
                     }
+                    loggerError("checkForActiveRide", "3")
                     state.copy(ride = ride, isProcess = false)
                 }
             }

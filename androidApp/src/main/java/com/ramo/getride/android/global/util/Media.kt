@@ -12,6 +12,12 @@ internal val android.content.Context.isDarkMode: Boolean
         }
     }
 
+internal val android.content.Context.isTablet: Boolean
+    get() {
+        return resources.configuration.screenLayout and android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK >=
+                android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
+    }
+
 fun android.content.Context.bitmapDescriptorFromVector(id: Int): com.google.android.gms.maps.model.BitmapDescriptor {
     val vectorDrawable = androidx.core.content.ContextCompat.getDrawable(this, id)!!
     val h = (50 * resources.displayMetrics.density).toInt()

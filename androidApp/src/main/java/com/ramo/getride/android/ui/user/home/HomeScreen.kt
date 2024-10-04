@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -66,11 +68,11 @@ import com.ramo.getride.data.model.UserPref
 import com.ramo.getride.global.base.AUTH_SCREEN_ROUTE
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
+import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-// @OmAr-Kader => Test acceptProposal + Add Ride Sheet
 @Composable
 fun HomeScreen(
     userPref: UserPref,
@@ -108,13 +110,15 @@ fun HomeScreen(
     OnLaunchScreen {
         findPreference(PREF_LAST_LATITUDE) { latitude ->
             findPreference(PREF_LAST_LONGITUDE) { longitude ->
-                latitude?.toDoubleOrNull()?.also { lat ->
+                latitude?.toDoubleOrNull()?.let { lat ->
                     longitude?.toDoubleOrNull()?.also { lng ->
                         scope.launch {
                             kotlinx.coroutines.coroutineScope { viewModel.setLastLocation(lat = lat , lng = lng) }
                             kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
                         }
                     }
+                } ?: scope.launch {
+                    kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
                 }
             }
         }
@@ -224,7 +228,7 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
         Modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxWidth()
-            .height(100.dp)
+            .defaultMinSize(minHeight = 100.dp)
     ) {
         Spacer(Modifier.height(5.dp))
         Text(
@@ -251,6 +255,10 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
             )
             Spacer(Modifier)
         }
+        if (ride.status == 4) {
+            Spacer(Modifier.height(10.dp))
+            // Feedback
+        }
         Spacer(Modifier.height(10.dp))
         Row(
             modifier = Modifier
@@ -258,7 +266,7 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
                 .padding(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (ride.status != -2 && ride.status != -1) {
+            if (ride.status != -2 && ride.status != -1 && ride.status != 3 && ride.status != 4) {
                 Button(
                     onClick = {
                         cancelRide()
@@ -270,8 +278,25 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
                         color = Color.Black
                     )
                 }
+                Spacer(Modifier.width(5.dp))
+            }
+            if (ride.status == 4) {
+                Spacer(Modifier)
+                Button(
+                    onClick = {
+                        // @OmAr-Kader => When Review is submitted, clear Ride
+                    },
+                    colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Green, contentColor = Color.Black),
+                    contentPadding = PaddingValues(start = 30.dp, top = 7.dp, end = 30.dp, bottom = 7.dp)
+                ) {
+                    Text(
+                        text = "Submit client feedback",
+                        color = Color.Black
+                    )
+                }
             }
         }
+        Spacer(Modifier.height(5.dp))
     }
 }
 
@@ -351,8 +376,10 @@ fun RideRequestSheet(
                         )
                     }
                 }
+                Spacer(Modifier.height(10.dp))
             }
             items(rideRequest.driverProposals) { proposal ->
+                loggerError("proposal", proposal.toString())
                 Column(Modifier.padding()) {
                     Row(Modifier.fillMaxWidth().padding()) {
                         Text(
@@ -424,27 +451,33 @@ fun RideRequestSheet(
 
 @Composable
 fun RideSheetDragHandler(isUserHaveRide: Boolean, theme: Theme) {
-    Surface(
-        modifier = Modifier
-            .padding(top = 17.dp),
-        color = theme.textGrayColor,
-        shape = MaterialTheme.shapes.extraLarge
+    Column(
+        Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            Modifier
-                .size(
-                    width = 32.dp,
-                    height = 4.0.dp
-                )
-        )
-    }
-    if (isUserHaveRide) {
-        Text(
+        Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(7.dp), text = "Ride Status", color = theme.textColor,
-            fontSize = 16.sp
-        )
+                .padding(top = 22.dp),
+            color = theme.textGrayColor,
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Box(
+                Modifier
+                    .size(
+                        width = 32.dp,
+                        height = 4.0.dp
+                    )
+            )
+        }
+        if (isUserHaveRide) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(7.dp), text = "Ride Status", color = theme.textColor,
+                fontSize = 16.sp
+            )
+        }
+        Spacer(Modifier.height(10.dp))
     }
-    Spacer(Modifier.height(5.dp))
 }

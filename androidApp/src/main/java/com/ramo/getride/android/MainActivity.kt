@@ -27,6 +27,7 @@ import com.ramo.getride.android.global.base.MyApplicationTheme
 import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.navigation.Screen
 import com.ramo.getride.android.global.ui.OnLaunchScreen
+import com.ramo.getride.android.global.util.isTablet
 import com.ramo.getride.android.ui.driver.home.HomeDriverScreen
 import com.ramo.getride.android.ui.driver.sign.AuthDriverScreen
 import com.ramo.getride.android.ui.user.home.HomeScreen
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestLocationPermission()
         setContent {
-            Main()
+            Main(isTablet) // TEMP_IS_DRIVER
         }
     }
 
@@ -73,7 +74,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Main() {
+fun Main(isDriverMode: Boolean) {
     val theme: Theme = koinInject()
     val appViewModel: AppViewModel = koinViewModel()
     val stateApp by appViewModel.uiState.collectAsState()
@@ -112,7 +113,7 @@ fun Main() {
                     startDestination = SPLASH_SCREEN_ROUTE
                 ) {
                     composable(route = SPLASH_SCREEN_ROUTE) {
-                        SplashScreen(navigateHome = navigateHome, appViewModel = appViewModel)
+                        SplashScreen(navigateHome = navigateHome, appViewModel = appViewModel, isDriverMode = isDriverMode)
                     }
                     composable(route = AUTH_SCREEN_ROUTE) {
                         AuthScreen(appViewModel = appViewModel, navigateHome = navigateHome)
@@ -136,6 +137,7 @@ fun Main() {
 fun SplashScreen(
     navigateHome: suspend (String) -> Unit,
     appViewModel: AppViewModel,
+    isDriverMode: Boolean,
     theme: Theme = koinInject(),
 ) {
     val scope = rememberCoroutineScope()
@@ -143,8 +145,8 @@ fun SplashScreen(
         appViewModel.findUserLive {
             scope.launch {
                 navigateHome(
-                    if (it == null) (if (TEMP_IS_DRIVER) AUTH_SCREEN_DRIVER_ROUTE else AUTH_SCREEN_ROUTE)
-                    else (if (TEMP_IS_DRIVER) HOME_SCREEN_DRIVER_ROUTE else HOME_SCREEN_ROUTE)
+                    if (it == null) (if (isDriverMode) AUTH_SCREEN_DRIVER_ROUTE else AUTH_SCREEN_ROUTE)
+                    else (if (isDriverMode) HOME_SCREEN_DRIVER_ROUTE else HOME_SCREEN_ROUTE)
                 )
             }
         }

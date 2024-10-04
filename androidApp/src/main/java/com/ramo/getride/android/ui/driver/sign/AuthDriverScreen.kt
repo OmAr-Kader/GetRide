@@ -111,7 +111,7 @@ fun AuthDriverScreen(appViewModel: AppViewModel, navigateHome: suspend (String) 
                                 label = { Text(text = "Car Module", fontSize = 14.sp) },
                                 singleLine = true,
                                 colors = theme.outlinedTextFieldStyle(),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             OutlinedTextField(
@@ -123,7 +123,7 @@ fun AuthDriverScreen(appViewModel: AppViewModel, navigateHome: suspend (String) 
                                 label = { Text(text = "Car Plate", fontSize = 14.sp) },
                                 singleLine = true,
                                 colors = theme.outlinedTextFieldStyle(),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             OutlinedTextField(
@@ -135,7 +135,7 @@ fun AuthDriverScreen(appViewModel: AppViewModel, navigateHome: suspend (String) 
                                 label = { Text(text = "Car Color", fontSize = 14.sp) },
                                 singleLine = true,
                                 colors = theme.outlinedTextFieldStyle(),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                         }

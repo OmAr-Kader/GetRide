@@ -2,6 +2,7 @@ package com.ramo.getride.android.ui.driver.sign
 
 import com.ramo.getride.android.global.navigation.BaseViewModel
 import com.ramo.getride.data.model.Driver
+import com.ramo.getride.data.model.DriverCar
 import com.ramo.getride.data.model.PreferenceData
 import com.ramo.getride.data.model.UserPref
 import com.ramo.getride.data.supaBase.registerAuth
@@ -101,6 +102,7 @@ class AuthDriverViewModel(project: Project) : BaseViewModel(project) {
                     driverName = state.name,
                     email = userBase.email,
                     phone = state.phone,
+                    car = DriverCar(driverCar = state.carModule, driverCarNumber = state.carNumber, driverCarColor = state.carColor)
                 )
             )?.let { user ->
                 project.pref.updatePref(
@@ -113,7 +115,8 @@ class AuthDriverViewModel(project: Project) : BaseViewModel(project) {
                     invoke()
                 }
             } ?: kotlin.run {
-                invoke()
+                setIsProcess(false)
+                failed()
             }
         } ?: kotlin.run {
             setIsProcess(false)

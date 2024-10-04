@@ -1,12 +1,12 @@
 package com.ramo.getride.android.ui.driver.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,7 +19,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -58,14 +57,13 @@ import com.ramo.getride.data.model.Location
 import com.ramo.getride.data.model.Ride
 import com.ramo.getride.data.model.RideRequest
 import com.ramo.getride.data.model.UserPref
-import com.ramo.getride.global.base.AUTH_SCREEN_ROUTE
+import com.ramo.getride.global.base.AUTH_SCREEN_DRIVER_ROUTE
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-// @OmAr-Kader => Add Real-Time Handler For Requests
 @Composable
 fun HomeDriverScreen(
     userPref: UserPref,
@@ -77,7 +75,7 @@ fun HomeDriverScreen(
 ) {
     val scope = rememberCoroutineScope()
     val state by viewModel.uiState.collectAsState()
-    val sheetState = rememberBottomSheetScaffoldState(rememberStandardBottomSheetState(initialValue = SheetValue.Expanded), SnackbarHostState())
+    val sheetState = rememberBottomSheetScaffoldState(rememberStandardBottomSheetState(), SnackbarHostState())
     val drawerState = rememberDrawerState(androidx.compose.material3.DrawerValue.Closed)
 
     val cameraPositionState = rememberCameraPositionState {
@@ -102,13 +100,15 @@ fun HomeDriverScreen(
     OnLaunchScreen {
         findPreference(PREF_LAST_LATITUDE) { latitude ->
             findPreference(PREF_LAST_LONGITUDE) { longitude ->
-                latitude?.toDoubleOrNull()?.also { lat ->
+                latitude?.toDoubleOrNull()?.let { lat ->
                     longitude?.toDoubleOrNull()?.also { lng ->
                         scope.launch {
                             kotlinx.coroutines.coroutineScope { viewModel.setLastLocation(lat = lat , lng = lng) }
                             kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
                         }
                     }
+                } ?: scope.launch {
+                    kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
                 }
             }
         }
@@ -117,14 +117,13 @@ fun HomeDriverScreen(
         drawerContent = {
             HomeUserDrawer(theme) {
                 viewModel.signOut({
-                    scope.launch { navigateHome(AUTH_SCREEN_ROUTE) }
+                    scope.launch { navigateHome(AUTH_SCREEN_DRIVER_ROUTE) }
                 }) {
                     scope.launch {
                         sheetState.snackbarHostState.showSnackbar(message = "Failed")
                     }
                 }
             }
-            LoadingScreen(isLoading = state.isProcess, theme = theme)
         },
         drawerState = drawerState,
         gesturesEnabled = drawerState.isOpen
@@ -172,7 +171,6 @@ fun HomeDriverScreen(
             }
             Column(modifier = Modifier.padding(padding)) {
                 Spacer(Modifier.height(60.dp))
-                Ride
                 MapScreen(
                     mapData = state.mapData,
                     cameraPositionState = cameraPositionState,
@@ -205,6 +203,7 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
         3 -> { // To Update Status To 4
             "Finish Your Ride"
         }
+        4 -> "Submit client feedback"
         else -> "Canceled"
     }
     val targetedAction: () -> Int? = {
@@ -231,7 +230,7 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
                 color = theme.textColor, modifier = Modifier.padding(),
                 fontSize = 18.sp
             )
-            Spacer(Modifier)
+            Spacer(Modifier.defaultMinSize(minWidth = 10.dp))
             Text(
                 text = "Fare: $${ride.fare}",
                 color = theme.textColor, modifier = Modifier.padding(),
@@ -246,7 +245,10 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
                 .padding(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (ride.status != -2 && ride.status != -1) {
+            if (ride.status == 4) {
+                // Feedback UI
+            }
+            if (ride.status != -2 && ride.status != -1 && ride.status != 3 && ride.status != 4) {
                 Button(
                     onClick = {
                         updateRideStatus(-1)
@@ -262,8 +264,12 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
             Spacer(Modifier)
             Button(
                 onClick = {
-                    targetedAction()?.also { action ->
-                        updateRideStatus(action)
+                    if (ride.status == 4) {
+                        // @OmAr-Kader => When Review is submitted, clear Ride
+                    } else {
+                        targetedAction()?.also { action ->
+                            updateRideStatus(action)
+                        }
                     }
                 },
                 colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Green, contentColor = Color.Black),
@@ -372,8 +378,7 @@ fun RideRequestsDriverSheet(
 fun DriverDragHandler(isDriverHaveRide: Boolean, theme: Theme) {
     Column(
         Modifier
-            .fillMaxWidth()
-            .background(theme.backDark),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
@@ -409,6 +414,6 @@ fun DriverDragHandler(isDriverHaveRide: Boolean, theme: Theme) {
                 color = theme.primary
             )
         }
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(10.dp))
     }
 }

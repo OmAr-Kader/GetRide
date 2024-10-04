@@ -101,8 +101,9 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         queryRealTime(
             table = SUPA_RIDE_REQUEST,
             primaryKey = RideRequest::id,
-            filter = FilterOperation("from->latitude", FilterOperator.NXL, "(${lat.first},${lat.second})"),
+            //filter = FilterOperation("from->latitude", FilterOperator.NXL, "(${lat.first},${lat.second})"),
         ) { requests ->
+            loggerError("---", requests.size.toString())
             requests.filter {
                 it.from.longitude >= long.first && it.from.longitude <= long.second
             }.also { invoke(it) }
