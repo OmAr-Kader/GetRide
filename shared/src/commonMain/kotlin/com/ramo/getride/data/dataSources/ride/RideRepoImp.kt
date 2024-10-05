@@ -9,6 +9,7 @@ import com.ramo.getride.global.base.AREA_RIDE_FIRST_PHASE
 import com.ramo.getride.global.base.SUPA_RIDE
 import com.ramo.getride.global.base.SUPA_RIDE_REQUEST
 import com.ramo.getride.global.base.Supabase
+import com.ramo.getride.global.util.isBetween
 import com.ramo.getride.global.util.loggerError
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
@@ -95,18 +96,32 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }
     }*/
 
-    override suspend fun getNearRideRequestsForDriver(location: Location, invoke: suspend (List<RideRequest>) -> Unit) {
+    override suspend fun getNearRideRequestsForDriver(
+        location: Location,
+        insert: suspend (RideRequest) -> Unit,
+        invoke: suspend (List<RideRequest>) -> Unit,
+    ) {
         val lat = location.latitude - AREA_RIDE_FIRST_PHASE to location.latitude + AREA_RIDE_FIRST_PHASE
-        val long = location.longitude - AREA_RIDE_FIRST_PHASE to location.longitude + AREA_RIDE_FIRST_PHASE
-        queryRealTime(
-            table = SUPA_RIDE_REQUEST,
-            primaryKey = RideRequest::id,
-            //filter = FilterOperation("from->latitude", FilterOperator.NXL, "(${lat.first},${lat.second})"),
-        ) { requests ->
-            loggerError("---", requests.size.toString())
-            requests.filter {
-                it.from.longitude >= long.first && it.from.longitude <= long.second
-            }.also { invoke(it) }
+        val lng = location.longitude - AREA_RIDE_FIRST_PHASE to location.longitude + AREA_RIDE_FIRST_PHASE
+        query<RideRequest>(SUPA_RIDE_REQUEST) {
+            and {
+                rangeGte("from->latitude", lat)
+                rangeGte("from->longitude", lng)
+            }
+        }.map { it.id }.also { ids ->
+            queryRealTime(
+                table = SUPA_RIDE_REQUEST,
+                primaryKey = RideRequest::id,
+                filter = FilterOperation("id", FilterOperator.IN, "(${ids.joinToString(",")})"),
+            ) { requests ->
+                loggerError("---", requests.size.toString())
+                invoke(requests)
+            }
+            realTimeQueryInserts<RideRequest>(realTable = SUPA_RIDE_REQUEST) {
+                if (it.from.latitude.isBetween(lat) && it.from.longitude.isBetween(lng)) {
+                    insert(it)
+                }
+            }
         }
     }
 

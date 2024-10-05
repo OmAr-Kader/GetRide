@@ -35,12 +35,16 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private var jobRide: kotlinx.coroutines.Job? = null
 
     fun loadRequests(driverId: Long, currentLocation: Location, invoke: () -> Unit) {
-        // @OmAr-Kader => Live Not Work
+        // @OmAr-Kader => Test, Live Not Work
 
         // @OmAr-Kader => Replace Maps.kt, BaseRepoImp.kt, AndroidManifest.xml
         // @OmAr-Kader => Edit Sign In both Screens in SwiftUI
         jobDriverRideRequests = launchBack {
-            project.ride.getNearRideRequestsForDriver(currentLocation) { requests ->
+            project.ride.getNearRideRequestsForDriver(currentLocation, insert = { newRequest ->
+                _uiState.update { state ->
+                    state.copy(requests = state.requests + newRequest)
+                }
+            }) { requests ->
                 requests.find {
                     it.isDriverChosen(driverId) && it.chosenRide != 0L
                 }?.also {

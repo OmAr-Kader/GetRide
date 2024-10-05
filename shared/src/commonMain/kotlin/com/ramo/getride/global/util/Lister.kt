@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.ramo.getride.global.util
 
 fun <T> MutableList<T>.replace(predicate: (T) -> Boolean, invoke: (T) -> T): List<T> {
@@ -21,4 +23,8 @@ fun <T> MutableList<T>.replace(predicate: (T) -> Boolean, invoke: (T) -> T, newI
         newInvoke(this.toList(), it)
     }
     return
+}
+
+fun Double.isBetween(pair: Pair<Double, Double>): Boolean {
+    return this@isBetween in pair.first..pair.second
 }
