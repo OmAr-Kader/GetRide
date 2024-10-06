@@ -37,7 +37,6 @@ import com.ramo.getride.global.base.AUTH_SCREEN_ROUTE
 import com.ramo.getride.global.base.HOME_SCREEN_DRIVER_ROUTE
 import com.ramo.getride.global.base.HOME_SCREEN_ROUTE
 import com.ramo.getride.global.base.SPLASH_SCREEN_ROUTE
-import com.ramo.getride.global.base.TEMP_IS_DRIVER
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -47,7 +46,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestLocationPermission()
         setContent {
-            Main(isTablet) // TEMP_IS_DRIVER
+            Main(isTablet) // com.ramo.getride.global.base.TEMP_IS_DRIVER
         }
     }
 
@@ -86,7 +85,7 @@ fun Main(isDriverMode: Boolean) {
             }
         }
     }
-    val navigateTo: suspend (String) -> Unit = { route ->
+    @Suppress("UNUSED_VARIABLE") val navigateTo: suspend (String) -> Unit = { route ->
         navController.navigate(route = route)
     }
     val findPreference: (String, (it: String?) -> Unit) -> Unit = appViewModel::findPrefString
@@ -96,7 +95,7 @@ fun Main(isDriverMode: Boolean) {
             navController.navigate(route = route)
         }
     }
-    val backPress: suspend () -> Unit = {
+    @Suppress("UNUSED_VARIABLE") val backPress: suspend () -> Unit = {
         navController.navigateUp()
     }
 

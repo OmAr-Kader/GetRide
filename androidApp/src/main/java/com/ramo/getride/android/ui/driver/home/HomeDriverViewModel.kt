@@ -28,6 +28,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private val _uiState = MutableStateFlow(State())
     val uiState = _uiState.asStateFlow()
 
+    private var jobDriverRideInserts: kotlinx.coroutines.Job? = null
     private var jobDriverRideRequests: kotlinx.coroutines.Job? = null
 
     private var jobRideRequest: kotlinx.coroutines.Job? = null
@@ -36,21 +37,26 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
 
     fun loadRequests(driverId: Long, currentLocation: Location, invoke: () -> Unit) {
         // @OmAr-Kader => Test, Live Not Work
+        // @OmAr-Kader Add remove_from_requests
 
         // @OmAr-Kader => Replace Maps.kt, BaseRepoImp.kt, AndroidManifest.xml
         // @OmAr-Kader => Edit Sign In both Screens in SwiftUI
-        jobDriverRideRequests = launchBack {
-            project.ride.getNearRideRequestsForDriver(currentLocation, insert = { newRequest ->
+        jobDriverRideInserts?.cancel()
+        jobDriverRideInserts = launchBack {
+            project.ride.getNearRideInserts(currentLocation) { newRequest ->
                 _uiState.update { state ->
                     state.copy(requests = state.requests + newRequest)
                 }
-            }) { requests ->
+            }
+        }
+        jobDriverRideRequests?.cancel()
+        jobDriverRideRequests = launchBack {
+            project.ride.getNearRideRequestsForDriver(currentLocation) { requests ->
                 requests.find {
                     it.isDriverChosen(driverId) && it.chosenRide != 0L
                 }?.also {
                     fetchRide(it.chosenRide, invoke)
                 }
-                loggerError("request ==", driverId.toString())
                 requests.find { request ->
                     loggerError("request", request.toString())
                     request.driverProposals.any { it.driverId == driverId }
@@ -70,6 +76,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     }
 
     private fun fetchRide(rideId: Long, invoke: () -> Unit) {
+        jobRide?.cancel()
         jobRide = launchBack {
             project.ride.getRideById(rideId) { ride ->
                 _uiState.update { state ->
@@ -83,6 +90,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     }
 
     fun checkForActiveRide(driverId: Long, invoke: () -> Unit) {
+        jobRideInitial?.cancel()
         jobRideInitial = launchBack {
             loggerError("checkForActiveRide", "1")
             project.ride.getActiveRideForDriver(driverId = driverId) { ride ->
@@ -144,7 +152,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun cancelProposal(rideRequestId: Long, driverId: Long,) {
+    fun cancelProposal(rideRequestId: Long, driverId: Long) {
         setIsProcess(true)
         launchBack {
             project.ride.editRemoveDriverProposal(rideRequestId = rideRequestId, driverId = driverId).also {
@@ -206,10 +214,12 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     }
 
     override fun onCleared() {
+        jobDriverRideInserts?.cancel()
         jobDriverRideRequests?.cancel()
         jobRideRequest?.cancel()
         jobRideInitial?.cancel()
         jobRide?.cancel()
+        jobDriverRideInserts = null
         jobDriverRideRequests = null
         jobRideRequest = null
         jobRideInitial = null

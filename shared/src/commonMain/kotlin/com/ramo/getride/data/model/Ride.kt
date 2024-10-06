@@ -1,12 +1,14 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package com.ramo.getride.data.model
 
 import com.ramo.getride.data.util.BaseObject
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -40,11 +42,15 @@ data class Ride(
     val driverName: String = "",
 ): BaseObject() {
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    val dat: Instant get() = Instant.parse(date)
+    val dateInstant: Instant get() = Instant.parse(date)
+
+    val dateStr: String
+        get() = dateInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toString()
+
+    private val dateTime: LocalDateTime get() = dateInstant.toLocalDateTime(TimeZone.currentSystemDefault())
 
     val timestamp: String get() {
-        return dat.format(DateTimeComponents.Format {
+        return dateTime.format(LocalDateTime.Format {
             byUnicodePattern("MM/dd HH:mm")
         })
     }
@@ -104,11 +110,15 @@ data class RideRequest(
     val requestHadSubmit: Boolean = false, // For Driver
 ): BaseObject() {
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    val dat: Instant get() = Instant.parse(date)
+    val dateInstant: Instant get() = Instant.parse(date)
+
+    val dateStr: String
+        get() = dateInstant.toLocalDateTime(TimeZone.currentSystemDefault()).toString()
+
+    val dateTime: LocalDateTime get() = dateInstant.toLocalDateTime(TimeZone.currentSystemDefault())
 
     val timestamp: String get() {
-        return dat.format(DateTimeComponents.Format {
+        return dateTime.format(LocalDateTime.Format {
             byUnicodePattern("MM/dd HH:mm")
         })
     }

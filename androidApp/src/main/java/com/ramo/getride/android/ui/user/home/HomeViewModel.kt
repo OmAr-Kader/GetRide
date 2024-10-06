@@ -38,6 +38,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     private var jobRide: kotlinx.coroutines.Job? = null
 
     fun checkForActiveRide(userId: Long, invoke: () -> Unit) {
+        jobRideInitial?.cancel()
         jobRideInitial = launchBack {
             project.ride.getActiveRideForUser(userId = userId) { ride ->
                 _uiState.update { state ->
@@ -313,6 +314,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                                 to = Location(to.latitude, to.longitude),
                                 durationDistance = mapData.durationDistance,
                                 fare = state.fare,
+                                date = dateNow
                             ).also {
                                 project.ride.addNewRideRequest(it)?.also { rideRequest ->
                                     fetchRequestLive(rideRequest.id)
@@ -362,6 +364,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     }
 
     private fun fetchRequestLive(rideRequestId: Long) {
+        jobRideRequest?.cancel()
         jobRideRequest = launchBack {
             project.ride.getRideRequestById(rideRequestId) { rideRequest ->
                 loggerError("getRideRequestById", rideRequest.toString())
@@ -373,6 +376,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     }
 
     private fun fetchRide(rideId: Long, invoke: () -> Unit) {
+        jobRide?.cancel()
         jobRide = launchBack {
             project.ride.getRideById(rideId) { ride ->
                 _uiState.update { state ->

@@ -24,7 +24,3 @@ fun <T> MutableList<T>.replace(predicate: (T) -> Boolean, invoke: (T) -> T, newI
     }
     return
 }
-
-fun Double.isBetween(pair: Pair<Double, Double>): Boolean {
-    return this@isBetween in pair.first..pair.second
-}

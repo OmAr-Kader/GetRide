@@ -19,11 +19,14 @@ class RideBase(
     suspend fun editRide(item: Ride): Ride? = repo.editRide(item)
     suspend fun deleteRide(id: Long): Int = repo.deleteRide(id)
 
+    suspend fun getNearRideInserts(
+        currentLocation: Location,
+        insert: suspend (RideRequest) -> Unit
+    ) = repo.getNearRideInserts(currentLocation, insert)
     suspend fun getNearRideRequestsForDriver(
-        location: Location,
-        insert: suspend (RideRequest) -> Unit,
+        currentLocation: Location,
         invoke: suspend (List<RideRequest>) -> Unit
-    ) = repo.getNearRideRequestsForDriver(location, insert, invoke)
+    ) = repo.getNearRideRequestsForDriver(currentLocation, invoke)
     suspend fun getRideRequestById(rideRequestId: Long, invoke: suspend (RideRequest?) -> Unit) = repo.getRideRequestById(rideRequestId, invoke)
     suspend fun addNewRideRequest(item: RideRequest): RideRequest? = repo.addNewRideRequest(item)
     suspend fun editRideRequest(item: RideRequest): RideRequest? = repo.editRideRequest(item)

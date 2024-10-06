@@ -5,11 +5,13 @@ import com.ramo.getride.data.model.Ride
 import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 import com.ramo.getride.data.util.BaseRepoImp
+import com.ramo.getride.data.util.applyFilterNearRideInserts
+import com.ramo.getride.data.util.applyFilterNearRideRequests
 import com.ramo.getride.global.base.AREA_RIDE_FIRST_PHASE
 import com.ramo.getride.global.base.SUPA_RIDE
 import com.ramo.getride.global.base.SUPA_RIDE_REQUEST
 import com.ramo.getride.global.base.Supabase
-import com.ramo.getride.global.util.isBetween
+import com.ramo.getride.global.util.dateBeforeHour
 import com.ramo.getride.global.util.loggerError
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
@@ -82,7 +84,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         val lat = location.latitude - AREA_RIDE_FIRST_PHASE to location.latitude + AREA_RIDE_FIRST_PHASE
         val long = location.longitude - AREA_RIDE_FIRST_PHASE to location.longitude + AREA_RIDE_FIRST_PHASE
         query<RideRequest>(SUPA_RIDE_REQUEST) {
-            or {
+            and {
                 rangeGte("from->latitude", lat)
                 rangeGte("from->longitude", long)
             }
@@ -96,17 +98,33 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }
     }*/
 
-    override suspend fun getNearRideRequestsForDriver(
-        location: Location,
+    override suspend fun getNearRideInserts(
+        currentLocation: Location,
         insert: suspend (RideRequest) -> Unit,
+    ) {
+        kotlinx.coroutines.coroutineScope {
+            realTimeQueryInserts<RideRequest>(realTable = SUPA_RIDE_REQUEST) { record ->
+                record.applyFilterNearRideInserts(currentLocation) {
+                    insert(it)
+                }
+            }
+        }
+    }
+
+    override suspend fun getNearRideRequestsForDriver(
+        currentLocation: Location,
         invoke: suspend (List<RideRequest>) -> Unit,
     ) {
-        val lat = location.latitude - AREA_RIDE_FIRST_PHASE to location.latitude + AREA_RIDE_FIRST_PHASE
-        val lng = location.longitude - AREA_RIDE_FIRST_PHASE to location.longitude + AREA_RIDE_FIRST_PHASE
+        val lat = currentLocation.latitude - AREA_RIDE_FIRST_PHASE to currentLocation.latitude + AREA_RIDE_FIRST_PHASE
+        val lng = currentLocation.longitude - AREA_RIDE_FIRST_PHASE to currentLocation.longitude + AREA_RIDE_FIRST_PHASE
         query<RideRequest>(SUPA_RIDE_REQUEST) {
             and {
-                rangeGte("from->latitude", lat)
-                rangeGte("from->longitude", lng)
+                filter("from->latitude", FilterOperator.GTE, lat.first)
+                filter("from->latitude", FilterOperator.LTE, lat.second)
+                filter("from->longitude", FilterOperator.GTE, lng.first)
+                filter("from->longitude", FilterOperator.LTE, lng.second)
+                filter("date", FilterOperator.GTE, dateBeforeHour)
+                filter("chosen_one", FilterOperator.EQ, 0)
             }
         }.map { it.id }.also { ids ->
             queryRealTime(
@@ -114,13 +132,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
                 primaryKey = RideRequest::id,
                 filter = FilterOperation("id", FilterOperator.IN, "(${ids.joinToString(",")})"),
             ) { requests ->
-                loggerError("---", requests.size.toString())
-                invoke(requests)
-            }
-            realTimeQueryInserts<RideRequest>(realTable = SUPA_RIDE_REQUEST) {
-                if (it.from.latitude.isBetween(lat) && it.from.longitude.isBetween(lng)) {
-                    insert(it)
-                }
+                invoke(requests.applyFilterNearRideRequests(currentLocation))
             }
         }
     }
