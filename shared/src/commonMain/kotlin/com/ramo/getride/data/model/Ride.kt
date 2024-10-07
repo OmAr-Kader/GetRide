@@ -146,6 +146,8 @@ data class RideProposal(
     val fare: Double = 0.9,
     @SerialName("current_driver")
     val currentDriver: Location = Location(),
+    @SerialName("date")
+    val date: String = "",
 ): BaseObject() {
     override fun json(): JsonObject {
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject.toMutableMap().apply {

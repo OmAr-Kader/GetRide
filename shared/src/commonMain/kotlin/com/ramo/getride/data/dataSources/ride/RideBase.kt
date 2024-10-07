@@ -31,6 +31,9 @@ class RideBase(
     suspend fun addNewRideRequest(item: RideRequest): RideRequest? = repo.addNewRideRequest(item)
     suspend fun editRideRequest(item: RideRequest): RideRequest? = repo.editRideRequest(item)
     suspend fun editAddDriverProposal(rideRequestId: Long, rideProposal: RideProposal): Int = repo.editAddDriverProposal(rideRequestId, rideProposal)
-    suspend fun editRemoveDriverProposal(rideRequestId: Long, driverId: Long): Int = repo.editRemoveDriverProposal(rideRequestId, driverId)
+    suspend fun editRemoveDriverProposal(
+        rideRequestId: Long,
+        proposalToRemove: RideProposal
+    ): Int = repo.editRemoveDriverProposal(rideRequestId, proposalToRemove)
     suspend fun deleteRideRequest(id: Long): Int = repo.deleteRideRequest(id)
 }

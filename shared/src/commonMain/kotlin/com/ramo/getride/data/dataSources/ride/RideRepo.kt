@@ -22,7 +22,7 @@ interface RideRepo {
     suspend fun addNewRideRequest(item: RideRequest): RideRequest? // From User
     suspend fun editRideRequest(item: RideRequest): RideRequest? // From User
     suspend fun editAddDriverProposal(rideRequestId: Long, rideProposal: RideProposal): Int // From Driver
-    suspend fun editRemoveDriverProposal(rideRequestId: Long, driverId: Long): Int // From Driver
+    suspend fun editRemoveDriverProposal(rideRequestId: Long, proposalToRemove: RideProposal): Int // From Driver
     suspend fun deleteRideRequest(id: Long): Int // From Driver
 
 }

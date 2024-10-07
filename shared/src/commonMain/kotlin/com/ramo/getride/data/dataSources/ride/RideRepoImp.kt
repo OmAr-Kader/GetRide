@@ -123,7 +123,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
                 filter("from->latitude", FilterOperator.LTE, lat.second)
                 filter("from->longitude", FilterOperator.GTE, lng.first)
                 filter("from->longitude", FilterOperator.LTE, lng.second)
-                filter("date", FilterOperator.GTE, dateBeforeHour)
+                //filter("date", FilterOperator.GTE, dateBeforeHour) // @OmAr-Kader => Remove that comment
                 filter("chosen_one", FilterOperator.EQ, 0)
             }
         }.map { it.id }.also { ids ->
@@ -149,22 +149,22 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun editAddDriverProposal(rideRequestId: Long, rideProposal: RideProposal): Int = try {
         buildJsonObject {
-            put("item_id", rideRequestId) // First parameter (TEXT)
-            put("new_proposal", Json.encodeToJsonElement(rideProposal)) // Second parameter (Object as JSON)
+            put("item_id", rideRequestId)
+            put("new_proposal", Json.encodeToJsonElement(rideProposal))
         }.let {
-            rpc("append_to_requests", it)
+            rpc("append_proposal_to_requests", it)
         }
     } catch (e: Exception) {
         loggerError(error = e.stackTraceToString())
         -2
     }
 
-    override suspend fun editRemoveDriverProposal(rideRequestId: Long, driverId: Long): Int = try {
+    override suspend fun editRemoveDriverProposal(rideRequestId: Long, proposalToRemove: RideProposal): Int = try {
         buildJsonObject {
-            put("item_id", rideRequestId) // First parameter
-            put("driver_id", driverId) // Second parameter
+            put("item_id", rideRequestId)
+            put("driver_id", proposalToRemove.driverId)
         }.let {
-            rpc("remove_from_requests", it)
+            rpc("remove_proposal_from_requests", it)
         }
     } catch (e: Exception) {
         loggerError(error = e.stackTraceToString())

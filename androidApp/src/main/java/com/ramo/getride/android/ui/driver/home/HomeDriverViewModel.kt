@@ -18,6 +18,7 @@ import com.ramo.getride.data.util.toDriverCannotSubmit
 import com.ramo.getride.di.Project
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
+import com.ramo.getride.global.util.dateNow
 import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,13 +37,18 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private var jobRide: kotlinx.coroutines.Job? = null
 
     fun loadRequests(driverId: Long, currentLocation: Location, invoke: () -> Unit) {
-        // @OmAr-Kader => Test, Live Not Work
-        // @OmAr-Kader Add remove_from_requests
-
         // @OmAr-Kader => Replace Maps.kt, BaseRepoImp.kt, AndroidManifest.xml
         // @OmAr-Kader => Edit Sign In both Screens in SwiftUI
+        loggerError("request", "1")
+        uiState.value.mapData.currentLocation?.also {
+            if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInserts != null) {
+                loggerError("request", "return")
+                return
+            }
+        }
         jobDriverRideInserts?.cancel()
         jobDriverRideInserts = launchBack {
+            loggerError("request", "here")
             project.ride.getNearRideInserts(currentLocation) { newRequest ->
                 _uiState.update { state ->
                     state.copy(requests = state.requests + newRequest)
@@ -141,23 +147,28 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun submitProposal(rideRequestId: Long, driverId: Long, fare: Double, location: Location) {
+    fun submitProposal(rideRequestId: Long, driverId: Long, fare: Double, location: Location, invoke: () -> Unit) {
         setIsProcess(true)
         launchBack {
             project.ride.editAddDriverProposal(
-                rideRequestId = rideRequestId, RideProposal(driverId = driverId, driverName = "Driver Name", rate = 5.0F, fare = fare, currentDriver = location)
+                rideRequestId = rideRequestId, RideProposal(driverId = driverId, driverName = "Driver Name", rate = 5.0F, fare = fare, currentDriver = location, date = dateNow)
             ).also {
                 setIsProcess(false)
+                invoke()
             }
         }
     }
 
-    fun cancelProposal(rideRequestId: Long, driverId: Long) {
+    fun cancelProposal(request: RideRequest, driverId: Long) {
         setIsProcess(true)
         launchBack {
-            project.ride.editRemoveDriverProposal(rideRequestId = rideRequestId, driverId = driverId).also {
-                setIsProcess(false)
-            }
+            request.driverProposals.find {
+                it.driverId == driverId
+            }?.also {
+                project.ride.editRemoveDriverProposal(rideRequestId = request.id, proposalToRemove = it).also {
+                    setIsProcess(false)
+                }
+            } ?: setIsProcess(false)
         }
     }
 

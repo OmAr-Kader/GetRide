@@ -55,6 +55,7 @@ import com.ramo.getride.android.ui.common.toGoogleLatLng
 import com.ramo.getride.android.ui.common.toLocation
 import com.ramo.getride.data.model.Location
 import com.ramo.getride.data.model.Ride
+import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
 import com.ramo.getride.data.model.UserPref
 import com.ramo.getride.global.base.AUTH_SCREEN_DRIVER_ROUTE
@@ -156,11 +157,13 @@ fun HomeDriverScreen(
                     },
                     submitProposal = { request ->
                         state.mapData.currentLocation?.toLocation()?.let {
-                            viewModel.submitProposal(rideRequestId = request.id, driverId = userPref.id, fare = request.fare, location = it)
+                            viewModel.submitProposal(rideRequestId = request.id, driverId = userPref.id, fare = request.fare, location = it) {
+                                viewModel.showOnMap(start = request.from.toGoogleLatLng(), end = request.to.toGoogleLatLng(), invoke = refreshScope)
+                            }
                         }
                     }
                 ) { request ->
-                    state.mapData.currentLocation?.toLocation()?.let { viewModel.cancelProposal(rideRequestId = request.id, driverId = userPref.id) }
+                    viewModel.cancelProposal(request = request, driverId = userPref.id)
                 }
             }
         ) { padding ->
