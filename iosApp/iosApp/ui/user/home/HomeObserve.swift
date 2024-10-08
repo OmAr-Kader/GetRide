@@ -32,16 +32,53 @@ class HomeObserve : ObservableObject {
     
     struct State {
         
-        private(set) var isProcess: Bool = false
+        private(set) var mapData: MapData = MapData()
+        private(set) var duration: Long? = nil
+        private(set) var durationText: String? = nil
+        private(set) var distance: Long? = nil
+        private(set) var distanceText: String = ""
+        private(set) var fare: Double = 0.0
+        private(set) var fromText: String = ""
+        private(set) var toText: String = ""
+        private(set) var locationsFrom: [Location] = []
+        private(set) var locationsTo: [Location] = []
+        private(set) var rideRequest: RideRequest? = nil
+        private(set) var ride: Ride? = nil
+        private(set) var isProcess: Bool = true
         
         @MainActor
         mutating func copy(
+            mapData: MapData? = nil,
+            duration: Long?? = nil,
+            durationText: String? = nil,
+            distance: Long? = nil,
+            distanceText: String? = nil,
+            fare: Double? = nil,
+            fromText: String? = nil,
+            toText: String? = nil,
+            locationsFrom: [Location]? = nil,
+            locationsTo: [Location]? = nil,
+            rideRequest: RideRequest? = nil,
+            ride: Ride? = nil,
             isProcess: Bool? = nil
         ) -> Self {
+            self.mapData = mapData ?? self.mapData
+            self.duration = duration ?? self.duration
+            self.durationText = durationText ?? self.durationText
+            self.distance = distance ?? self.distance
+            self.distanceText = distanceText ?? self.distanceText
+            self.fare = fare ?? self.fare
+            self.fromText = fromText ?? self.fromText
+            self.toText = toText ?? self.toText
+            self.locationsFrom = locationsFrom ?? self.locationsFrom
+            self.locationsTo = locationsTo ?? self.locationsTo
+            self.rideRequest = rideRequest ?? self.rideRequest
+            self.ride = ride ?? self.ride
             self.isProcess = isProcess ?? self.isProcess
             return self
         }
     }
+
 }
 
 /*import GoogleMaps

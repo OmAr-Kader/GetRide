@@ -7,6 +7,7 @@ import com.ramo.getride.android.global.navigation.BaseViewModel
 import com.ramo.getride.android.ui.common.MapData
 import com.ramo.getride.data.map.GoogleLocation
 import com.ramo.getride.data.map.fetchAndDecodeRoute
+import com.ramo.getride.data.model.DriverRate
 import com.ramo.getride.data.model.Location
 import com.ramo.getride.data.model.PreferenceData
 import com.ramo.getride.data.model.Ride
@@ -36,10 +37,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private var jobRideInitial: kotlinx.coroutines.Job? = null
     private var jobRide: kotlinx.coroutines.Job? = null
 
-    fun loadRequests(driverId: Long, currentLocation: Location, invoke: () -> Unit) {
-        // @OmAr-Kader => Replace Maps.kt, BaseRepoImp.kt, AndroidManifest.xml
-        // @OmAr-Kader => Edit Sign In both Screens in SwiftUI
-        loggerError("request", "1")
+    fun loadRequests(driverId: Long, currentLocation: Location, popUpSheet: () -> Unit) {
         uiState.value.mapData.currentLocation?.also {
             if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInserts != null) {
                 loggerError("request", "return")
@@ -48,7 +46,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
         jobDriverRideInserts?.cancel()
         jobDriverRideInserts = launchBack {
-            loggerError("request", "here")
             project.ride.getNearRideInserts(currentLocation) { newRequest ->
                 _uiState.update { state ->
                     state.copy(requests = state.requests + newRequest)
@@ -58,13 +55,14 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         jobDriverRideRequests?.cancel()
         jobDriverRideRequests = launchBack {
             project.ride.getNearRideRequestsForDriver(currentLocation) { requests ->
-                requests.find {
-                    it.isDriverChosen(driverId) && it.chosenRide != 0L
-                }?.also {
-                    fetchRide(it.chosenRide, invoke)
+                if (uiState.value.ride == null) {
+                    requests.find {
+                        it.isDriverChosen(driverId) && it.chosenRide != 0L
+                    }?.also {
+                        fetchRide(it.chosenRide, popUpSheet)
+                    }
                 }
                 requests.find { request ->
-                    loggerError("request", request.toString())
                     request.driverProposals.any { it.driverId == driverId }
                 }.let { proposalHadSubmit ->
                     if (proposalHadSubmit != null) {
@@ -81,13 +79,13 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    private fun fetchRide(rideId: Long, invoke: () -> Unit) {
+    private fun fetchRide(rideId: Long, popUpSheet: () -> Unit) {
         jobRide?.cancel()
         jobRide = launchBack {
             project.ride.getRideById(rideId) { ride ->
                 _uiState.update { state ->
                     if (state.ride == null) {
-                        invoke()
+                        popUpSheet()
                     }
                     state.copy(ride = ride, isProcess = false)
                 }
@@ -98,14 +96,11 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     fun checkForActiveRide(driverId: Long, invoke: () -> Unit) {
         jobRideInitial?.cancel()
         jobRideInitial = launchBack {
-            loggerError("checkForActiveRide", "1")
             project.ride.getActiveRideForDriver(driverId = driverId) { ride ->
-                loggerError("checkForActiveRide", ride.toString())
                 _uiState.update { state ->
                     if (state.ride == null && ride != null) {
                         invoke()
                     }
-                    loggerError("checkForActiveRide", "3")
                     state.copy(ride = ride, isProcess = false)
                 }
             }
@@ -118,7 +113,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun showOnMap(start: GoogleLatLng, end: GoogleLatLng, invoke: (MapData) -> Unit) {
+    fun showOnMap(start: GoogleLatLng, end: GoogleLatLng, refreshScope: (MapData) -> Unit) {
         setIsProcess(true)
         launchBack {
             fetchAndDecodeRoute(
@@ -134,7 +129,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                                     startPoint = start,
                                     endPoint = end,
                                     routePoints = points,
-                                ).also(invoke).let { newMapData ->
+                                ).also(refreshScope).let { newMapData ->
                                     state.copy(
                                         mapData = newMapData,
                                         isProcess = false
@@ -147,14 +142,16 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun submitProposal(rideRequestId: Long, driverId: Long, fare: Double, location: Location, invoke: () -> Unit) {
+    fun submitProposal(rideRequestId: Long, driverId: Long, driverName: String, fare: Double, location: Location, invoke: () -> Unit) {
         setIsProcess(true)
-        launchBack {
-            project.ride.editAddDriverProposal(
-                rideRequestId = rideRequestId, RideProposal(driverId = driverId, driverName = "Driver Name", rate = 5.0F, fare = fare, currentDriver = location, date = dateNow)
-            ).also {
-                setIsProcess(false)
-                invoke()
+        uiState.value.also { state ->
+            launchBack {
+                project.ride.editAddDriverProposal(
+                    rideRequestId = rideRequestId,
+                    RideProposal(driverId = driverId, driverName = driverName, rate = state.rate?.rate ?: 5.0F, fare = fare, currentDriver = location, date = dateNow)
+                ).also {
+                    invoke()
+                }
             }
         }
     }
@@ -242,6 +239,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         val requests: List<RideRequest> = emptyList(),
         val mapData: MapData = MapData(),
         val ride: Ride? = null,
+        val rate: DriverRate? = null,
         val isProcess: Boolean = true,
     )
 }

@@ -8,6 +8,8 @@
 
 import Foundation
 import SwiftUI
+import GoogleMaps
+import shared
 
 class AppDelegate: NSObject, UIApplicationDelegate {
 
@@ -22,6 +24,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return appSet
     }
     
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        GMSServices.provideAPIKey(ConstSecureKt.GOOGLE_MAP_KEY)
+        return true
+    }
     
     func applicationWillTerminate(_ application: UIApplication) {
         appSet = nil

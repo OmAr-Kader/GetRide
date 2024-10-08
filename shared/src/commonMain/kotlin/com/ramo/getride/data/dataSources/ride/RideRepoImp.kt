@@ -22,7 +22,7 @@ import kotlinx.serialization.json.put
 
 class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
-    override suspend fun getRideById(rideId: Long, invoke: suspend (Ride?) -> Unit) {
+    override suspend fun getRideById(rideId: Long, invoke: (Ride?) -> Unit) {
         querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
             Ride::id eq rideId
         }, invoke = invoke)
@@ -46,7 +46,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }
     }
 
-    override suspend fun getActiveRideForUser(userId: Long, invoke: suspend (Ride?) -> Unit) {
+    override suspend fun getActiveRideForUser(userId: Long, invoke: (Ride?) -> Unit) {
         querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
             and {
                 Ride::userId eq userId
@@ -60,7 +60,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }, invoke = invoke)
     }
 
-    override suspend fun getActiveRideForDriver(driverId: Long, invoke: suspend (Ride?) -> Unit) {
+    override suspend fun getActiveRideForDriver(driverId: Long, invoke: (Ride?) -> Unit) {
         querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
             and {
                 Ride::driverId eq driverId
@@ -100,7 +100,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun getNearRideInserts(
         currentLocation: Location,
-        insert: suspend (RideRequest) -> Unit,
+        insert: (RideRequest) -> Unit,
     ) {
         kotlinx.coroutines.coroutineScope {
             realTimeQueryInserts<RideRequest>(realTable = SUPA_RIDE_REQUEST) { record ->
@@ -113,7 +113,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun getNearRideRequestsForDriver(
         currentLocation: Location,
-        invoke: suspend (List<RideRequest>) -> Unit,
+        invoke: (List<RideRequest>) -> Unit,
     ) {
         val lat = currentLocation.latitude - AREA_RIDE_FIRST_PHASE to currentLocation.latitude + AREA_RIDE_FIRST_PHASE
         val lng = currentLocation.longitude - AREA_RIDE_FIRST_PHASE to currentLocation.longitude + AREA_RIDE_FIRST_PHASE
@@ -137,7 +137,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }
     }
 
-    override suspend fun getRideRequestById(rideRequestId: Long, invoke: suspend (RideRequest?) -> Unit) {
+    override suspend fun getRideRequestById(rideRequestId: Long, invoke: (RideRequest?) -> Unit) {
         querySingleRealTime(SUPA_RIDE_REQUEST, primaryKey = RideRequest::id, block =  {
             RideRequest::id eq rideRequestId
         }, invoke = invoke)

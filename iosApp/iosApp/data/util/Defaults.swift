@@ -6,7 +6,17 @@
 //  Copyright © 2024 orgName. All rights reserved.
 //
 
+import GoogleMaps
 import shared
+
+extension MapData {
+    
+    func copy(currentLocation: CLLocationCoordinate2D? = nil, driverPoint: CLLocationCoordinate2D? = nil, startPoint: CLLocationCoordinate2D? = nil, fromText: String? = nil, endPoint: CLLocationCoordinate2D? = nil, toText: String? = nil, durationDistance: String? = nil, routePoints: String? = nil) -> MapData {
+        MapData(currentLocation: currentLocation ?? self.currentLocation, driverPoint: driverPoint ?? self.driverPoint, startPoint: startPoint ?? self.startPoint, fromText: fromText ?? self.fromText, endPoint: endPoint ?? self.endPoint, toText: toText ?? self.toText, durationDistance: durationDistance ?? self.durationDistance, routePoints: routePoints ?? self.routePoints)
+    }
+}
+
+///
 
 extension UserPref {
     
@@ -36,3 +46,9 @@ extension DriverCar {
     }
 }
 
+extension Ride {
+    
+    func copy(id: Int64? = nil, userId: Int64? = nil, driverId: Int64? = nil, from: Location? = nil, to: Location? = nil, currentDriver: Location? = nil, fare: Double? = nil, status: Int32? = nil, date: String? = nil, durationDistance: String? = nil, driverName: String? = nil) -> Ride {
+        Ride(id: id ?? self.id, userId: userId ?? self.userId, driverId: driverId ?? self.driverId, from: from ?? self.from, to: to ?? self.to, currentDriver: currentDriver ?? self.currentDriver, fare: fare ?? self.fare, status: status ?? self.status, date: date ?? self.date, durationDistance: durationDistance ?? self.durationDistance, driverName: driverName ?? self.driverName)
+    }
+}
