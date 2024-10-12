@@ -15,6 +15,7 @@ interface UserRepo {
     suspend fun deleteUser(id: Long): Int
 
     suspend fun addNewUserRate(item: UserRate): UserRate?
+    suspend fun addEditUserRate(userId: Long, rate: Float): Int
     suspend fun editUserRate(item: UserRate): UserRate?
     suspend fun deleteUserRate(id: Long): Int
 }

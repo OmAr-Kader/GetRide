@@ -5,6 +5,8 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.PolyUtil
 import com.ramo.getride.android.global.navigation.BaseViewModel
 import com.ramo.getride.android.ui.common.MapData
+import com.ramo.getride.android.ui.common.toGoogleLatLng
+import com.ramo.getride.android.ui.common.toLocation
 import com.ramo.getride.data.map.GoogleLocation
 import com.ramo.getride.data.map.fetchAndDecodeRoute
 import com.ramo.getride.data.model.DriverRate
@@ -31,13 +33,14 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     val uiState = _uiState.asStateFlow()
 
     private var jobDriverRideInserts: kotlinx.coroutines.Job? = null
+    private var jobDriverRideDeletes: kotlinx.coroutines.Job? = null
     private var jobDriverRideRequests: kotlinx.coroutines.Job? = null
 
     private var jobRideRequest: kotlinx.coroutines.Job? = null
     private var jobRideInitial: kotlinx.coroutines.Job? = null
     private var jobRide: kotlinx.coroutines.Job? = null
 
-    fun loadRequests(driverId: Long, currentLocation: Location, popUpSheet: () -> Unit) {
+    fun loadRequests(driverId: Long, currentLocation: Location, popUpSheet: () -> Unit, refreshScope: (MapData) -> Unit) {
         uiState.value.mapData.currentLocation?.also {
             if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInserts != null) {
                 loggerError("request", "return")
@@ -46,10 +49,17 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
         jobDriverRideInserts?.cancel()
         jobDriverRideInserts = launchBack {
-            project.ride.getNearRideInserts(currentLocation) { newRequest ->
+            project.ride.getNearRideInsertsDeletes(currentLocation, { newRequest ->
                 _uiState.update { state ->
                     state.copy(requests = state.requests + newRequest)
                 }
+            }) { id ->
+                uiState.value.requests.indexOfFirst { it.id == id }.let { if (it == -1) null else it }?.let { index ->
+                    _uiState.update { state ->
+                        state.copy(requests = state.requests - state.requests[index])
+                    }
+                }
+
             }
         }
         jobDriverRideRequests?.cancel()
@@ -59,7 +69,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                     requests.find {
                         it.isDriverChosen(driverId) && it.chosenRide != 0L
                     }?.also {
-                        fetchRide(it.chosenRide, popUpSheet)
+                        fetchRide(it.chosenRide, popUpSheet, refreshScope)
                     }
                 }
                 requests.find { request ->
@@ -79,21 +89,29 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    private fun fetchRide(rideId: Long, popUpSheet: () -> Unit) {
+    private fun fetchRide(rideId: Long, popUpSheet: () -> Unit, refreshScope: (MapData) -> Unit) {
         jobRide?.cancel()
         jobRide = launchBack {
             project.ride.getRideById(rideId) { ride ->
                 _uiState.update { state ->
-                    if (state.ride == null) {
+                    if (state.ride == null && ride != null) {
                         popUpSheet()
                     }
-                    state.copy(ride = ride, isProcess = false)
+                    if (ride?.status == -1) {
+                        jobRide?.cancel()
+                        state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
+                    } else {
+                        if (ride != null && state.mapData.routePoints.isEmpty()) {
+                            showOnMap(ride.from.toGoogleLatLng(), ride.to.toGoogleLatLng(), refreshScope)
+                        }
+                        state.copy(ride = ride, isProcess = false)
+                    }
                 }
             }
         }
     }
 
-    fun checkForActiveRide(driverId: Long, invoke: () -> Unit) {
+    fun checkForActiveRide(driverId: Long, invoke: () -> Unit, refreshScope: (MapData) -> Unit) {
         jobRideInitial?.cancel()
         jobRideInitial = launchBack {
             project.ride.getActiveRideForDriver(driverId = driverId) { ride ->
@@ -101,15 +119,17 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                     if (state.ride == null && ride != null) {
                         invoke()
                     }
-                    state.copy(ride = ride, isProcess = false)
+                    if (ride?.status == -1) {
+                        jobRideInitial?.cancel()
+                        state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
+                    } else {
+                        if (ride != null && state.mapData.routePoints.isEmpty()) {
+                            showOnMap(ride.from.toGoogleLatLng(), ride.to.toGoogleLatLng(), refreshScope)
+                        }
+                        state.copy(ride = ride, isProcess = false)
+                    }
                 }
             }
-        }
-    }
-
-    fun setLastLocation(lat: Double, lng: Double) {
-        _uiState.update { state ->
-            state.copy(mapData = state.mapData.copy(currentLocation = GoogleLatLng(lat, lng)))
         }
     }
 
@@ -169,10 +189,28 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun updateCurrentLocation(currentLocation: GoogleLatLng) {
-        _uiState.update { state ->
-            state.copy(mapData = state.mapData.copy(currentLocation = currentLocation))
+    fun updateCurrentLocation(currentLocation: GoogleLatLng, update: () -> Unit) {
+        uiState.value.mapData.also {
+            if (!it.isCurrentAlmostSameArea(currentLocation)) {
+                update()
+                updateCurrentLocationPref(currentLocation)
+                updateRideLocation(currentLocation)
+                _uiState.update { state ->
+                    state.copy(mapData = state.mapData.copy(currentLocation = currentLocation))
+                }
+            }
         }
+    }
+
+    private fun updateRideLocation(currentLocation: GoogleLatLng) {
+        uiState.value.ride?.also { ride ->
+            launchBack {
+                project.ride.editDriverLocation(ride.id, currentLocation.toLocation())
+            }
+        }
+    }
+
+    private fun updateCurrentLocationPref(currentLocation: GoogleLatLng) {
         launchBack {
             project.pref.updatePref(
                 listOf(
@@ -186,6 +224,33 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     fun updateRide(ride: Ride, newStatus: Int) {
         launchBack {
             project.ride.editRide(ride.copy(status = newStatus))
+        }
+    }
+
+    fun submitFeedback(driverId: Long, rate: Float) {
+        clearRide()
+        launchBack {
+            project.driver.addEditDriverRate(driverId = driverId, rate = rate)
+        }
+    }
+
+    fun clearRide() {
+        jobRide?.cancel()
+        jobRideInitial?.cancel()
+        _uiState.update { state ->
+            state.copy(
+                ride = null,
+                mapData = state.mapData.copy(
+                    startPoint = null,
+                    fromText = "",
+                    endPoint = null,
+                    toText = "",
+                    durationDistance = "",
+                    routePoints = emptyList(),
+                    driverPoint = null
+                ),
+                isProcess = false
+            )
         }
     }
 
@@ -223,11 +288,13 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
 
     override fun onCleared() {
         jobDriverRideInserts?.cancel()
+        jobDriverRideDeletes?.cancel()
         jobDriverRideRequests?.cancel()
         jobRideRequest?.cancel()
         jobRideInitial?.cancel()
         jobRide?.cancel()
         jobDriverRideInserts = null
+        jobDriverRideDeletes = null
         jobDriverRideRequests = null
         jobRideRequest = null
         jobRideInitial = null

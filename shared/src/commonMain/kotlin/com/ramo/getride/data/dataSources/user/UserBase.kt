@@ -16,6 +16,7 @@ class UserBase(
     suspend fun deleteUser(id: Long): Int = repo.deleteUser(id)
 
     suspend fun addNewUserRate(item: UserRate): UserRate? = repo.addNewUserRate(item)
+    suspend fun addEditUserRate(userId: Long, rate: Float): Int = repo.addEditUserRate(userId, rate)
     suspend fun editUserRate(item: UserRate): UserRate? = repo.editUserRate(item)
     suspend fun deleteUserRate(id: Long): Int = repo.deleteUserRate(id)
 }

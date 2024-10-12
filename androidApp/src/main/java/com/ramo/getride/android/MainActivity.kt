@@ -27,6 +27,7 @@ import com.ramo.getride.android.global.base.MyApplicationTheme
 import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.navigation.Screen
 import com.ramo.getride.android.global.ui.OnLaunchScreen
+import com.ramo.getride.android.global.util.checkLocationPermission
 import com.ramo.getride.android.global.util.isTablet
 import com.ramo.getride.android.ui.driver.home.HomeDriverScreen
 import com.ramo.getride.android.ui.driver.sign.AuthDriverScreen
@@ -44,30 +45,8 @@ import org.koin.compose.koinInject
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestLocationPermission()
         setContent {
             Main(isTablet) // com.ramo.getride.global.base.TEMP_IS_DRIVER
-        }
-    }
-
-    private fun requestLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(
-                this@MainActivity,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                this@MainActivity,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this@MainActivity,
-                arrayOf(
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                1
-            )
         }
     }
 }

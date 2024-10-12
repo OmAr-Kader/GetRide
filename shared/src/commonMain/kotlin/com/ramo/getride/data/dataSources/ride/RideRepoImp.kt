@@ -11,7 +11,6 @@ import com.ramo.getride.global.base.AREA_RIDE_FIRST_PHASE
 import com.ramo.getride.global.base.SUPA_RIDE
 import com.ramo.getride.global.base.SUPA_RIDE_REQUEST
 import com.ramo.getride.global.base.Supabase
-import com.ramo.getride.global.util.dateBeforeHour
 import com.ramo.getride.global.util.loggerError
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
@@ -55,6 +54,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
                     Ride::status eq 0
                     Ride::status eq 1
                     Ride::status eq 2
+                    Ride::status eq 3
                 }
             }
         }, invoke = invoke)
@@ -78,35 +78,32 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun editRide(item: Ride): Ride? = edit(SUPA_RIDE, item.id, item)
 
+    override suspend fun editDriverLocation(rideId: Long, driverLocation: Location): Int = try {
+        buildJsonObject {
+            put("item_id", rideId)
+            put("driver_location", Json.encodeToJsonElement(driverLocation))
+        }.let {
+            rpc("edit_ride_driver_location", it)
+        }
+    } catch (e: Exception) {
+        loggerError(error = e.stackTraceToString())
+        -2
+    }
+
     override suspend fun deleteRide(id: Long): Int = delete(SUPA_RIDE, id)
 
-    /*override suspend fun getNearRideRequestsForDriver(location: Location, invoke: suspend (List<RideRequest>) -> Unit) {
-        val lat = location.latitude - AREA_RIDE_FIRST_PHASE to location.latitude + AREA_RIDE_FIRST_PHASE
-        val long = location.longitude - AREA_RIDE_FIRST_PHASE to location.longitude + AREA_RIDE_FIRST_PHASE
-        query<RideRequest>(SUPA_RIDE_REQUEST) {
-            and {
-                rangeGte("from->latitude", lat)
-                rangeGte("from->longitude", long)
-            }
-        }.also { invoke(it) }.map { it.id }.also { requestIds ->
-            queryRealTime(
-                table = SUPA_RIDE_REQUEST,
-                primaryKey = RideRequest::id,
-                filter = FilterOperation("id", FilterOperator.IN, "(${requestIds.joinToString(",")})"),
-                invoke = invoke
-            )
-        }
-    }*/
-
-    override suspend fun getNearRideInserts(
+    override suspend fun getNearRideInsertsDeletes(
         currentLocation: Location,
-        insert: (RideRequest) -> Unit,
-    ) {
+        onInsert: (RideRequest) -> Unit,
+        onDelete: (Long) -> Unit,
+        ) {
         kotlinx.coroutines.coroutineScope {
-            realTimeQueryInserts<RideRequest>(realTable = SUPA_RIDE_REQUEST) { record ->
+            realTimeQueryInsertsDeletes<RideRequest>(realTable = SUPA_RIDE_REQUEST, { record ->
                 record.applyFilterNearRideInserts(currentLocation) {
-                    insert(it)
+                    onInsert(it)
                 }
+            }) {
+                onDelete(it)
             }
         }
     }

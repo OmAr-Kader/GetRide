@@ -18,15 +18,19 @@ internal val android.content.Context.isTablet: Boolean
                 android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
     }
 
-fun android.content.Context.bitmapDescriptorFromVector(id: Int): com.google.android.gms.maps.model.BitmapDescriptor {
-    val vectorDrawable = androidx.core.content.ContextCompat.getDrawable(this, id)!!
-    val h = (50 * resources.displayMetrics.density).toInt()
-    val w = (50 * resources.displayMetrics.density).toInt()
-    vectorDrawable.setBounds(0, 0, w, h)
-    val bm = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
-    val canvas = android.graphics.Canvas(bm)
-    vectorDrawable.draw(canvas)
-    return com.google.android.gms.maps.model.BitmapDescriptorFactory.fromBitmap(bm)
+@androidx.compose.runtime.Composable
+fun android.content.Context.bitmapDescriptorFromVector(id: Int): com.google.android.gms.maps.model.BitmapDescriptor? {
+    return androidx.compose.runtime.remember {
+        val vectorDrawable = androidx.core.content.ContextCompat.getDrawable(this, id) ?: return@remember null
+        val h = (50 * resources.displayMetrics.density).toInt()
+        val w = (50 * resources.displayMetrics.density).toInt()
+        vectorDrawable.setBounds(0, 0, w, h)
+        val bm = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bm)
+        vectorDrawable.draw(canvas)
+
+        com.google.android.gms.maps.model.BitmapDescriptorFactory.fromBitmap(bm)
+    }
 }
 
 internal val android.content.Context.imageBuildr: (String) -> coil.request.ImageRequest

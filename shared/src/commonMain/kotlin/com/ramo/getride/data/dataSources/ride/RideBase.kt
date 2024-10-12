@@ -17,12 +17,14 @@ class RideBase(
     suspend fun getActiveRideForDriver(driverId: Long, invoke: (Ride?) -> Unit) = repo.getActiveRideForDriver(driverId = driverId, invoke)
     suspend fun addNewRide(item: Ride): Ride? = repo.addNewRide(item)
     suspend fun editRide(item: Ride): Ride? = repo.editRide(item)
+    suspend fun editDriverLocation(rideId: Long, driverLocation: Location): Int = repo.editDriverLocation(rideId, driverLocation)
     suspend fun deleteRide(id: Long): Int = repo.deleteRide(id)
 
-    suspend fun getNearRideInserts(
+    suspend fun getNearRideInsertsDeletes(
         currentLocation: Location,
-        insert: (RideRequest) -> Unit
-    ) = repo.getNearRideInserts(currentLocation, insert)
+        onInsert: (RideRequest) -> Unit,
+        onDelete: (Long) -> Unit
+    ) = repo.getNearRideInsertsDeletes(currentLocation, onInsert, onDelete)
     suspend fun getNearRideRequestsForDriver(
         currentLocation: Location,
         invoke: (List<RideRequest>) -> Unit
@@ -36,4 +38,5 @@ class RideBase(
         proposalToRemove: RideProposal
     ): Int = repo.editRemoveDriverProposal(rideRequestId, proposalToRemove)
     suspend fun deleteRideRequest(id: Long): Int = repo.deleteRideRequest(id)
+
 }

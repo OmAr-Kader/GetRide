@@ -18,6 +18,7 @@ interface DriverRepo {
     suspend fun deleteDriver(id: Long): Int
 
     suspend fun addNewDriverRate(item: DriverRate): DriverRate?
+    suspend fun addEditDriverRate(driverId: Long, rate: Float): Int
     suspend fun editDriverRate(item: DriverRate): DriverRate?
     suspend fun deleteDriverRate(id: Long): Int
 

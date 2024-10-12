@@ -20,6 +20,7 @@ class DriverBase(
     suspend fun deleteDriver(id: Long): Int = repo.deleteDriver(id)
 
     suspend fun addNewDriverRate(item: DriverRate): DriverRate? = repo.addNewDriverRate(item)
+    suspend fun addEditDriverRate(driverId: Long, rate: Float): Int = repo.addEditDriverRate(driverId, rate)
     suspend fun editDriverRate(item: DriverRate): DriverRate? = repo.editDriverRate(item)
     suspend fun deleteDriverRate(id: Long): Int = repo.deleteDriverRate(id)
 

@@ -46,6 +46,7 @@ import com.ramo.getride.android.global.navigation.Screen
 import com.ramo.getride.android.global.ui.AnimatedText
 import com.ramo.getride.android.global.ui.LoadingScreen
 import com.ramo.getride.android.global.ui.OnLaunchScreen
+import com.ramo.getride.android.global.ui.RatingBar
 import com.ramo.getride.android.ui.common.BarMainScreen
 import com.ramo.getride.android.ui.common.HomeUserDrawer
 import com.ramo.getride.android.ui.common.MapData
@@ -103,12 +104,14 @@ fun HomeDriverScreen(
                 latitude?.toDoubleOrNull()?.let { lat ->
                     longitude?.toDoubleOrNull()?.also { lng ->
                         scope.launch {
-                            kotlinx.coroutines.coroutineScope { viewModel.setLastLocation(lat = lat , lng = lng) }
-                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
+                            kotlinx.coroutines.coroutineScope {
+                                cameraPositionState.position = CameraPosition.fromLatLngZoom(com.google.android.gms.maps.model.LatLng(lat, lng), 15F)
+                            }
+                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet, refreshScope) }
                         }
                     }
                 } ?: scope.launch {
-                    kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
+                    kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet, refreshScope) }
                 }
             }
         }
@@ -116,6 +119,9 @@ fun HomeDriverScreen(
     ModalNavigationDrawer(
         drawerContent = {
             HomeUserDrawer(theme) {
+                scope.launch {
+                    drawerState.close()
+                }
                 viewModel.signOut({
                     scope.launch { navigateHome(AUTH_SCREEN_DRIVER_ROUTE) }
                 }) {
@@ -144,9 +150,17 @@ fun HomeDriverScreen(
                 state.ride?.also { ride ->
                     SubmittedRideRequestSheet(
                         ride = ride,
-                        theme = theme
-                    ) { newStatus ->
-                        viewModel.updateRide(ride = ride, newStatus = newStatus)
+                        theme = theme,
+                        updateRideStatus = { newStatus ->
+                            /*val serviceIntent = Intent(this, LocationService::class.java) // Start and stop => Background Tracker Service
+                            ContextCompat.startForegroundService(this, serviceIntent)*/
+                            viewModel.updateRide(ride = ride, newStatus = newStatus)
+                        },
+                        submitFeedback = {
+                            viewModel.submitFeedback(ride.driverId, it)
+                        }
+                    ) {
+                        viewModel.clearRide()
                     }
                 } ?: RideRequestsDriverSheet(
                     state.requests,
@@ -176,9 +190,11 @@ fun HomeDriverScreen(
                 MapScreen(
                     mapData = state.mapData,
                     cameraPositionState = cameraPositionState,
-                    updateCurrentLocation = { currentLocation ->
-                        viewModel.updateCurrentLocation(currentLocation)
-                        viewModel.loadRequests(userPref.id, currentLocation.toLocation(), popUpSheet)
+                    updateCurrentLocation = { currentLocation, update ->
+                        viewModel.updateCurrentLocation(currentLocation) {
+                            update()
+                            viewModel.loadRequests(userPref.id, currentLocation.toLocation(), popUpSheet, refreshScope)
+                        }
                     },
                     theme = theme
                 ) { _, _ ->
@@ -191,7 +207,7 @@ fun HomeDriverScreen(
 }
 
 @Composable
-fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (status: Int) -> Unit) {
+fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (status: Int) -> Unit, submitFeedback: (Float) -> Unit, clearRide: () -> Unit) {
     val actionTitle: String = when (ride.status) {
         0 -> { // To Update Status To 1
             "Going to Your Client"
@@ -205,7 +221,7 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
         3 -> { // To Update Status To 4
             "Finish Your Ride"
         }
-        4 -> "Submit client feedback"
+        4 -> "Close"
         else -> "Canceled"
     }
     val targetedAction: () -> Int? = {
@@ -221,12 +237,14 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
         Modifier
             .padding(start = 20.dp, end = 20.dp)
             .fillMaxWidth()
-            .height(100.dp)) {
+            .defaultMinSize(minHeight = 100.dp)
+    ) {
         Spacer(Modifier.height(10.dp))
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding()) {
+                .padding()
+        ) {
             Text(
                 text = ride.durationDistance,
                 color = theme.textColor, modifier = Modifier.padding(),
@@ -241,16 +259,16 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
             Spacer(Modifier)
         }
         Spacer(Modifier.height(10.dp))
+        if (ride.status == 4) {
+            RatingBar(rating = 0F, modifier = Modifier.padding(), onRate = submitFeedback)
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (ride.status == 4) {
-                // Feedback UI
-            }
-            if (ride.status != -2 && ride.status != -1 && ride.status != 3 && ride.status != 4) {
+            if (ride.status != -1 && ride.status != 3 && ride.status != 4) {
                 Button(
                     onClick = {
                         updateRideStatus(-1)
@@ -267,7 +285,7 @@ fun SubmittedRideRequestSheet(ride: Ride, theme: Theme, updateRideStatus: (statu
             Button(
                 onClick = {
                     if (ride.status == 4) {
-                        // @OmAr-Kader => When Review is submitted, clear Ride
+                        clearRide()
                     } else {
                         targetedAction()?.also { action ->
                             updateRideStatus(action)

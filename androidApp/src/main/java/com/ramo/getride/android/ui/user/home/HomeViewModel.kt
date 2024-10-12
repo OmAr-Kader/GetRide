@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.PolyUtil
 import com.ramo.getride.android.global.navigation.BaseViewModel
 import com.ramo.getride.android.ui.common.MapData
+import com.ramo.getride.android.ui.common.toGoogleLatLng
 import com.ramo.getride.data.map.GoogleLocation
 import com.ramo.getride.data.map.fetchAndDecodeRoute
 import com.ramo.getride.data.map.fetchPlaceName
@@ -22,7 +23,6 @@ import com.ramo.getride.di.Project
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
 import com.ramo.getride.global.util.dateNow
-import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -37,7 +37,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     private var jobRideInitial: kotlinx.coroutines.Job? = null
     private var jobRide: kotlinx.coroutines.Job? = null
 
-    fun checkForActiveRide(userId: Long, invoke: () -> Unit) {
+    fun checkForActiveRide(userId: Long, invoke: () -> Unit, refreshScope: (MapData) -> Unit) {
         jobRideInitial?.cancel()
         jobRideInitial = launchBack {
             project.ride.getActiveRideForUser(userId = userId) { ride ->
@@ -45,7 +45,21 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     if (state.ride == null && ride != null) {
                         invoke()
                     }
-                    state.copy(ride = ride, isProcess = false)
+                    if (ride?.status == -2) {
+                        jobRideInitial?.cancel()
+                        state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
+                    } else {
+                        if (ride != null && state.mapData.routePoints.isEmpty()) {
+                            fetchRoute(ride.from.toGoogleLatLng(), ride.to.toGoogleLatLng(), refreshScope)
+                        }
+                        state.copy(ride = ride, mapData = state.mapData.copy(
+                            driverPoint = ride?.currentDriver?.toGoogleLatLng(),
+                            startPoint = ride?.from?.toGoogleLatLng(),
+                            fromText = ride?.from?.title ?: "",
+                            endPoint = ride?.to?.toGoogleLatLng(),
+                            toText = ride?.to?.title ?: "",
+                        ), isProcess = false)
+                    }
                 }
             }
         }
@@ -54,12 +68,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     fun cancelRideFromUser(ride: Ride) {
         launchBack {
             project.ride.editRide(ride.copy(status = -2))
-        }
-    }
-
-    fun setLastLocation(lat: Double, lng: Double) {
-        _uiState.update { state ->
-            state.copy(mapData = state.mapData.copy(currentLocation = GoogleLatLng(lat, lng)))
         }
     }
 
@@ -269,15 +277,52 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun updateCurrentLocation(currentLocation: GoogleLatLng) {
-        _uiState.update { state ->
-            state.copy(mapData = state.mapData.copy(currentLocation = currentLocation))
+    fun updateCurrentLocation(currentLocation: GoogleLatLng, update: () -> Unit) {
+        uiState.value.mapData.also {
+            if (!it.isCurrentAlmostSameArea(currentLocation)) {
+                update()
+                updateCurrentLocationPref(currentLocation)
+                _uiState.update { state ->
+                    state.copy(mapData = state.mapData.copy(currentLocation = currentLocation))
+                }
+            }
         }
+    }
+
+    private fun updateCurrentLocationPref(currentLocation: GoogleLatLng) {
         launchBack {
             project.pref.updatePref(
                 listOf(
                     PreferenceData(PREF_LAST_LATITUDE, currentLocation.latitude.toString()),
-                    PreferenceData(PREF_LAST_LONGITUDE, currentLocation.longitude.toString()))
+                    PreferenceData(PREF_LAST_LONGITUDE, currentLocation.longitude.toString())
+                )
+            )
+        }
+    }
+
+    fun submitFeedback(userId: Long, rate: Float) {
+        clearRide()
+        launchBack {
+            project.user.addEditUserRate(userId = userId, rate = rate)
+        }
+    }
+
+    fun clearRide() {
+        jobRide?.cancel()
+        jobRideInitial?.cancel()
+        _uiState.update { state ->
+            state.copy(
+                ride = null,
+                mapData = state.mapData.copy(
+                    startPoint = null,
+                    fromText = "",
+                    endPoint = null,
+                    toText = "",
+                    durationDistance = "",
+                    routePoints = emptyList(),
+                    driverPoint = null
+                ),
+                isProcess = false
             )
         }
     }
@@ -367,7 +412,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         jobRideRequest?.cancel()
         jobRideRequest = launchBack {
             project.ride.getRideRequestById(rideRequestId) { rideRequest ->
-                loggerError("getRideRequestById", rideRequest.toString())
                 _uiState.update { state ->
                     state.copy(rideRequest = rideRequest, isProcess = false)
                 }
@@ -385,7 +429,17 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     }
                     jobRideRequest?.cancel()
                     jobRideRequest = null
-                    state.copy(ride = ride, rideRequest = null, isProcess = false)
+                    if (ride?.status == -2) {
+                        jobRide?.cancel()
+                        state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
+                    } else {
+                        state.copy(
+                            ride = ride,
+                            mapData = state.mapData.copy(driverPoint = ride?.currentDriver?.toGoogleLatLng()),
+                            rideRequest = null,
+                            isProcess = false
+                        )
+                    }
                 }
             }
         }

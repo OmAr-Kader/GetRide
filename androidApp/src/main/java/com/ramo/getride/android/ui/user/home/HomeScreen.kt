@@ -61,6 +61,7 @@ import com.ramo.getride.android.ui.common.MapData
 import com.ramo.getride.android.ui.common.MapScreen
 import com.ramo.getride.android.ui.common.MapSheetUser
 import com.ramo.getride.android.ui.common.defaultLocation
+import com.ramo.getride.android.ui.common.toLocation
 import com.ramo.getride.data.model.Ride
 import com.ramo.getride.data.model.RideProposal
 import com.ramo.getride.data.model.RideRequest
@@ -113,12 +114,11 @@ fun HomeScreen(
                 latitude?.toDoubleOrNull()?.let { lat ->
                     longitude?.toDoubleOrNull()?.also { lng ->
                         scope.launch {
-                            kotlinx.coroutines.coroutineScope { viewModel.setLastLocation(lat = lat , lng = lng) }
-                            kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
+                            kotlinx.coroutines.coroutineScope {
+                                cameraPositionState.position = CameraPosition.fromLatLngZoom(com.google.android.gms.maps.model.LatLng(lat, lng), 15F)
+                            }
                         }
                     }
-                } ?: scope.launch {
-                    kotlinx.coroutines.coroutineScope { viewModel.checkForActiveRide(userPref.id, popUpSheet) }
                 }
             }
         }
@@ -126,6 +126,9 @@ fun HomeScreen(
     ModalNavigationDrawer(
         drawerContent = {
             HomeUserDrawer(theme) {
+                scope.launch {
+                    drawerState.close()
+                }
                 viewModel.signOut({
                     scope.launch { navigateHome(AUTH_SCREEN_ROUTE) }
                 }) {
@@ -153,8 +156,12 @@ fun HomeScreen(
             },
             sheetContent = {
                 state.ride?.also { ride ->
-                    RideSheet(ride = ride, theme = theme) {
+                    RideSheet(ride = ride, theme = theme, cancelRide = {
                         viewModel.cancelRideFromUser(ride = ride)
+                    }, submitFeedback = {
+                        viewModel.submitFeedback(ride.userId, it)
+                    }) {
+                        viewModel.clearRide()
                     }
                 } ?: MapSheetUser(userId = userPref.id, viewModel = viewModel, state = state, refreshScope = refreshScope, theme = theme) { txt ->
                     scope.launch {
@@ -173,7 +180,12 @@ fun HomeScreen(
                 MapScreen(
                     mapData = state.mapData,
                     cameraPositionState = cameraPositionState,
-                    updateCurrentLocation = viewModel::updateCurrentLocation,
+                    updateCurrentLocation = { location, update ->
+                        viewModel.updateCurrentLocation(location) {
+                            update()
+                            viewModel.checkForActiveRide(userPref.id, popUpSheet, refreshScope)
+                        }
+                    },
                     theme = theme
                 ) { start, end ->
                     viewModel.setMapMarks(startPoint = start, endPoint = end, invoke = refreshScope)
@@ -205,7 +217,7 @@ fun HomeScreen(
 
 
 @Composable
-fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
+fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit, submitFeedback: (Float) -> Unit, clearRide: () -> Unit) {
     val statusTitle: String = when (ride.status) {
         0 -> { // To Update Status To 1
             "${ride.driverName} is getting ready to go."
@@ -220,7 +232,7 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
             "Ride Started"
         }
         4 -> { // To Update Status To 4
-            "Give ${ride.driverName} feedback, Please"
+            "Give ${ride.driverName} feedback"
         }
         else -> "Canceled"
     }
@@ -255,11 +267,10 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
             )
             Spacer(Modifier)
         }
-        if (ride.status == 4) {
-            Spacer(Modifier.height(10.dp))
-            // Feedback
-        }
         Spacer(Modifier.height(10.dp))
+        if (ride.status == 4) {
+            RatingBar(rating = 0F, modifier = Modifier.padding(), onRate = submitFeedback)
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -285,12 +296,13 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit) {
                 Button(
                     onClick = {
                         // @OmAr-Kader => When Review is submitted, clear Ride
+                        clearRide()
                     },
                     colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Green, contentColor = Color.Black),
                     contentPadding = PaddingValues(start = 30.dp, top = 7.dp, end = 30.dp, bottom = 7.dp)
                 ) {
                     Text(
-                        text = "Submit client feedback",
+                        text = "Close",
                         color = Color.Black
                     )
                 }
@@ -359,7 +371,11 @@ fun RideRequestSheet(
             }
         }
     ) {
-        LazyColumn(Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth().height(350.dp)) {
+        LazyColumn(
+            Modifier
+                .padding(start = 20.dp, end = 20.dp)
+                .fillMaxWidth()
+                .height(350.dp)) {
             item {
                 Spacer(Modifier.height(5.dp))
                 Row(horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()) {
@@ -381,7 +397,10 @@ fun RideRequestSheet(
             items(rideRequest.driverProposals) { proposal ->
                 loggerError("proposal", proposal.toString())
                 Column(Modifier.padding()) {
-                    Row(Modifier.fillMaxWidth().padding()) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding()) {
                         Text(
                             text = proposal.driverName,
                             color = theme.textColor, modifier = Modifier.padding(),

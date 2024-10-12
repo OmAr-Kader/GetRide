@@ -1,6 +1,6 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:autoMirrored="true" android:height="256dp" android:viewportHeight="256" android:viewportWidth="256" android:width="256dp"
+    android:autoMirrored="true" android:height="56dp" android:viewportHeight="256" android:viewportWidth="256" android:width="56dp"
     tools:ignore="VectorRaster">
       
     <path android:fillColor="#FF4A4A" android:pathData="M127.86,4.22c-50.25,0 -90.99,40.74 -90.99,90.99c0,22.43 8.16,42.94 21.62,58.8l69.37,81.7l69.37,-81.71c13.46,-15.86 21.62,-36.37 21.62,-58.8C218.85,44.96 178.11,4.22 127.86,4.22z"/>

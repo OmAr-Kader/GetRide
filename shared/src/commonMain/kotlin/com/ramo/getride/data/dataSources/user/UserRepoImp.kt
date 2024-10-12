@@ -9,7 +9,10 @@ import com.ramo.getride.data.util.toListOfObject
 import com.ramo.getride.global.base.SUPA_USER
 import com.ramo.getride.global.base.SUPA_USER_RATE
 import com.ramo.getride.global.base.Supabase
+import com.ramo.getride.global.util.loggerError
 import io.github.jan.supabase.postgrest.query.Columns
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class UserRepoImp(supabase: Supabase) : BaseRepoImp(supabase), UserRepo {
 
@@ -50,8 +53,19 @@ class UserRepoImp(supabase: Supabase) : BaseRepoImp(supabase), UserRepo {
 
     override suspend fun deleteUser(id: Long): Int = delete(SUPA_USER, id)
 
-
     override suspend fun addNewUserRate(item: UserRate): UserRate? = insert(SUPA_USER_RATE, item)
+
+    override suspend fun addEditUserRate(userId: Long, rate: Float): Int = try {
+        buildJsonObject {
+            put("p_user_id", userId)
+            put("p_rate", rate)
+        }.let {
+            rpc("update_user_rate", it)
+        }
+    } catch (e: Exception) {
+        loggerError(error = e.stackTraceToString())
+        -2
+    }
 
     override suspend fun editUserRate(item: UserRate): UserRate? = edit(SUPA_USER_RATE, item.id, item)
 

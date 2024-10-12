@@ -13,7 +13,12 @@ import com.ramo.getride.global.base.SUPA_DRIVER
 import com.ramo.getride.global.base.SUPA_DRIVER_RATE
 import com.ramo.getride.global.base.SUPA_DRIVER_LICENCE
 import com.ramo.getride.global.base.Supabase
+import com.ramo.getride.global.util.loggerError
 import io.github.jan.supabase.postgrest.query.Columns
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.put
 
 class DriverRepoImp(supabase: Supabase) : BaseRepoImp(supabase), DriverRepo {
 
@@ -77,6 +82,18 @@ class DriverRepoImp(supabase: Supabase) : BaseRepoImp(supabase), DriverRepo {
 
 
     override suspend fun addNewDriverRate(item: DriverRate): DriverRate? = insert(SUPA_DRIVER_RATE, item)
+
+    override suspend fun addEditDriverRate(driverId: Long, rate: Float): Int = try {
+        buildJsonObject {
+            put("p_driver_id", driverId)
+            put("p_rate", rate)
+        }.let {
+            rpc("update_driver_rate", it)
+        }
+    } catch (e: Exception) {
+        loggerError(error = e.stackTraceToString())
+        -2
+    }
 
     override suspend fun editDriverRate(item: DriverRate): DriverRate? = edit(SUPA_DRIVER_RATE, item.id, item)
 
