@@ -19,8 +19,4 @@ common
 map
 androidApp/src/main/AndroidManifest.xml
 /iosApp/iosApp/global/ui/Views.swift
-Views.swift
 /iosApp/iosApp/ui/common
-/iosApp/iosApp/ui/common/Map.swift
-/iosApp/iosApp/ui/common/MapData.swift
-/iosApp/iosApp/ui/common/Items.swift

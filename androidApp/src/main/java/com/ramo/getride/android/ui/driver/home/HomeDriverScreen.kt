@@ -83,8 +83,10 @@ fun HomeDriverScreen(
         position = CameraPosition.fromLatLngZoom(state.mapData.currentLocation ?: defaultLocation, 15F) // Default position
     }
 
-    val popUpSheet: () -> Unit = {
-        scope.launch { sheetState.bottomSheetState.show() }
+    val popUpSheet: () -> Unit = remember {
+        {
+            scope.launch { sheetState.bottomSheetState.show() }
+        }
     }
     val refreshScope: (MapData) -> Unit = remember {
         { mapData ->

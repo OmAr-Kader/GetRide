@@ -45,6 +45,8 @@
 		075338722CAD5A1C003A5838 /* HomeDriverObserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075338712CAD5A17003A5838 /* HomeDriverObserve.swift */; };
 		075338742CAD5A27003A5838 /* HomeDriverScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075338732CAD5A20003A5838 /* HomeDriverScreen.swift */; };
 		075338772CAD5E73003A5838 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 075338762CAD5E73003A5838 /* GoogleMaps */; };
+		07A10C7E2CBC786D00B8080D /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A10C7D2CBC786B00B8080D /* LocationManager.swift */; };
+		07A10C822CBC7B5A00B8080D /* MapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A10C812CBC7B5A00B8080D /* MapScreen.swift */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -89,7 +91,6 @@
 		0753384E2CAD515C003A5838 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		075338522CAD53DA003A5838 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		0753385B2CAD5916003A5838 /* MapData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapData.swift; sourceTree = "<group>"; };
-		0753385D2CAD591E003A5838 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
 		0753385F2CAD592D003A5838 /* Items.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Items.swift; sourceTree = "<group>"; };
 		075338652CAD596E003A5838 /* AuthObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthObserve.swift; sourceTree = "<group>"; };
 		075338672CAD59CB003A5838 /* AuthScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthScreen.swift; sourceTree = "<group>"; };
@@ -99,6 +100,8 @@
 		0753386F2CAD5A06003A5838 /* AuthDriverScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthDriverScreen.swift; sourceTree = "<group>"; };
 		075338712CAD5A17003A5838 /* HomeDriverObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDriverObserve.swift; sourceTree = "<group>"; };
 		075338732CAD5A20003A5838 /* HomeDriverScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDriverScreen.swift; sourceTree = "<group>"; };
+		07A10C7D2CBC786B00B8080D /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		07A10C812CBC7B5A00B8080D /* MapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapScreen.swift; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -182,6 +185,7 @@
 		075338392CAD4F07003A5838 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				07A10C7D2CBC786B00B8080D /* LocationManager.swift */,
 				075338362CAD4F07003A5838 /* Media.swift */,
 				075338372CAD4F07003A5838 /* Utils.swift */,
 				075338382CAD4F07003A5838 /* Web.swift */,
@@ -230,7 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				0753385F2CAD592D003A5838 /* Items.swift */,
-				0753385D2CAD591E003A5838 /* Map.swift */,
+				07A10C812CBC7B5A00B8080D /* MapScreen.swift */,
 				0753385B2CAD5916003A5838 /* MapData.swift */,
 			);
 			path = common;
@@ -436,9 +440,11 @@
 				0753383D2CAD4F07003A5838 /* BarBuilder.swift in Sources */,
 				075338602CAD592F003A5838 /* Items.swift in Sources */,
 				0753385C2CAD5917003A5838 /* MapData.swift in Sources */,
+				07A10C7E2CBC786D00B8080D /* LocationManager.swift in Sources */,
 				0753386E2CAD59EC003A5838 /* AuthDriverObserve.swift in Sources */,
 				0753383E2CAD4F07003A5838 /* StatusBar.swift in Sources */,
 				0753386A2CAD59DB003A5838 /* HomeObserve.swift in Sources */,
+				07A10C822CBC7B5A00B8080D /* MapScreen.swift in Sources */,
 				0753383F2CAD4F07003A5838 /* Scope.swift in Sources */,
 				075338402CAD4F07003A5838 /* Web.swift in Sources */,
 				075338412CAD4F07003A5838 /* Utils.swift in Sources */,

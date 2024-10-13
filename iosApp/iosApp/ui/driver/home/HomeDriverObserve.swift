@@ -194,7 +194,7 @@ class HomeDriverObserve : ObservableObject {
     }
     
     @MainActor
-    func updateCurrentLocation(currentLocation: CLLocationCoordinate2D, update: () -> Unit) {
+    func updateCurrentLocation(currentLocation: CLLocationCoordinate2D, update: @MainActor () -> Unit) {
         let it = self.state.mapData
         if !it.isCurrentAlmostSameArea(newCurrent: currentLocation) {
             update()

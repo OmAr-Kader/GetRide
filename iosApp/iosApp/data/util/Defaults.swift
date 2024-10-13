@@ -52,3 +52,11 @@ extension Ride {
         Ride(id: id ?? self.id, userId: userId ?? self.userId, driverId: driverId ?? self.driverId, from: from ?? self.from, to: to ?? self.to, currentDriver: currentDriver ?? self.currentDriver, fare: fare ?? self.fare, status: status ?? self.status, date: date ?? self.date, durationDistance: durationDistance ?? self.durationDistance, driverName: driverName ?? self.driverName)
     }
 }
+
+extension RideRequest {
+    
+    func copy(id: Int64? = nil, userId: Int64? = nil, from: Location? = nil, to: Location? = nil, durationDistance: String? = nil, fare: Double? = nil, driverProposals: [RideProposal]? = nil, chosenDriver: Int64? = nil, chosenRide: Int64? = nil, date: String? = nil, isDriverCanSubmit: Bool? = nil, requestHadSubmit: Bool? = nil) -> RideRequest {
+        RideRequest(id: id ?? self.id, userId: userId ?? self.userId, from: from ?? self.from, to: to ?? self.to, durationDistance: durationDistance ?? self.durationDistance, fare: fare ?? self.fare, driverProposals: driverProposals ?? self.driverProposals, chosenDriver: chosenDriver ?? self.chosenDriver, chosenRide: chosenRide ?? self.chosenRide, date: date ?? self.date, isDriverCanSubmit: isDriverCanSubmit ?? self.isDriverCanSubmit, requestHadSubmit: requestHadSubmit ?? self.requestHadSubmit
+        )
+    }
+}

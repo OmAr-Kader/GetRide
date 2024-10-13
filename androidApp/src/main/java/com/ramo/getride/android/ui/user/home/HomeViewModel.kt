@@ -131,14 +131,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    private suspend fun Int.checkDeleting(invoke: suspend () -> Unit, failed: suspend () -> Unit) {
-        if (this@checkDeleting == REALM_SUCCESS) {
-            invoke.invoke()
-        } else {
-            failed.invoke()
-        }
-    }
-
     fun setMapMarks(startPoint: GoogleLatLng? = null, endPoint: GoogleLatLng? = null, invoke: (MapData) -> Unit) {
         checkForPlacesNames(startPoint = startPoint, endPoint = endPoint)
         checkForRoutes(startPoint = startPoint, endPoint = endPoint, invoke = invoke)
@@ -330,24 +322,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun signOut(invoke: () -> Unit, failed: () -> Unit) {
-        setIsProcess(true)
-        launchBack {
-            project.pref.deletePrefAll().checkDeleting({
-                signOutAuth({
-                    setIsProcess(false)
-                    invoke()
-                }, {
-                    setIsProcess(false)
-                    failed()
-                })
-            }, {
-                setIsProcess(false)
-                failed()
-            })
-        }
-    }
-
     fun pushRideRequest(userId: Long) {
         setIsProcess(true)
         uiState.value.also { state ->
@@ -446,6 +420,32 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     }
                 }
             }
+        }
+    }
+
+    fun signOut(invoke: () -> Unit, failed: () -> Unit) {
+        setIsProcess(true)
+        launchBack {
+            project.pref.deletePrefAll().checkDeleting({
+                signOutAuth({
+                    setIsProcess(false)
+                    invoke()
+                }, {
+                    setIsProcess(false)
+                    failed()
+                })
+            }, {
+                setIsProcess(false)
+                failed()
+            })
+        }
+    }
+
+    private suspend fun Int.checkDeleting(invoke: suspend () -> Unit, failed: suspend () -> Unit) {
+        if (this@checkDeleting == REALM_SUCCESS) {
+            invoke.invoke()
+        } else {
+            failed.invoke()
         }
     }
 
