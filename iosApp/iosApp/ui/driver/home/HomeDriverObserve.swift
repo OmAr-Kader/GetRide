@@ -20,8 +20,7 @@ class HomeDriverObserve : ObservableObject {
     @MainActor
     @Published var state = State()
     
-    var  s: Task<Void, Error>? = nil
-    private var jobDriverRideInserts: Task<Void, Error>? = nil
+    private var jobDriverRideInsertsDeletes: Task<Void, Error>? = nil
     private var jobDriverRideRequests: Task<Void, Error>? = nil
 
     private var jobRideRequest: Task<Void, Error>? = nil
@@ -29,31 +28,39 @@ class HomeDriverObserve : ObservableObject {
     private var jobRide: Task<Void, Error>? = nil
     
     @MainActor
-    func loadRequests(driverId: Long, currentLocation: Location, popUpSheet: @escaping @MainActor () -> Unit) {
+    func loadRequests(driverId: Long, currentLocation: Location, popUpSheet: @escaping @MainActor () -> Unit, refreshScope: @escaping @MainActor (MapData) -> Unit) {
         if let it = state.mapData.currentLocation {
-            if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInserts != nil) {
+            if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInsertsDeletes != nil) {
                 loggerError("request", "return")
                 return
             }
         }
         
-        jobDriverRideInserts?.cancel()
-        jobDriverRideInserts = scope.launchBack {
-            try? await self.project.ride.getNearRideInserts(currentLocation: currentLocation) { newRequest in
+        jobDriverRideInsertsDeletes?.cancel()
+        jobDriverRideInsertsDeletes = scope.launchBack {
+            try? await self.project.ride.getNearRideInsertsDeletes(currentLocation: currentLocation, onInsert: { newRequest in
                 self.scope.launchMain {
                     self.state = self.state.copy(requests: self.state.requests + [newRequest])
                 }
-            }
+            }, onDelete: { id in
+                self.scope.launchMain(block: {
+                    if let index = self.state.requests.firstIndex(where: { it in it.id == id.int64Value }) {
+                        var requests = self.state.requests
+                        requests.remove(at: index)
+                        self.state = self.state.copy(requests: requests)
+                    }
+                })
+            })
         }
-        jobDriverRideInserts?.cancel()
-        jobDriverRideInserts = scope.launchBack {
+        jobDriverRideRequests?.cancel()
+        jobDriverRideRequests = scope.launchBack {
             try? await self.project.ride.getNearRideRequestsForDriver(currentLocation: currentLocation) { requests in
                 self.scope.launchMain {
                     if (self.state.ride == nil) {
                         if let it = requests.first(where: { it in
                             it.isDriverChosen(driverId: driverId) && it.chosenRide != 0
                         }) {
-                            self.fetchRide(rideId: it.chosenRide, popUpSheet: popUpSheet)
+                            self.fetchRide(rideId: it.chosenRide, popUpSheet: popUpSheet, refreshScope: refreshScope)
                         }
                     }
                 }
@@ -69,16 +76,25 @@ class HomeDriverObserve : ObservableObject {
         
     }
     
-    private func fetchRide(rideId: Long, popUpSheet: @escaping @MainActor () -> Unit) {
+    private func fetchRide(rideId: Long, popUpSheet: @escaping @MainActor () -> Unit, refreshScope: @escaping @MainActor (MapData) -> Unit) {
         jobRide?.cancel()
         jobRide = scope.launchBack {
             do {
                 try await self.project.ride.getRideById(rideId: rideId) { ride in
                     self.scope.launchMain {
-                        if (self.state.ride == nil) {
+                        if self.state.ride == nil && ride != nil {
                             popUpSheet()
                         }
-                        self.state = self.state.copy(ride: ride, isProcess: false)
+                        if (ride?.status == -1) {
+                            self.jobRide?.cancel()
+                            self.jobRide = nil
+                            self.self.state = self.state.copy(mapData: self.state.mapData.copy(driverPoint: nil), ride: nil, isProcess: false)
+                        } else {
+                            if let ride, let routePoints = self.state.mapData.routePoints, routePoints.isEmpty {
+                                self.showOnMap(start: ride.from.toGoogleLatLng(), end: ride.to.toGoogleLatLng(), refreshScope: refreshScope)
+                            }
+                            self.state = self.state.copy(ride: ride, isProcess: false)
+                        }
                     }
                 }
             } catch {
@@ -88,7 +104,7 @@ class HomeDriverObserve : ObservableObject {
     }
     
     @MainActor
-    func checkForActiveRide(driverId: Long, invoke: @escaping @MainActor () -> Unit) {
+    func checkForActiveRide(driverId: Long, invoke: @escaping @MainActor () -> Unit, refreshScope: @escaping @MainActor (MapData) -> Unit) {
         jobRideInitial?.cancel()
         let state = self.state
         jobRideInitial = scope.launchBack {
@@ -98,18 +114,22 @@ class HomeDriverObserve : ObservableObject {
                         if (state.ride == nil && ride != nil) {
                             invoke()
                         }
-                        self.state = self.state.copy(ride: ride, isProcess: false)
+                        if (ride?.status == -1) {
+                            self.jobRide?.cancel()
+                            self.jobRide = nil
+                            self.self.state = self.state.copy(mapData: self.state.mapData.copy(driverPoint: nil), ride: nil, isProcess: false)
+                        } else {
+                            if let ride, let routePoints = self.state.mapData.routePoints, routePoints.isEmpty {
+                                self.showOnMap(start: ride.from.toGoogleLatLng(), end: ride.to.toGoogleLatLng(), refreshScope: refreshScope)
+                            }
+                            self.state = self.state.copy(ride: ride, isProcess: false)
+                        }
                     }
                 }
             } catch {
                 self.setIsProcess(false)
             }
         }
-    }
-    
-    @MainActor
-    func setLastLocation(lat: Double, lng: Double) {
-        state = state.copy(mapData: state.mapData.copy(currentLocation: CLLocationCoordinate2D(latitude: lat, longitude: lng)))
     }
     
     @MainActor
@@ -159,6 +179,7 @@ class HomeDriverObserve : ObservableObject {
         }
     }
     
+    @MainActor
     func cancelProposal(request: RideRequest, driverId: Long) {
         setIsProcess(true)
         scope.launchBack {
@@ -173,9 +194,28 @@ class HomeDriverObserve : ObservableObject {
     }
     
     @MainActor
-    func updateCurrentLocation(currentLocation: CLLocationCoordinate2D) {
-        state = state.copy(mapData: state.mapData.copy(currentLocation: currentLocation))
-        scope.launchBack {
+    func updateCurrentLocation(currentLocation: CLLocationCoordinate2D, update: () -> Unit) {
+        let it = self.state.mapData
+        if !it.isCurrentAlmostSameArea(newCurrent: currentLocation) {
+            update()
+            self.updateCurrentLocationPref(currentLocation: currentLocation)
+            self.updateRideLocation(currentLocation: currentLocation)
+            self.state = self.state.copy(mapData: self.state.mapData.copy(currentLocation: currentLocation))
+        }
+    }
+    
+    @MainActor
+    private func updateRideLocation(currentLocation: CLLocationCoordinate2D) {
+        if let ride = self.state.ride {
+            self.scope.launchBack {
+                let _ = try? await self.project.ride.editDriverLocation(rideId: ride.id, driverLocation: currentLocation.toLocation())
+            }
+        }
+    }
+
+    @MainActor
+    private func updateCurrentLocationPref(currentLocation: CLLocationCoordinate2D) {
+        self.scope.launchBack {
             let _ = try? await self.project.pref.updatePref(
                 pref: [
                     PreferenceData(keyString: ConstKt.PREF_LAST_LATITUDE, value: String(currentLocation.latitude)),
@@ -185,12 +225,14 @@ class HomeDriverObserve : ObservableObject {
         }
     }
     
+    @MainActor
     func updateRide(ride: Ride, newStatus: Int32) {
         scope.launchBack {
             let _ = try? await self.project.ride.editRide(item: ride.copy(status: newStatus))
         }
     }
-
+    
+    @MainActor
     func signOut(invoke: @escaping @MainActor () -> Unit, failed: @escaping @MainActor () -> Unit) {
         setIsProcess(true)
         scope.launchBack {
@@ -234,12 +276,12 @@ class HomeDriverObserve : ObservableObject {
     }
     
     deinit {
-        jobDriverRideInserts?.cancel()
+        jobDriverRideInsertsDeletes?.cancel()
         jobDriverRideRequests?.cancel()
         jobRideRequest?.cancel()
         jobRideInitial?.cancel()
         jobRide?.cancel()
-        jobDriverRideInserts = nil
+        jobDriverRideInsertsDeletes = nil
         jobDriverRideRequests = nil
         jobRideRequest = nil
         jobRideInitial = nil

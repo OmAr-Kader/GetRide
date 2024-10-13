@@ -95,8 +95,8 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
     override suspend fun getNearRideInsertsDeletes(
         currentLocation: Location,
         onInsert: (RideRequest) -> Unit,
-        onDelete: (Long) -> Unit,
-        ) {
+        onDelete: (Long) -> Unit
+    ) {
         kotlinx.coroutines.coroutineScope {
             realTimeQueryInsertsDeletes<RideRequest>(realTable = SUPA_RIDE_REQUEST, { record ->
                 record.applyFilterNearRideInserts(currentLocation) {

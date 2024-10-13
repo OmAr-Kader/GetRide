@@ -47,6 +47,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     }
                     if (ride?.status == -2) {
                         jobRideInitial?.cancel()
+                        jobRideInitial = null
                         state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
                     } else {
                         if (ride != null && state.mapData.routePoints.isEmpty()) {
@@ -310,6 +311,8 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
     fun clearRide() {
         jobRide?.cancel()
         jobRideInitial?.cancel()
+        jobRide = null
+        jobRideInitial = null
         _uiState.update { state ->
             state.copy(
                 ride = null,
@@ -431,6 +434,7 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     jobRideRequest = null
                     if (ride?.status == -2) {
                         jobRide?.cancel()
+                        jobRide = null
                         state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
                     } else {
                         state.copy(

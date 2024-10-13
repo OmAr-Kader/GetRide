@@ -32,8 +32,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private val _uiState = MutableStateFlow(State())
     val uiState = _uiState.asStateFlow()
 
-    private var jobDriverRideInserts: kotlinx.coroutines.Job? = null
-    private var jobDriverRideDeletes: kotlinx.coroutines.Job? = null
+    private var jobDriverRideInsertsDeletes: kotlinx.coroutines.Job? = null
     private var jobDriverRideRequests: kotlinx.coroutines.Job? = null
 
     private var jobRideRequest: kotlinx.coroutines.Job? = null
@@ -42,13 +41,13 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
 
     fun loadRequests(driverId: Long, currentLocation: Location, popUpSheet: () -> Unit, refreshScope: (MapData) -> Unit) {
         uiState.value.mapData.currentLocation?.also {
-            if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInserts != null) {
+            if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInsertsDeletes != null) {
                 loggerError("request", "return")
                 return
             }
         }
-        jobDriverRideInserts?.cancel()
-        jobDriverRideInserts = launchBack {
+        jobDriverRideInsertsDeletes?.cancel()
+        jobDriverRideInsertsDeletes = launchBack {
             project.ride.getNearRideInsertsDeletes(currentLocation, { newRequest ->
                 _uiState.update { state ->
                     state.copy(requests = state.requests + newRequest)
@@ -59,7 +58,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                         state.copy(requests = state.requests - state.requests[index])
                     }
                 }
-
             }
         }
         jobDriverRideRequests?.cancel()
@@ -99,6 +97,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                     }
                     if (ride?.status == -1) {
                         jobRide?.cancel()
+                        jobRide = null
                         state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
                     } else {
                         if (ride != null && state.mapData.routePoints.isEmpty()) {
@@ -121,6 +120,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                     }
                     if (ride?.status == -1) {
                         jobRideInitial?.cancel()
+                        jobRideInitial = null
                         state.copy(ride = null, mapData = state.mapData.copy(driverPoint = null), isProcess = false)
                     } else {
                         if (ride != null && state.mapData.routePoints.isEmpty()) {
@@ -237,6 +237,8 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     fun clearRide() {
         jobRide?.cancel()
         jobRideInitial?.cancel()
+        jobRide = null
+        jobRideInitial = null
         _uiState.update { state ->
             state.copy(
                 ride = null,
@@ -287,14 +289,12 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     }
 
     override fun onCleared() {
-        jobDriverRideInserts?.cancel()
-        jobDriverRideDeletes?.cancel()
+        jobDriverRideInsertsDeletes?.cancel()
         jobDriverRideRequests?.cancel()
         jobRideRequest?.cancel()
         jobRideInitial?.cancel()
         jobRide?.cancel()
-        jobDriverRideInserts = null
-        jobDriverRideDeletes = null
+        jobDriverRideInsertsDeletes = null
         jobDriverRideRequests = null
         jobRideRequest = null
         jobRideInitial = null
