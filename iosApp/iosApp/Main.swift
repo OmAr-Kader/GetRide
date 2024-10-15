@@ -54,10 +54,8 @@ struct Main: View {
         }
     }
     
-    var findPreference: @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) async -> Unit {
-        return { key, value in
-            await app.findPrefString(key, value: value)
-        }
+    var findPreference: (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit {
+        return app.findPrefString
     }
     
     var screenConfig: @MainActor (Screen) -> (any ScreenConfig)? {

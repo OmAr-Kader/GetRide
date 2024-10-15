@@ -56,6 +56,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     // Check if location services are enabled on the device
+    @BackgroundActor
     func checkLocationStates(invoke: () -> Unit, failed: () -> Unit) {
         if CLLocationManager.locationServicesEnabled() {
             invoke()

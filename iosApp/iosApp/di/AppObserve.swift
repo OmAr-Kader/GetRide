@@ -170,7 +170,6 @@ class AppObserve : ObservableObject {
         }
     }
     
-    @BackgroundActor
     func findPrefString(
         _ key: String,
         value: @BackgroundActor @escaping (String?) -> Unit
@@ -180,7 +179,9 @@ class AppObserve : ObservableObject {
                 value(pref.first { it1 in it1.keyString == key }?.value)
             }
         } else {
-            value(preferences.first { it in it.keyString == key }?.value)
+            scope.launchBack {
+                value(self.preferences.first { it in it.keyString == key }?.value)
+            }
         }
     }
     

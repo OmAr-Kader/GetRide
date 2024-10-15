@@ -22,7 +22,7 @@ class HomeDriverObserve : ObservableObject {
     
     private var jobDriverRideInsertsDeletes: Task<Void, Error>? = nil
     private var jobDriverRideRequests: Task<Void, Error>? = nil
-
+    
     private var jobRideRequest: Task<Void, Error>? = nil
     private var jobRideInitial: Task<Void, Error>? = nil
     private var jobRide: Task<Void, Error>? = nil
@@ -212,7 +212,7 @@ class HomeDriverObserve : ObservableObject {
             }
         }
     }
-
+    
     @MainActor
     private func updateCurrentLocationPref(currentLocation: CLLocationCoordinate2D) {
         self.scope.launchBack {
@@ -229,6 +229,58 @@ class HomeDriverObserve : ObservableObject {
     func updateRide(ride: Ride, newStatus: Int32) {
         scope.launchBack {
             let _ = try? await self.project.ride.editRide(item: ride.copy(status: newStatus))
+        }
+    }
+    
+    @MainActor
+    func submitFeedback(driverId: Long, rate: Float) {
+        clearRide()
+        scope.launchBack {
+            let _ = try? await self.project.driver.addEditDriverRate(driverId: driverId, rate: rate)
+        }
+    }
+    
+    @MainActor
+    func clearRide() {
+        jobRide?.cancel()
+        jobRideInitial?.cancel()
+        jobRide = nil
+        jobRideInitial = nil
+        state = state.copy(
+            mapData: state.mapData.copy(
+                driverPoint: nil,
+                startPoint: nil,
+                fromText: "",
+                endPoint: nil,
+                toText: "",
+                durationDistance: "",
+                routePoints: nil
+            ),
+            ride: nil,
+            isProcess: false
+        )
+    }
+    
+    @MainActor
+    func getPrefLastLocation(
+        findPreference: @escaping @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit,
+        invoke: @escaping @MainActor (Double, Double) -> Unit,
+        failed:  @escaping @MainActor () -> Unit
+    ) {
+        scope.launchBack {
+            findPreference(ConstKt.PREF_LAST_LATITUDE) { latitude in
+                findPreference(ConstKt.PREF_LAST_LONGITUDE) { longitude in
+                    if let lat = (latitude != nil ? Double(latitude!) : nil), let lng = (longitude != nil ? Double(longitude!) : nil) {
+                        self.scope.launchMain {
+                            invoke(lat, lng)
+                        }
+                    } else {
+                        self.scope.launchMain {
+                            failed()
+                        }
+                    }
+                }
+            }
         }
     }
     

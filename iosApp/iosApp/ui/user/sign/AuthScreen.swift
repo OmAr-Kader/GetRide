@@ -22,6 +22,7 @@ struct AuthScreen : View {
         let state = obs.state
         ZStack(alignment: .center) {
             VStack(alignment: .center) {
+                Spacer()
                 Text(state.isLoginScreen ? "Login" : "Sign Up")
                     .font(.headline)
                     .foregroundColor(theme.textColor)
@@ -80,7 +81,7 @@ struct AuthScreen : View {
                     Text(state.isLoginScreen ? "Don't have an account? Sign Up" : "Already have an account? Login")
                         .foregroundColor(theme.textColor)
                 })
-
+                Spacer()
             }.padding()
             LoadingScreen(isLoading: state.isProcess)
         }.toolbar(.hidden).background(theme.background).toastView(toast: $toast, backColor: theme.background)

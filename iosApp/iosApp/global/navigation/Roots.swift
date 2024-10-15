@@ -13,7 +13,7 @@ extension View {
         screenConfig: @MainActor @escaping (Screen) -> (any ScreenConfig)?,
         findPreferenceMainBack: @escaping @MainActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit,
         findPreferenceMainMain: @escaping @MainActor (String, @MainActor @escaping (String?) -> Unit) -> Unit,
-        findPreference: @escaping @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) async -> Unit
+        findPreference: @escaping @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit
     ) -> some View {
         switch target {
         case .AUTH_SCREEN_ROUTE:
@@ -23,12 +23,12 @@ extension View {
         case .AUTH_SCREEN_DRIVER_ROUTE:
             AuthDriverScreen(app: app)
         case .HOME_SCREEN_DRIVER_ROUTE:
-            HomeDriverScreen(userPref: app.state.userPref ?? UserPref(), findPreferenceMainBack: findPreferenceMainBack, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
+            HomeDriverScreen(userPref: app.state.userPref ?? UserPref(), findPreference: findPreference, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
         }
     }
 }
 
-let TEMP_IS_DRIVER = false
+let TEMP_IS_DRIVER = true
 
 enum Screen : Hashable {
     case AUTH_SCREEN_ROUTE
