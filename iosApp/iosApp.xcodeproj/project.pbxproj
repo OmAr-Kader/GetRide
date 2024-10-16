@@ -536,6 +536,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				"WARNING_CFLAGS[arch=*]" = "-Weverything";
 			};
 			name = Debug;
 		};
@@ -593,6 +594,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
+				"WARNING_CFLAGS[arch=*]" = "-Weverything";
 			};
 			name = Release;
 		};

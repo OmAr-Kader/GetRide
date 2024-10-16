@@ -106,13 +106,13 @@ struct SplashScreen : View {
         FullZStack {
             Image(
                 uiImage: UIImage(
-                    named: "AppIcon"
+                    named: "GetRide"
                 )?.withTintColor(
                     UIColor(theme.textColor)
                 ) ?? UIImage()
             ).resizable()
                 .scaleEffect(scale)
-                .frame(width: width, height: width, alignment: .center)
+                .frame(width: width, height: width * 1.3, alignment: .center)
                 .onAppear {
                     withAnimation() {
                         width = 150

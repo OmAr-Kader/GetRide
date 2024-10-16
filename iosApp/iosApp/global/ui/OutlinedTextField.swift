@@ -35,7 +35,6 @@ struct OutlinedTextField : View {
 
     var body: some View {
         VStack {
-            
             TextField(
                 "",
                 text: Binding(get: {
@@ -78,6 +77,107 @@ struct OutlinedTextField : View {
                 }.onDisappear {
                     isFocused = false
                 }
+            if isError {
+                HStack {
+                    Text(errorMsg).padding(
+                        EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
+                    ).foregroundStyle(theme.error)
+                        .font(.system(size: 14))
+                    Spacer()
+                }
+            }
+        }
+    }
+}
+
+
+struct OutlinedTextFieldTrailingIcon<TrailingIcon : View> : View {
+    
+    let text: String
+    let onChange: (String) -> Unit
+    let hint: String
+    let isError: Bool
+    let errorMsg: String
+    let theme: Theme
+    let cornerRadius: CGFloat
+    let lineLimit: Int?
+    let keyboardType: UIKeyboardType?
+    let backColor: Color?
+    let font: CGFloat
+    let isInitFocused: Bool
+    
+    let trailingIcon: TrailingIcon
+
+    @FocusState private var isFocused: Bool
+    
+    init(text: String, onChange: @escaping (String) -> Unit, hint: String, isError: Bool, errorMsg: String, theme: Theme, cornerRadius: CGFloat, lineLimit: Int?, keyboardType: UIKeyboardType?, backColor: Color? = nil, font: CGFloat? = nil, isFocused: Bool? = nil, isInitFocused: Bool = false, @ViewBuilder trailingIcon: () -> TrailingIcon
+    ) {
+        self.text = text
+        self.onChange = onChange
+        self.hint = hint
+        self.isError = isError
+        self.errorMsg = errorMsg
+        self.theme = theme
+        self.cornerRadius = cornerRadius
+        self.lineLimit = lineLimit
+        self.keyboardType = keyboardType
+        self.backColor = backColor
+        self.font = font ?? 14
+        self.isInitFocused = isInitFocused
+        self.trailingIcon = trailingIcon()
+        if let isFocused {
+            self.isFocused = isFocused
+        }
+    }
+
+    var body: some View {
+        VStack {
+            HStack {
+                TextField(
+                    "",
+                    text: Binding(get: {
+                        text
+                    }, set: { it, t in
+                        onChange(it)
+                    }),
+                    axis: lineLimit == nil ? Axis.vertical : Axis.horizontal
+                ).placeholder(when: text.isEmpty, alignment: .leading) {
+                    Text(hint).foregroundColor(theme.textHintColor)
+                }.foregroundStyle(theme.textColor)
+                    .font(.system(size: font))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(lineLimit)
+                    .focused($isFocused)
+                    .keyboardType(keyboardType ?? .default)
+                    .preferredColorScheme(theme.isDarkMode ? .dark : .light)
+                    .autocapitalization(.none)
+                    .onTapGesture {
+                        isFocused = true
+                    }.onAppearTask(delay: isInitFocused ? 0.35 : 0) {
+                        if isInitFocused {
+                            await MainActor.run {
+                                isFocused = true
+                            }
+                        }
+                    }.onDisappear {
+                        isFocused = false
+                    }
+                if !text.isEmpty {
+                    trailingIcon
+                }
+            }.padding(
+                EdgeInsets(top: 15, leading: 20, bottom: 10, trailing: 15)
+            ).background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(backColor ?? .clear)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(
+                            isError ? theme.error : (isFocused ? theme.primary : theme.secondary),
+                            lineWidth: backColor == nil ? 1.5 : 0
+                        )
+                }
+            )
             if isError {
                 HStack {
                     Text(errorMsg).padding(

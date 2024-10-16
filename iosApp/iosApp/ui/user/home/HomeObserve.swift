@@ -80,7 +80,7 @@ class HomeObserve : ObservableObject {
                     if let routes = routePoints {
                         let durationText = duration != nil ? ConverterKt.convertSecondsToHoursMinutes(duration!.int64Value) : ""
                         let distanceText = duration != nil ? ConverterKt.convertMetersToKmAndMeters(distance!.int64Value) : ""
-                        let durationDistance = (distanceText.isEmpty ? "" : durationText + " (\(distanceText)})")
+                        let durationDistance = (distanceText.isEmpty ? "" : durationText + " (\(distanceText))")
                         self.scope.launchMain {
                             let newMapData = self.state.mapData.copy(
                                 durationDistance: durationDistance,
@@ -130,7 +130,16 @@ class HomeObserve : ObservableObject {
     }
     
     @MainActor
-    func setMapMarks(startPoint: CLLocationCoordinate2D? = nil, endPoint: CLLocationCoordinate2D? = nil, invoke: @escaping @MainActor (MapData) -> Unit) {
+    func setMapMarks(latLng: CLLocationCoordinate2D, invoke: @escaping @MainActor (MapData) -> Unit) {
+        let startPoint: CLLocationCoordinate2D?
+        let endPoint: CLLocationCoordinate2D?
+        if state.mapData.startPoint == nil {
+            startPoint = latLng
+            endPoint = nil
+        } else {
+            startPoint = nil
+            endPoint = latLng
+        }
         self.checkForPlacesNames(startPoint: startPoint, endPoint: endPoint)
         self.checkForRoutes(startPoint: startPoint, endPoint: endPoint, invoke: invoke)
         self.state = self.state.copy(
@@ -411,6 +420,29 @@ class HomeObserve : ObservableObject {
                 }
             } catch {
                 self.setIsProcess(false)
+            }
+        }
+    }
+    
+    @MainActor
+    func getPrefLastLocation(
+        findPreference: @escaping @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit,
+        invoke: @escaping @MainActor (Double, Double) -> Unit,
+        failed:  @escaping @MainActor () -> Unit
+    ) {
+        scope.launchBack {
+            findPreference(ConstKt.PREF_LAST_LATITUDE) { latitude in
+                findPreference(ConstKt.PREF_LAST_LONGITUDE) { longitude in
+                    if let lat = (latitude != nil ? Double(latitude!) : nil), let lng = (longitude != nil ? Double(longitude!) : nil) {
+                        self.scope.launchMain {
+                            invoke(lat, lng)
+                        }
+                    } else {
+                        self.scope.launchMain {
+                            failed()
+                        }
+                    }
+                }
             }
         }
     }

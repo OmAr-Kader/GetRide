@@ -413,116 +413,96 @@ fun rememberTaxi(color: Color): ImageVector {
             viewportHeight = 24f
         ).apply {
             path(
-                fill = null,
+                fill = SolidColor(color),
                 fillAlpha = 1.0f,
-                stroke = SolidColor(color),
+                stroke = null,
                 strokeAlpha = 1.0f,
-                strokeLineWidth = 2f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
                 strokeLineMiter = 1.0f,
                 pathFillType = PathFillType.NonZero
             ) {
-                moveTo(10f, 2f)
-                horizontalLineToRelative(4f)
-            }
-            path(
-                fill = null,
-                fillAlpha = 1.0f,
-                stroke = SolidColor(color),
-                strokeAlpha = 1.0f,
-                strokeLineWidth = 2f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
-                strokeLineMiter = 1.0f,
-                pathFillType = PathFillType.NonZero
-            ) {
-                moveTo(21f, 8f)
-                lineToRelative(-2f, 2f)
-                lineToRelative(-1.5f, -3.7f)
-                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = false, 15.646f, 5f)
-                horizontalLineTo(8.4f)
-                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = false, -1.903f, 1.257f)
-                lineTo(5f, 10f)
-                lineTo(3f, 8f)
-            }
-            path(
-                fill = null,
-                fillAlpha = 1.0f,
-                stroke = SolidColor(color),
-                strokeAlpha = 1.0f,
-                strokeLineWidth = 2f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
-                strokeLineMiter = 1.0f,
-                pathFillType = PathFillType.NonZero
-            ) {
-                moveTo(7f, 14f)
-                horizontalLineToRelative(0.01f)
-            }
-            path(
-                fill = null,
-                fillAlpha = 1.0f,
-                stroke = SolidColor(color),
-                strokeAlpha = 1.0f,
-                strokeLineWidth = 2f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
-                strokeLineMiter = 1.0f,
-                pathFillType = PathFillType.NonZero
-            ) {
-                moveTo(17f, 14f)
-                horizontalLineToRelative(0.01f)
-            }
-            path(
-                fill = null,
-                fillAlpha = 1.0f,
-                stroke = SolidColor(color),
-                strokeAlpha = 1.0f,
-                strokeLineWidth = 2f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
-                strokeLineMiter = 1.0f,
-                pathFillType = PathFillType.NonZero
-            ) {
-                moveTo(5f, 10f)
-                horizontalLineTo(19f)
-                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 21f, 12f)
-                verticalLineTo(16f)
-                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 19f, 18f)
-                horizontalLineTo(5f)
-                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 3f, 16f)
-                verticalLineTo(12f)
-                arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 5f, 10f)
+                moveTo(65.2f, 134.4f)
+                curveToRelative(-8.40f, 00f, -15.10f, 6.80f, -15.10f, 15.10f)
+                curveToRelative(00f, 8.40f, 6.80f, 15.10f, 15.10f, 15.10f)
+                curveToRelative(8.40f, 00f, 15.10f, -6.80f, 15.10f, -15.10f)
+                curveTo(80.30f, 141.10f, 73.50f, 134.40f, 65.20f, 134.40f)
                 close()
             }
             path(
-                fill = null,
+                fill = SolidColor(color),
                 fillAlpha = 1.0f,
-                stroke = SolidColor(color),
+                stroke = null,
                 strokeAlpha = 1.0f,
-                strokeLineWidth = 2f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
                 strokeLineMiter = 1.0f,
                 pathFillType = PathFillType.NonZero
             ) {
-                moveTo(5f, 18f)
-                verticalLineToRelative(2f)
+                moveTo(193.9f, 134.4f)
+                curveToRelative(-8.40f, 00f, -15.10f, 6.80f, -15.10f, 15.10f)
+                curveToRelative(00f, 8.40f, 6.80f, 15.10f, 15.10f, 15.10f)
+                curveToRelative(8.40f, 00f, 15.10f, -6.80f, 15.10f, -15.10f)
+                curveTo(2090f, 141.10f, 202.30f, 134.40f, 193.90f, 134.40f)
+                close()
             }
             path(
-                fill = null,
+                fill = SolidColor(color),
                 fillAlpha = 1.0f,
-                stroke = SolidColor(color),
+                stroke = null,
                 strokeAlpha = 1.0f,
-                strokeLineWidth = 2f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
                 strokeLineMiter = 1.0f,
                 pathFillType = PathFillType.NonZero
             ) {
-                moveTo(19f, 18f)
-                verticalLineToRelative(2f)
+                moveTo(212.2f, 94f)
+                curveToRelative(-1.80f, -3.70f, -30f, -7.70f, -4.20f, -12.10f)
+                curveToRelative(-7.20f, -25.40f, -21.10f, -47.10f, -44.40f, -47.10f)
+                horizontalLineToRelative(-2.3f)
+                curveToRelative(0.50f, -1.10f, 0.70f, -2.30f, 0.70f, -3.70f)
+                curveToRelative(00f, -4.70f, -3.30f, -8.50f, -7.40f, -8.50f)
+                horizontalLineToRelative(-53.5f)
+                curveToRelative(-4.10f, 00f, -7.40f, 3.80f, -7.40f, 8.50f)
+                curveToRelative(00f, 1.30f, 0.30f, 2.60f, 0.70f, 3.70f)
+                horizontalLineToRelative(-2.3f)
+                curveToRelative(-23.40f, 00f, -37.30f, 21.70f, -44.40f, 47.10f)
+                curveToRelative(-1.20f, 4.30f, -2.40f, 8.20f, -4.10f, 11.80f)
+                curveToRelative(-490f, 36.20f, -40.60f, 950f, -0.50f, 111.40f)
+                lineToRelative(0f, 12.8f)
+                curveToRelative(00f, 8.60f, 6.90f, 15.60f, 19.50f, 15.60f)
+                curveToRelative(11.20f, 00f, 190f, -70f, 190f, -15.60f)
+                verticalLineToRelative(-3.6f)
+                curveToRelative(130f, 1.40f, 29.70f, 2.40f, 46.20f, 2.40f)
+                curveToRelative(15.90f, 00f, 28.20f, -0.20f, 500f, -3.30f)
+                verticalLineToRelative(4.6f)
+                curveToRelative(00f, 8.60f, 6.80f, 15.60f, 20.10f, 15.60f)
+                curveToRelative(110f, 00f, 18.40f, -70f, 18.40f, -15.60f)
+                verticalLineToRelative(-14.4f)
+                curveTo(252.40f, 187.50f, 260.70f, 129.90f, 212.20f, 940f)
+                close()
+                moveTo(61.4f, 90.1f)
+                lineToRelative(3.2f, -16.8f)
+                curveTo(690f, 60.80f, 79.70f, 51.90f, 92.20f, 51.90f)
+                horizontalLineToRelative(71.4f)
+                curveToRelative(12.50f, 00f, 23.10f, 8.90f, 27.60f, 21.40f)
+                lineToRelative(4.1f, 16.2f)
+                curveToRelative(1.40f, 5.40f, -20f, 9.80f, -7.60f, 9.80f)
+                horizontalLineTo(69.1f)
+                curveTo(63.70f, 99.40f, 60.40f, 95.20f, 61.40f, 90.10f)
+                close()
+                moveTo(209.5f, 185.9f)
+                curveToRelative(-16.40f, 9.70f, -62.80f, 11.20f, -81.30f, 11.20f)
+                curveToRelative(-27.50f, 00f, -66.20f, -2.30f, -84.60f, -13.60f)
+                curveToRelative(-15.80f, -9.60f, -17.40f, -38.70f, -9.90f, -52.50f)
+                curveToRelative(5.30f, -9.70f, 11.30f, -15.40f, 21.90f, -19.70f)
+                curveToRelative(35.30f, 00f, 109.30f, 00f, 144.30f, 00f)
+                curveToRelative(10.50f, 4.40f, 190f, 12.80f, 23.30f, 23.50f)
+                curveTo(2230f, 134.90f, 234.80f, 170.90f, 209.50f, 185.90f)
+                close()
             }
         }.build()
     }

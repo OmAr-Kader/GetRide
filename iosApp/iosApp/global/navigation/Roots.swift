@@ -19,7 +19,7 @@ extension View {
         case .AUTH_SCREEN_ROUTE:
             AuthScreen(app: app)
         case .HOME_SCREEN_ROUTE:
-            HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreferenceMainBack: findPreferenceMainBack, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
+            HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreference: findPreference, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
         case .AUTH_SCREEN_DRIVER_ROUTE:
             AuthDriverScreen(app: app)
         case .HOME_SCREEN_DRIVER_ROUTE:
@@ -28,7 +28,7 @@ extension View {
     }
 }
 
-let TEMP_IS_DRIVER = true
+let TEMP_IS_DRIVER = false
 
 enum Screen : Hashable {
     case AUTH_SCREEN_ROUTE

@@ -28,11 +28,9 @@ struct AuthScreen : View {
                     .foregroundColor(theme.textColor)
                 Spacer().frame(height: 16)
                 if !state.isLoginScreen {
-                    OutlinedTextField(text: state.name, onChange: obs.setName, hint: "Name", isError: false, errorMsg: "Name Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.alphabet)
-                        .transition(.opacity)
+                    OutlinedTextField(text: state.name, onChange: obs.setName, hint: "Name", isError: false, errorMsg: "Name Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.alphabet).transition(.opacity)
                     Spacer().frame(height: 16)
-                    OutlinedTextField(text: state.phone, onChange: obs.setPhone, hint: "Phone", isError: false, errorMsg: "Phone Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.phonePad)
-                        .transition(.opacity)
+                    OutlinedTextField(text: state.phone, onChange: obs.setPhone, hint: "Phone", isError: false, errorMsg: "Phone Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.phonePad).transition(.opacity)
                     Spacer().frame(height: 16)
                 }
                 OutlinedTextField(text: state.email, onChange: obs.setEmail, hint: "Email", isError: false, errorMsg: "Email Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.emailAddress)

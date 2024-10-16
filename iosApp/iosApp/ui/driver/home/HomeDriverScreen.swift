@@ -7,8 +7,8 @@
 //
 
 import SwiftUI
-import shared
 import GoogleMaps
+import shared
 
 struct HomeDriverScreen : View {
     
@@ -66,7 +66,7 @@ struct HomeDriverScreen : View {
                                     update()
                                     obs.loadRequests(driverId: userPref.id, currentLocation: currentLocation.toLocation(), popUpSheet: popUpSheet, refreshScope: refreshScope)
                                 }
-                            } setMapMarks: { _, _ in}
+                            } setMapMarks: { _ in}
                             Spacer().frame(height: 50)
                         }
                         Spacer()
@@ -116,7 +116,7 @@ struct HomeDriverScreen : View {
                         textColor: theme.textColor
                     ) {
                         obs.signOut {
-                            exit(0)
+                            navigateHome(.AUTH_SCREEN_DRIVER_ROUTE)
                         } failed: {
                             toast = Toast(style: .error, message: "Failed")
                         }
@@ -197,7 +197,6 @@ struct SubmittedRideRequestSheet : View {
                             updateRideStatus(action)
                         }
                     }
-                    
                 } label:{
                     /*AnimatedText(
                      actionTitle
@@ -207,7 +206,7 @@ struct SubmittedRideRequestSheet : View {
                     Text(actionTitle)
                         .padding(top: 7, leading: 10, bottom: 7, trailing: 10)
                         .foregroundColor(.black)
-                        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(.red))
+                        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(.green))
                 }
                 Spacer()
             }.padding()
@@ -303,47 +302,3 @@ struct DriverDragHandler : View {
         }
     }
 }
-
-struct LinearProgressIndicator: View {
-    
-    let height: CGFloat
-    
-    @State private var animationOffset: CGFloat = -1.0 // Start off-screen
-    @State private var isAnimating: Bool = false // Control the animation
-
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: height)
-                Capsule()
-                    .fill(Color.blue.opacity(0.6))
-                    .frame(width: geometry.size.width / 3, height: height)
-                    .offset(x: animationOffset * geometry.size.width)
-                    .onAppear {
-                        if !isAnimating {
-                            isAnimating = true
-                            startAnimation(in: geometry.size.width)
-                        }
-                    }
-            }
-        }
-        .frame(height: height)
-    }
-    
-    private func startAnimation(in width: CGFloat) {
-        withAnimation(
-            Animation.linear(duration: 1.5)
-                .repeatForever(autoreverses: true)
-        ) {
-            animationOffset = 1.0
-        }
-    }
-}
-
-
-
-
-
-
