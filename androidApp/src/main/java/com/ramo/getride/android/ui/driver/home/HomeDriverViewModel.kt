@@ -38,6 +38,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private var jobRideInitial: kotlinx.coroutines.Job? = null
     private var jobRide: kotlinx.coroutines.Job? = null
 
+    // @OmAr-Kader =>
     fun loadRequests(driverId: Long, currentLocation: Location, popUpSheet: () -> Unit, refreshScope: (MapData) -> Unit) {
         uiState.value.mapData.currentLocation?.also {
             if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInsertsDeletes != null) {
@@ -52,15 +53,33 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                     state.copy(requests = state.requests + newRequest)
                 }
             }, onChanged = { change ->
-                uiState.value.requests.indexOfFirst { it.id == change.id }.let { if (it == -1) null else it }?.let { index ->
-                    _uiState.update { state ->
-                        state.copy(requests = state.requests - state.requests[index] + change)
+                launchBack {
+                    uiState.value.also { state ->
+                        uiState.value.requests.indexOfFirst { it.id == change.id }.let { if (it == -1) null else it }?.let { index ->
+                            val listOf = mutableListOf<RideRequest>().apply { addAll(state.requests - listOf(state.requests[index]).toSet()) }
+                            val requests = mutableListOf<RideRequest>().apply { addAll(listOf + change) }
+                            requests.find { request ->
+                                request.driverProposals.any { it.driverId == driverId }
+                            }.let { proposalHadSubmit ->
+                                if (proposalHadSubmit != null) {
+                                    requests.toDriverCannotSubmit(proposalHadSubmit.id)
+                                } else {
+                                    requests
+                                }
+                            }.also { requestsForDriver ->
+                                _uiState.update { state ->
+                                    state.copy(requests = requestsForDriver, isDummy = state.isDummy + 1)
+                                }
+                            }
+                        }
                     }
                 }
             }) { id ->
-                uiState.value.requests.indexOfFirst { it.id == id }.let { if (it == -1) null else it }?.let { index ->
-                    _uiState.update { state ->
-                        state.copy(requests = state.requests - state.requests[index])
+                launchBack {
+                    uiState.value.requests.indexOfFirst { it.id == id }.let { if (it == -1) null else it }?.let { index ->
+                        _uiState.update { state ->
+                            state.copy(requests = state.requests - state.requests[index])
+                        }
                     }
                 }
             }
@@ -68,24 +87,26 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         jobDriverRideRequests?.cancel()
         jobDriverRideRequests = launchBack {
             project.ride.getNearRideRequestsForDriver(currentLocation) { requests ->
-                if (uiState.value.ride == null) {
-                    requests.find {
-                        it.isDriverChosen(driverId) && it.chosenRide != 0L
-                    }?.also {
-                        fetchRide(it.chosenRide, popUpSheet, refreshScope)
+                launchBack {
+                    if (uiState.value.ride == null) {
+                        requests.find {
+                            it.isDriverChosen(driverId) && it.chosenRide != 0L
+                        }?.also {
+                            fetchRide(it.chosenRide, popUpSheet, refreshScope)
+                        }
                     }
-                }
-                requests.find { request ->
-                    request.driverProposals.any { it.driverId == driverId }
-                }.let { proposalHadSubmit ->
-                    if (proposalHadSubmit != null) {
-                        requests.toDriverCannotSubmit(proposalHadSubmit.id)
-                    } else {
-                        requests
-                    }
-                }.also { requestsForDriver ->
-                    _uiState.update { state ->
-                        state.copy(requests = requestsForDriver)
+                    requests.find { request ->
+                        request.driverProposals.any { it.driverId == driverId }
+                    }.let { proposalHadSubmit ->
+                        if (proposalHadSubmit != null) {
+                            requests.toDriverCannotSubmit(proposalHadSubmit.id)
+                        } else {
+                            requests
+                        }
+                    }.also { requestsForDriver ->
+                        _uiState.update { state ->
+                            state.copy(requests = requestsForDriver, isDummy = state.isDummy + 1)
+                        }
                     }
                 }
             }
@@ -310,6 +331,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         val mapData: MapData = MapData(),
         val ride: Ride? = null,
         val rate: DriverRate? = null,
+        val isDummy: Int = 0,
         val isProcess: Boolean = true,
     )
 }
