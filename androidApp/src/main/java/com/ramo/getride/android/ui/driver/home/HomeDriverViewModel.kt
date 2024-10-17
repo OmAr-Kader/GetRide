@@ -38,7 +38,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private var jobRideInitial: kotlinx.coroutines.Job? = null
     private var jobRide: kotlinx.coroutines.Job? = null
 
-    // @OmAr-Kader =>
     fun loadRequests(driverId: Long, currentLocation: Location, popUpSheet: () -> Unit, refreshScope: (MapData) -> Unit) {
         uiState.value.mapData.currentLocation?.also {
             if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInsertsDeletes != null) {
@@ -67,6 +66,13 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
                                     requests
                                 }
                             }.also { requestsForDriver ->
+                                if (uiState.value.ride == null) {
+                                    requestsForDriver.find {
+                                        it.isDriverChosen(driverId) && it.chosenRide != 0L
+                                    }?.also {
+                                        fetchRide(it.chosenRide, popUpSheet, refreshScope)
+                                    }
+                                }
                                 _uiState.update { state ->
                                     state.copy(requests = requestsForDriver, isDummy = state.isDummy + 1)
                                 }

@@ -51,21 +51,13 @@ struct HomeScreen : View {
         }
     }
     
-    private var isPresented: Binding<Bool> {
-        Binding(get: { // @OmAr-Kader
-            obs.state.rideRequest != nil
-        }, set: { _ in
-
-        })
-    }
-    
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
             DrawerView(isOpen: $isOpen, overlayColor: shadowColor) {
                 ZStack {
                     ZStack {
-                        BarMainScreen {
+                        BarMainScreen(tittle: userPref.name) {
                             isOpen.toggle()
                         }.onTop()
                         VStack {
@@ -83,7 +75,9 @@ struct HomeScreen : View {
                         }
                         Spacer()
                     }
-                }.sheet(isPresented: isPresented) {
+                }.sheet(isPresented: Binding(get: {
+                    obs.state.rideRequest != nil
+                }, set: { _ in })) {
                     if let rideRequest = state.rideRequest {
                         if #available(iOS 16.4, *) {
                             RideRequestSheet(rideRequest: rideRequest) {
@@ -195,7 +189,7 @@ struct MapSheetUser : View {
                         ).foregroundStyle(theme.textColor).font(.system(size: 20))
                         Spacer()
                     }
-                }.padding()
+                }
                 Spacer().frame(height: 5)
                 OutlinedTextFieldTrailingIcon(text: state.fromText, onChange: obs.setFromText, hint: "Ride From", isError: false, errorMsg: "Ride From Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.default, isFocused: $fromFocus
                 ) {
@@ -355,14 +349,14 @@ struct RideSheet : View {
                     "Fare: \(ride.fare.toPriceFormat())"
                 ).foregroundStyle(theme.textColor).font(.system(size: 18))
                 Spacer()
-            }.padding()
+            }
             Spacer().frame(height: 10)
             if ride.status == 4 {
                 RatingBar(rating: 0, onRate: submitFeedback)
             }
             HStack {
-                Spacer()
                 if (ride.status != -2 && ride.status != -1 && ride.status != 3 && ride.status != 4) {
+                    Spacer()
                     Button {
                         cancelRide()
                     } label: {
@@ -438,7 +432,7 @@ struct RideRequestSheet : View {
                                 }
                                 Spacer().frame(height: 5)
                                 if proposal.rate != 0 {
-                                    RatingBar(rating: 4, starSize: 20)
+                                    RatingBar(rating: 4, starSize: 20).onStart().padding(leading: 5)
                                 }
                                 Spacer().frame(height: 5)
                                 HStack {

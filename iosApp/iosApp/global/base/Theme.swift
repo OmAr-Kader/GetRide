@@ -54,7 +54,7 @@ struct Theme {
             self.surface =  Color.white
             self.backgroundPrimary = Color.white.margeWithPrimary
             self.background = Color.white
-            self.backDark = Color(red: 230 / 255, green: 230 / 255, blue: 230 / 255)
+            self.backDark = Color(red: 215 / 255, green: 215 / 255, blue: 215 / 255)
             self.backDarkSec = Color(red: 200 / 255, green: 200 / 255, blue: 200 / 255)
             self.backGreyTrans = UIColor(red: 170 / 255, green: 170 / 255, blue: 170 / 255, alpha: 85 / 255).toC
             self.textColor = Color.black

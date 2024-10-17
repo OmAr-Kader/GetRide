@@ -346,6 +346,7 @@ class HomeObserve : ObservableObject {
                 it.routePoints = nil
                 return it
             }
+            currentState.fromText = ""
             currentState.duration = nil
             currentState.durationText = ""
             currentState.distance = nil

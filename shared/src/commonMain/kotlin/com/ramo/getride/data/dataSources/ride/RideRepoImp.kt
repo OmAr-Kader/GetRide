@@ -12,6 +12,7 @@ import com.ramo.getride.global.base.AREA_RIDE_FIRST_PHASE
 import com.ramo.getride.global.base.SUPA_RIDE
 import com.ramo.getride.global.base.SUPA_RIDE_REQUEST
 import com.ramo.getride.global.base.Supabase
+import com.ramo.getride.global.util.dateBeforeHour
 import com.ramo.getride.global.util.loggerError
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
@@ -97,7 +98,6 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun deleteRide(id: Long): Int = delete(SUPA_RIDE, id)
 
-    // @OmAr-Kader =>
     override suspend fun getNearRideInsertsDeletes(
         currentLocation: Location,
         onInsert: (RideRequest) -> Unit,
@@ -119,7 +119,6 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }
     }
 
-    // @OmAr-Kader =>
     override suspend fun getNearRideRequestsForDriver(
         currentLocation: Location,
         invoke: (List<RideRequest>) -> Unit,
@@ -128,11 +127,11 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         val lng = currentLocation.longitude - AREA_RIDE_FIRST_PHASE to currentLocation.longitude + AREA_RIDE_FIRST_PHASE
         query<RideRequest>(SUPA_RIDE_REQUEST) {
             and {
-                //filter("from->latitude", FilterOperator.GTE, lat.first)
-                //filter("from->latitude", FilterOperator.LTE, lat.second)
-                //filter("from->longitude", FilterOperator.GTE, lng.first)
-                //filter("from->longitude", FilterOperator.LTE, lng.second)
-                //filter("date", FilterOperator.GTE, dateBeforeHour) // @OmAr-Kader => Remove that comment
+                filter("from->latitude", FilterOperator.GTE, lat.first)
+                filter("from->latitude", FilterOperator.LTE, lat.second)
+                filter("from->longitude", FilterOperator.GTE, lng.first)
+                filter("from->longitude", FilterOperator.LTE, lng.second)
+                filter("date", FilterOperator.GTE, dateBeforeHour)
                 filter("chosen_one", FilterOperator.EQ, 0)
             }
         }.map { it.id }.also { ids ->

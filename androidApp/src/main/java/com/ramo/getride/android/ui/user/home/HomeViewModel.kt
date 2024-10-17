@@ -300,7 +300,6 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    // @OmAr-Kader => fromText = "",
     fun clearRide() {
         jobRide?.cancel()
         jobRideInitial?.cancel()

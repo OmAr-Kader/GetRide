@@ -45,7 +45,23 @@ class HomeDriverObserve : ObservableObject {
                     if let index = self.state.requests.firstIndex(where: { it in it.id == change.id }) {
                         var requests = self.state.requests
                         requests[index] = change
-                        self.state = self.state.copy(requests: requests)
+                        
+                        let proposalHadSubmit: RideRequest? = requests.first(where: { request in
+                            request.driverProposals.first { it in it.driverId == driverId } != nil
+                        })
+                        let requestsForDriver = (proposalHadSubmit != nil) ? ConverterKt.toDriverCannotSubmit(requests, idHadSubmit: proposalHadSubmit!.id) : requests
+                        self.scope.launchMain {
+                            if (self.state.ride == nil) {
+                                if let it = requestsForDriver.first(where: { it in
+                                    it.isDriverChosen(driverId: driverId)
+                                }) {
+                                    self.fetchRide(rideId: it.chosenRide, popUpSheet: popUpSheet, refreshScope: refreshScope)
+                                }
+                            }
+                        }
+                        self.scope.launchMain {
+                            self.state = self.state.copy(requests: requestsForDriver, isDummy: self.state.isDummy + 1)
+                        }
                     }
                 }
             }, onDelete: { id in
@@ -64,7 +80,7 @@ class HomeDriverObserve : ObservableObject {
                 self.scope.launchMain {
                     if (self.state.ride == nil) {
                         if let it = requests.first(where: { it in
-                            it.isDriverChosen(driverId: driverId) && it.chosenRide != 0
+                            it.isDriverChosen(driverId: driverId)
                         }) {
                             self.fetchRide(rideId: it.chosenRide, popUpSheet: popUpSheet, refreshScope: refreshScope)
                         }
@@ -75,7 +91,7 @@ class HomeDriverObserve : ObservableObject {
                 })
                 let requestsForDriver = (proposalHadSubmit != nil) ? ConverterKt.toDriverCannotSubmit(requests, idHadSubmit: proposalHadSubmit!.id) : requests
                 self.scope.launchMain {
-                    self.state = self.state.copy(requests: requestsForDriver)
+                    self.state = self.state.copy(requests: requestsForDriver, isDummy: self.state.isDummy + 1)
                 }
             }
         }
@@ -417,6 +433,7 @@ class HomeDriverObserve : ObservableObject {
         var ride: Ride? = nil
         var rate: DriverRate? = nil
         var isProcess: Bool = true
+        var isDummy: Int = 0
         
         @MainActor
         mutating func copy(updates: (inout Self) -> Self) -> Self { // Only helpful For struct or class with nil values
@@ -431,7 +448,8 @@ class HomeDriverObserve : ObservableObject {
             routes: String? = nil,
             ride: Ride? = nil,
             rate: DriverRate? = nil,
-            isProcess: Bool? = nil
+            isProcess: Bool? = nil,
+            isDummy: Int? = nil
         ) -> Self {
             self.requests = requests ?? self.requests
             self.mapData = mapData ?? self.mapData
@@ -439,6 +457,7 @@ class HomeDriverObserve : ObservableObject {
             self.ride = ride ?? self.ride
             self.rate = rate ?? self.rate
             self.isProcess = isProcess ?? self.isProcess
+            self.isDummy = isDummy ?? self.isDummy
             return self
         }
     }

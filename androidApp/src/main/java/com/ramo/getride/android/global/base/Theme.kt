@@ -39,7 +39,6 @@ data class Theme(
     val seenColor = if (isDarkMode) Color(0xFF4FC3F7) else Color.Blue
 }
 
-// @OmAr-Kader =>
 fun generateTheme(isDarkMode: Boolean): Theme {
     return if (isDarkMode) {
         Theme(

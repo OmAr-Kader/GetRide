@@ -56,7 +56,7 @@ struct HomeDriverScreen : View {
             DrawerView(isOpen: $isOpen, overlayColor: shadowColor) {
                 ZStack {
                     ZStack {
-                        BarMainScreen {
+                        BarMainScreen(tittle: userPref.name) {
                             isOpen.toggle()
                         }.onTop()
                         VStack {
@@ -165,20 +165,20 @@ struct SubmittedRideRequestSheet : View {
             HStack {
                 Text(
                     ride.durationDistance
-                ).padding().foregroundStyle(theme.textColor).font(.system(size: 15))
+                ).foregroundStyle(theme.textColor).font(.system(size: 15))
                 Spacer().frame(minWidth: 10)
                 Text(
                     "Fare: \(ride.fare.toPriceFormat())"
-                ).padding().foregroundStyle(theme.textColor).font(.system(size: 18))
+                ).foregroundStyle(theme.textColor).font(.system(size: 18))
                 Spacer()
-            }.padding()
+            }
             Spacer().frame(height: 10)
             if ride.status == 4 {
                 RatingBar(rating: 0, onRate: submitFeedback)
             }
             HStack {
-                Spacer()
                 if (ride.status != -1 && ride.status != 3 && ride.status != 4) {
+                    Spacer()
                     Button {
                         updateRideStatus(-1)
                     } label: {

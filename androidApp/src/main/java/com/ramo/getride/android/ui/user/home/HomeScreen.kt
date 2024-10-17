@@ -486,10 +486,7 @@ fun RideSheet(ride: Ride, theme: Theme, cancelRide: () -> Unit, submitFeedback: 
             if (ride.status == 4) {
                 Spacer(Modifier)
                 Button(
-                    onClick = {
-                        // @OmAr-Kader => When Review is submitted, clear Ride
-                        clearRide()
-                    },
+                    onClick = clearRide,
                     colors = ButtonDefaults.buttonColors().copy(containerColor = Color.Green, contentColor = Color.Black),
                     contentPadding = PaddingValues(start = 30.dp, top = 7.dp, end = 30.dp, bottom = 7.dp)
                 ) {
