@@ -245,6 +245,12 @@ extension Float64 {
         return (self * divisor).rounded() / divisor
     }
 
+    func toPriceFormat() -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US")//Locale.current // Adjust to the current locale
+        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
+    }
 }
 
 

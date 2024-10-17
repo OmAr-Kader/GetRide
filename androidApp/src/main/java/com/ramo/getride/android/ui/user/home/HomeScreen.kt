@@ -176,7 +176,7 @@ fun HomeScreen(
                     RideSheet(ride = ride, theme = theme, cancelRide = {
                         viewModel.cancelRideFromUser(ride = ride)
                     }, submitFeedback = {
-                        viewModel.submitFeedback(ride.userId, it)
+                        viewModel.submitFeedback(ride.driverId, it)
                     }) {
                         viewModel.clearRide()
                     }
@@ -606,8 +606,10 @@ fun RideRequestSheet(
                         )
                         Spacer(Modifier)
                     }
-                    Spacer(Modifier.height(5.dp))
-                    RatingBar(rating = proposal.rate, starSize = 20.dp, modifier = Modifier.padding())
+                    if (proposal.rate != 0F) {
+                        Spacer(Modifier.height(5.dp))
+                        RatingBar(rating = proposal.rate, starSize = 20.dp, modifier = Modifier.padding())
+                    }
                     Spacer(Modifier.height(5.dp))
                     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
                         .fillMaxWidth()

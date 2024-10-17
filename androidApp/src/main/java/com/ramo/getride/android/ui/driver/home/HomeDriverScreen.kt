@@ -159,7 +159,7 @@ fun HomeDriverScreen(
                             viewModel.updateRide(ride = ride, newStatus = newStatus)
                         },
                         submitFeedback = {
-                            viewModel.submitFeedback(ride.driverId, it)
+                            viewModel.submitFeedback(ride.userId, it)
                         }
                     ) {
                         viewModel.clearRide()

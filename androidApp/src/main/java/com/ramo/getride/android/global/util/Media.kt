@@ -22,8 +22,8 @@ internal val android.content.Context.isTablet: Boolean
 fun android.content.Context.bitmapDescriptorFromVector(id: Int): com.google.android.gms.maps.model.BitmapDescriptor? {
     return androidx.compose.runtime.remember {
         val vectorDrawable = androidx.core.content.ContextCompat.getDrawable(this, id) ?: return@remember null
+        val w = (40 * resources.displayMetrics.density).toInt()
         val h = (50 * resources.displayMetrics.density).toInt()
-        val w = (50 * resources.displayMetrics.density).toInt()
         vectorDrawable.setBounds(0, 0, w, h)
         val bm = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bm)

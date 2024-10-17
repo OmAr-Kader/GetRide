@@ -200,6 +200,12 @@ class AuthDriverObserve : ObservableObject {
         private(set) var isErrorPressed: Bool = false
         
         @MainActor
+        mutating func copy(updates: (inout Self) -> Void) -> Self { // Only helpful For struct or class with nil values
+            updates(&self)
+            return self
+        }
+        
+        @MainActor
         mutating func copy(
             name: String? = nil,
             email: String? = nil,

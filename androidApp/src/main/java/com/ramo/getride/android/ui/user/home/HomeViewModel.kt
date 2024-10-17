@@ -293,10 +293,10 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun submitFeedback(userId: Long, rate: Float) {
+    fun submitFeedback(driverId: Long, rate: Float) {
         clearRide()
         launchBack {
-            project.user.addEditUserRate(userId = userId, rate = rate)
+            project.driver.addEditDriverRate(driverId = driverId, rate = rate)
         }
     }
 
@@ -317,7 +317,13 @@ class HomeViewModel(project: Project) : BaseViewModel(project) {
                     routePoints = emptyList(),
                     driverPoint = null
                 ),
-                isProcess = false
+                duration = null,
+                durationText = "",
+                distance = null,
+                distanceText = "",
+                fare = 0.0,
+                toText = "",
+                isProcess = false,
             )
         }
     }

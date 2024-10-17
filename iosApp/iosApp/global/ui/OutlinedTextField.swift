@@ -108,9 +108,9 @@ struct OutlinedTextFieldTrailingIcon<TrailingIcon : View> : View {
     
     let trailingIcon: TrailingIcon
 
-    @FocusState private var isFocused: Bool
-    
-    init(text: String, onChange: @escaping (String) -> Unit, hint: String, isError: Bool, errorMsg: String, theme: Theme, cornerRadius: CGFloat, lineLimit: Int?, keyboardType: UIKeyboardType?, backColor: Color? = nil, font: CGFloat? = nil, isFocused: Bool? = nil, isInitFocused: Bool = false, @ViewBuilder trailingIcon: () -> TrailingIcon
+    private var isFocused: FocusState<Bool>.Binding
+
+    init(text: String, onChange: @escaping (String) -> Unit, hint: String, isError: Bool, errorMsg: String, theme: Theme, cornerRadius: CGFloat, lineLimit: Int?, keyboardType: UIKeyboardType?, backColor: Color? = nil, font: CGFloat? = nil, isFocused: FocusState<Bool>.Binding, isInitFocused: Bool = false, @ViewBuilder trailingIcon: () -> TrailingIcon
     ) {
         self.text = text
         self.onChange = onChange
@@ -125,9 +125,7 @@ struct OutlinedTextFieldTrailingIcon<TrailingIcon : View> : View {
         self.font = font ?? 14
         self.isInitFocused = isInitFocused
         self.trailingIcon = trailingIcon()
-        if let isFocused {
-            self.isFocused = isFocused
-        }
+        self.isFocused = isFocused
     }
 
     var body: some View {
@@ -147,20 +145,20 @@ struct OutlinedTextFieldTrailingIcon<TrailingIcon : View> : View {
                     .font(.system(size: font))
                     .fixedSize(horizontal: false, vertical: true)
                     .lineLimit(lineLimit)
-                    .focused($isFocused)
+                    .focused(isFocused)
                     .keyboardType(keyboardType ?? .default)
                     .preferredColorScheme(theme.isDarkMode ? .dark : .light)
                     .autocapitalization(.none)
                     .onTapGesture {
-                        isFocused = true
+                        isFocused.wrappedValue = true
                     }.onAppearTask(delay: isInitFocused ? 0.35 : 0) {
                         if isInitFocused {
                             await MainActor.run {
-                                isFocused = true
+                                isFocused.wrappedValue = true
                             }
                         }
                     }.onDisappear {
-                        isFocused = false
+                        isFocused.wrappedValue = false
                     }
                 if !text.isEmpty {
                     trailingIcon
@@ -173,7 +171,7 @@ struct OutlinedTextFieldTrailingIcon<TrailingIcon : View> : View {
                         .fill(backColor ?? .clear)
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(
-                            isError ? theme.error : (isFocused ? theme.primary : theme.secondary),
+                            isError ? theme.error : (isFocused.wrappedValue ? theme.primary : theme.secondary),
                             lineWidth: backColor == nil ? 1.5 : 0
                         )
                 }

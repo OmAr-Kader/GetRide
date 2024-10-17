@@ -28,7 +28,7 @@ extension View {
     }
 }
 
-let TEMP_IS_DRIVER = false
+let TEMP_IS_DRIVER = true
 
 enum Screen : Hashable {
     case AUTH_SCREEN_ROUTE

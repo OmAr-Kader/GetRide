@@ -51,6 +51,14 @@ struct HomeScreen : View {
         }
     }
     
+    private var isPresented: Binding<Bool> {
+        Binding(get: { // @OmAr-Kader
+            obs.state.rideRequest != nil
+        }, set: { _ in
+
+        })
+    }
+    
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
@@ -75,11 +83,7 @@ struct HomeScreen : View {
                         }
                         Spacer()
                     }
-                }.sheet(isPresented: Binding(get: { // @OmAr-Kader
-                    state.rideRequest != nil
-                }, set: { it in
-
-                })) {
+                }.sheet(isPresented: isPresented) {
                     if let rideRequest = state.rideRequest {
                         if #available(iOS 16.4, *) {
                             RideRequestSheet(rideRequest: rideRequest) {
@@ -118,7 +122,7 @@ struct HomeScreen : View {
                         RideSheet(ride: ride, theme: theme) {
                             obs.cancelRideFromUser(ride: ride)
                         } submitFeedback: { it in
-                            obs.submitFeedback(userId: ride.userId, rate: it)
+                            obs.submitFeedback(driverId: ride.driverId, rate: it)
                         } clearRide: {
                             obs.clearRide()
                         }
@@ -159,7 +163,7 @@ struct HomeScreen : View {
             obs.getPrefLastLocation(findPreference: findPreference) { lat, lng in
                 cameraPositionState = GMSCameraUpdate.setCamera(GMSCameraPosition.camera(withLatitude: lat, longitude: lng, zoom: 15))
             } failed: {}
-        }
+        }//.ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
@@ -171,6 +175,7 @@ struct MapSheetUser : View {
     let theme: Theme
     let snakeBar: (String) -> Unit
     
+    @FocusState private var fromFocus: Bool
     @FocusState private var toFocus: Bool
 
     var body: some View {
@@ -182,17 +187,17 @@ struct MapSheetUser : View {
                     Spacer()
                     Text(
                         state.mapData.durationDistance
-                    ).padding().foregroundStyle(theme.textColor).font(.system(size: 20))
+                    ).foregroundStyle(theme.textColor).font(.system(size: 20))
                     Spacer()
                     if (state.fare != 0.0) {
                         Text(
-                            "$\(state.fare)"
-                        ).padding().foregroundStyle(theme.textColor).font(.system(size: 20))
+                            "\(state.fare.toPriceFormat())"
+                        ).foregroundStyle(theme.textColor).font(.system(size: 20))
                         Spacer()
                     }
                 }.padding()
                 Spacer().frame(height: 5)
-                OutlinedTextFieldTrailingIcon(text: state.fromText, onChange: obs.setFromText, hint: "Ride From", isError: false, errorMsg: "Ride From Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.default
+                OutlinedTextFieldTrailingIcon(text: state.fromText, onChange: obs.setFromText, hint: "Ride From", isError: false, errorMsg: "Ride From Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.default, isFocused: $fromFocus
                 ) {
                     if (state.fromText == state.mapData.fromText) {
                         Button {
@@ -202,32 +207,41 @@ struct MapSheetUser : View {
                         }
                     } else {
                         Button {
+                            Task { @MainActor in await MainActor.run { fromFocus = false } }
                             obs.searchForLocationOfPlaceFrom(fromText: state.fromText)
                         } label: {
                             Image(systemName: "magnifyingglass").foregroundColor(theme.textHintColor)
                         }
                     }
                 }.onSubmit {
-                    Task { @MainActor in await MainActor.run { toFocus = true } }
-                }.submitLabel(.next)
+                    Task { @MainActor in await MainActor.run { fromFocus = false } }
+                    obs.searchForLocationOfPlaceFrom(fromText: state.fromText)
+                }.submitLabel(.search)
                 if !state.locationsFrom.isEmpty {
-                    Menu {
-                        ForEach(state.locationsFrom, id: \.self) { locationFrom in
-                            Button {
-                                obs.setFrom(from: locationFrom) { mapData in
-                                    refreshScope(mapData)
-                                    Task { @MainActor in await MainActor.run { toFocus = true } }
+                    VStack {
+                        Spacer().frame(height: 3)
+                        Text("Locations: From")
+                        VStack {
+                            ForEach(state.locationsFrom, id: \.self) { locationFrom in
+                                Button {
+                                    obs.setFrom(from: locationFrom) { mapData in
+                                        refreshScope(mapData)
+                                        Task { @MainActor in await MainActor.run { fromFocus = false } }
+                                    }
+                                } label: {
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        Text(locationFrom.title).foregroundStyle(theme.textHintColor)
+                                    }.padding(all: 3)
                                 }
-                            } label: {
-                                Text(locationFrom.title).foregroundStyle(theme.textHintColor)
+                                .buttonStyle(PlainButtonStyle()) // Remove default button styling
                             }
                         }
-                    } label: {
-                        //Text().foregroundStyle(theme.textHintColor)
-                    }
+                    }.shadow(color: theme.background.opacity(0.2), radius: 10, x: 0, y: 2)
+                        .background(theme.background)
+                        .cornerRadius(8)
                 }
                 Spacer().frame(height: 10)
-                OutlinedTextFieldTrailingIcon(text: state.toText, onChange: obs.setToText, hint: "To", isError: false, errorMsg: "Ride To Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.default, isFocused: toFocus
+                OutlinedTextFieldTrailingIcon(text: state.toText, onChange: obs.setToText, hint: "To", isError: false, errorMsg: "Ride To Is Empty", theme: theme, cornerRadius: 12, lineLimit: 1, keyboardType: UIKeyboardType.default, isFocused: $toFocus
                 ) {
                     if (state.toText == state.mapData.toText) {
                         Button {
@@ -248,20 +262,26 @@ struct MapSheetUser : View {
                     obs.searchForLocationOfPlaceTo(toText: state.toText)
                 }.submitLabel(.search)
                 if !state.locationsTo.isEmpty {
-                    Menu {
-                        ForEach(state.locationsTo, id: \.self) { locationTo in
-                            Button {
-                                obs.setTo(to: locationTo) { mapData in
-                                    refreshScope(mapData)
-                                    Task { @MainActor in await MainActor.run { toFocus = true } }
-                                }
-                            } label: {
-                                Text(locationTo.title).foregroundStyle(theme.textHintColor)
+                    VStack {
+                        Spacer().frame(height: 3)
+                        Text("Locations: To")
+                        VStack {
+                            ForEach(state.locationsTo, id: \.self) { locationTo in
+                                Button {
+                                    obs.setTo(to: locationTo) { mapData in
+                                        refreshScope(mapData)
+                                        Task { @MainActor in await MainActor.run { toFocus = false } }
+                                    }
+                                } label: {
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        Text(locationTo.title).foregroundStyle(theme.textHintColor)
+                                    }.padding(all: 3)
+                                }.buttonStyle(PlainButtonStyle()).padding() // Remove default button styling
                             }
                         }
-                    } label: {
-                        //Text().foregroundStyle(theme.textHintColor)
-                    }
+                    }.shadow(color: theme.background.opacity(0.2), radius: 10, x: 0, y: 2)
+                        .background(theme.background)
+                        .cornerRadius(8)
                 }
             }
             Spacer()
@@ -291,7 +311,17 @@ struct MapSheetUser : View {
                 }
             }
             Spacer().frame(height: 10)
-        }.padding(leading: 20, trailing: 20).frame(height: 350)
+        }.padding(leading: 20, trailing: 20).frame(height: 350).toolbar {
+            ToolbarItem(placement: .keyboard) {
+               Button("Close") {
+                   if fromFocus {
+                       Task { @MainActor in await MainActor.run { fromFocus = false } }
+                   } else if toFocus {
+                       Task { @MainActor in await MainActor.run { toFocus = false } }
+                   }
+               }
+            }
+        }
     }
 }
 
@@ -319,11 +349,11 @@ struct RideSheet : View {
             HStack {
                 Text(
                     ride.durationDistance
-                ).padding().foregroundStyle(theme.textColor).font(.system(size: 15))
+                ).foregroundStyle(theme.textColor).font(.system(size: 15))
                 Spacer().frame(minWidth: 10)
                 Text(
-                    "Fare: $\(String(format: "%.00f", ride.fare))"
-                ).padding().foregroundStyle(theme.textColor).font(.system(size: 18))
+                    "Fare: \(ride.fare.toPriceFormat())"
+                ).foregroundStyle(theme.textColor).font(.system(size: 18))
                 Spacer()
             }.padding()
             Spacer().frame(height: 10)
@@ -381,16 +411,16 @@ struct RideRequestSheet : View {
                 ScrollView {
                     Spacer().frame(height: 5)
                     HStack {
-                        Spacer()
+                        Spacer().frame(width: 5)
                         Text(
                             rideRequest.durationDistance
-                        ).padding().foregroundStyle(theme.textColor).font(.system(size: 20))
-                        Spacer()
+                        ).foregroundStyle(theme.textColor).font(.system(size: 20))
+                        Spacer().frame(width: 5)
                         if (rideRequest.fare != 0.0) {
                             Text(
-                                "$\(String(format: "%.00f", rideRequest.fare))"
-                            ).padding().foregroundStyle(theme.textColor).font(.system(size: 20))
-                            Spacer()
+                                rideRequest.fare.toPriceFormat()
+                            ).foregroundStyle(theme.textColor).font(.system(size: 20))
+                            Spacer().frame(width: 5)
                         }
                     }
                     LazyVStack {
@@ -402,12 +432,14 @@ struct RideRequestSheet : View {
                                     ).foregroundStyle(theme.textColor).font(.system(size: 18))
                                     Spacer()
                                     Text(
-                                        "Fare: $\(String(format: "%.00f", proposal.fare))"
+                                        "Fare: \(proposal.fare.toPriceFormat())"
                                     ).foregroundStyle(theme.textColor).font(.system(size: 18))
                                     Spacer()
                                 }
                                 Spacer().frame(height: 5)
-                                RatingBar(rating: proposal.rate, starSize: 20)
+                                if proposal.rate != 0 {
+                                    RatingBar(rating: 4, starSize: 20)
+                                }
                                 Spacer().frame(height: 5)
                                 HStack {
                                     Spacer()
@@ -471,9 +503,10 @@ struct RideSheetDragHandler : View {
                     Text(
                         "Ride Status"
                     ).foregroundStyle(theme.textColor).font(.system(size: 16))
-                    Spacer().frame(height: 10)
+                    //Spacer().frame(height: 10)
                 }
             }
         }
     }
 }
+

@@ -22,7 +22,7 @@ import kotlinx.serialization.json.put
 class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
 
     override suspend fun getRideById(rideId: Long, invoke: (Ride?) -> Unit) {
-        querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
+        querySingleRealTime(SUPA_RIDE, channelName = "public:$SUPA_RIDE", primaryKey = Ride::id, block =  {
             Ride::id eq rideId
         }, invoke = invoke)
     }
@@ -46,7 +46,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
     }
 
     override suspend fun getActiveRideForUser(userId: Long, invoke: (Ride?) -> Unit) {
-        querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
+        querySingleRealTime(SUPA_RIDE, channelName = "public:$SUPA_RIDE", primaryKey = Ride::id, block =  {
             and {
                 Ride::userId eq userId
                 or {
@@ -60,8 +60,12 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
         }, invoke = invoke)
     }
 
+    override suspend fun cancelRideRealTime() {
+        cancelSingleRealTime("public:$SUPA_RIDE")
+    }
+
     override suspend fun getActiveRideForDriver(driverId: Long, invoke: (Ride?) -> Unit) {
-        querySingleRealTime(SUPA_RIDE, primaryKey = Ride::id, block =  {
+        querySingleRealTime(SUPA_RIDE, channelName = "public:$SUPA_RIDE", primaryKey = Ride::id, block =  {
             and {
                 Ride::driverId eq driverId
                 or {
@@ -95,12 +99,17 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
     override suspend fun getNearRideInsertsDeletes(
         currentLocation: Location,
         onInsert: (RideRequest) -> Unit,
+        onChanged: (RideRequest) -> Unit,
         onDelete: (Long) -> Unit
     ) {
         kotlinx.coroutines.coroutineScope {
             realTimeQueryInsertsDeletes<RideRequest>(realTable = SUPA_RIDE_REQUEST, { record ->
                 record.applyFilterNearRideInserts(currentLocation) {
                     onInsert(it)
+                }
+            }, changed = { record ->
+                record.applyFilterNearRideInserts(currentLocation) {
+                    onChanged(it)
                 }
             }) {
                 onDelete(it)
@@ -135,9 +144,13 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
     }
 
     override suspend fun getRideRequestById(rideRequestId: Long, invoke: (RideRequest?) -> Unit) {
-        querySingleRealTime(SUPA_RIDE_REQUEST, primaryKey = RideRequest::id, block =  {
+        querySingleRealTime(SUPA_RIDE_REQUEST,channelName = "public:$SUPA_RIDE_REQUEST", primaryKey = RideRequest::id, block =  {
             RideRequest::id eq rideRequestId
         }, invoke = invoke)
+    }
+
+    override suspend fun cancelRideRequestRealTime() {
+        cancelSingleRealTime("public:$SUPA_RIDE_REQUEST")
     }
 
     override suspend fun addNewRideRequest(item: RideRequest): RideRequest? = insert(SUPA_RIDE_REQUEST, item)

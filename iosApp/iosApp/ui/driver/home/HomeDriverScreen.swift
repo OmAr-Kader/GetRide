@@ -78,7 +78,7 @@ struct HomeDriverScreen : View {
                             SubmittedRideRequestSheet(ride: ride, theme: theme) { newStatus in
                                 obs.updateRide(ride: ride, newStatus: newStatus)
                             } submitFeedback: { it in
-                                obs.submitFeedback(driverId: ride.driverId, rate: it)
+                                obs.submitFeedback(userId: ride.userId, rate: it)
                             } clearRide: {
                                 obs.clearRide()
                             }
@@ -168,7 +168,7 @@ struct SubmittedRideRequestSheet : View {
                 ).padding().foregroundStyle(theme.textColor).font(.system(size: 15))
                 Spacer().frame(minWidth: 10)
                 Text(
-                    "Fare: $\(String(format: "%.00f", ride.fare))"
+                    "Fare: \(ride.fare.toPriceFormat())"
                 ).padding().foregroundStyle(theme.textColor).font(.system(size: 18))
                 Spacer()
             }.padding()
@@ -210,7 +210,7 @@ struct SubmittedRideRequestSheet : View {
                 }
                 Spacer()
             }.padding()
-        }.padding(leading: 20, trailing: 20).frame(minHeight: 100)
+        }.padding(leading: 20, trailing: 20).frame(minHeight: 100).onTop()
     }
 }
 
@@ -233,12 +233,10 @@ struct RideRequestsDriverSheet : View {
                             ).foregroundStyle(theme.textColor).font(.system(size: 18))
                             Spacer()
                             Text(
-                                "Fare: $\(String(format: "%.00f", request.fare))"
+                                "Fare: \(request.fare.toPriceFormat())"
                             ).foregroundStyle(theme.textColor).font(.system(size: 18))
                             Spacer()
                         }
-                        //Spacer().frame(height: 5)
-                        //RatingBar(rating: request.userRate, starSize: 20)
                         Spacer().frame(height: 5)
                         HStack {
                             Spacer()

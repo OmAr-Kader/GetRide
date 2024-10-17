@@ -12,14 +12,16 @@ interface RideRepo {
     suspend fun getAllRidesForDriver(driverId: Long): List<Ride> // From Driver
     suspend fun getActiveRideForUser(userId: Long, invoke: (Ride?) -> Unit) // From User
     suspend fun getActiveRideForDriver(driverId: Long, invoke: (Ride?) -> Unit) // From Driver
+    suspend fun cancelRideRealTime()
     suspend fun addNewRide(item: Ride): Ride? // From User
     suspend fun editRide(item: Ride): Ride? // From Driver
     suspend fun editDriverLocation(rideId: Long, driverLocation: Location): Int // From Driver
     suspend fun deleteRide(id: Long): Int
 
-    suspend fun getNearRideInsertsDeletes(currentLocation: Location, onInsert: (RideRequest) -> Unit, onDelete: (Long) -> Unit) // From Driver
+    suspend fun getNearRideInsertsDeletes(currentLocation: Location, onInsert: (RideRequest) -> Unit, onChanged: (RideRequest) -> Unit, onDelete: (Long) -> Unit) // From Driver
     suspend fun getNearRideRequestsForDriver(currentLocation: Location, invoke: (List<RideRequest>) -> Unit, ) // From Driver
     suspend fun getRideRequestById(rideRequestId: Long, invoke: (RideRequest?) -> Unit) // // From User
+    suspend fun cancelRideRequestRealTime()
     suspend fun addNewRideRequest(item: RideRequest): RideRequest? // From User
     suspend fun editRideRequest(item: RideRequest): RideRequest? // From User
     suspend fun editAddDriverProposal(rideRequestId: Long, rideProposal: RideProposal): Int // From Driver

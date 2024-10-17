@@ -30,29 +30,49 @@ class HomeObserve : ObservableObject {
         jobRideInitial = scope.launchBack {
             do {
                 try await self.project.ride.getActiveRideForUser(userId: userId) { ride in
+                    if self.jobRideInitial == nil {
+                        return
+                    }
                     self.scope.launchMain {
                         if self.state.ride == nil && ride != nil {
                             invoke()
                         }
                         if (ride?.status == -2) {
-                            self.jobRideInitial?.cancel()
-                            self.jobRideInitial = nil
-                            self.state = self.state.copy(mapData: self.state.mapData.copy(driverPoint: nil), ride: nil, isProcess: false)
+                            if self.jobRideInitial != nil {
+                                self.scope.launchBack {
+                                    try? await self.project.ride.cancelRideRealTime()
+                                }
+                                self.jobRideInitial?.cancel()
+                                self.jobRideInitial = nil
+                            }
+                            var mapData = self.state.mapData
+                            self.state = self.state.copy { currentState in
+                                currentState.mapData = mapData.copy { it in
+                                    it.driverPoint = nil
+                                    return it
+                                }
+                                currentState.ride = nil
+                                currentState.isProcess = false
+                                return currentState
+                            }
                         } else {
                             if let ride, let routePoints = self.state.mapData.routePoints, routePoints.isEmpty {
                                 self.fetchRoute(start: ride.from.toGoogleLatLng(), end: ride.to.toGoogleLatLng(), invoke: refreshScope)
                             }
-                            self.state = self.state.copy(
-                                mapData: self.state.mapData.copy(
-                                    driverPoint: ride?.currentDriver.toGoogleLatLng(),
-                                    startPoint: ride?.from.toGoogleLatLng(),
-                                    fromText: ride?.from.title ?? "",
-                                    endPoint: ride?.to.toGoogleLatLng(),
-                                    toText: ride?.to.title ?? ""
-                                ),
-                                ride: ride,
-                                isProcess: false
-                            )
+                            var mapData = self.state.mapData
+                            self.state = self.state.copy { currentState in
+                                currentState.mapData = mapData.copy { it in
+                                    it.driverPoint = ride?.currentDriver.toGoogleLatLng()
+                                    it.startPoint = ride?.from.toGoogleLatLng()
+                                    it.fromText = ride?.from.title ?? ""
+                                    it.endPoint = ride?.to.toGoogleLatLng()
+                                    it.toText = ride?.to.title ?? ""
+                                    return it
+                                }
+                                currentState.ride = ride
+                                currentState.isProcess = false
+                                return currentState
+                            }
                         }
                     }
                 }
@@ -87,15 +107,16 @@ class HomeObserve : ObservableObject {
                                 routePoints: routes
                             )
                             invoke(newMapData)
-                            self.state = self.state.copy(
-                                mapData: newMapData,
-                                duration: duration?.int64Value,
-                                durationText: durationText,
-                                distance: distance?.int64Value,
-                                distanceText: distanceText,
-                                fare: ConverterKt.calculateFare(duration: duration, distance: distance),
-                                isProcess: false
-                            )
+                            self.state = self.state.copy { currentState in
+                                currentState.mapData = newMapData
+                                currentState.duration = duration?.int64Value
+                                currentState.durationText = durationText
+                                currentState.distance = distance?.int64Value
+                                currentState.distanceText = distanceText
+                                currentState.fare = ConverterKt.calculateFare(duration: duration, distance: distance)
+                                currentState.isProcess = false
+                                return currentState
+                            }
                         }
                     } else {
                         self.setIsProcess(false)
@@ -112,7 +133,7 @@ class HomeObserve : ObservableObject {
         scope.launchBack {
             if let it = try? await RideRouteKt.searchForPlaceLocation(placeName: fromText) {
                 self.scope.launchMain {
-                    self.state = self.state.copy(locationsFrom: it)
+                    self.state = self.state.copy(locationsFrom: it, locationsTo: [])
                 }
             }
         }
@@ -123,7 +144,7 @@ class HomeObserve : ObservableObject {
         scope.launchBack {
             if let it = try? await RideRouteKt.searchForPlaceLocation(placeName: toText) {
                 self.scope.launchMain {
-                    self.state = self.state.copy(locationsTo: it)
+                    self.state = self.state.copy(locationsFrom: [], locationsTo: it)
                 }
             }
         }
@@ -142,11 +163,13 @@ class HomeObserve : ObservableObject {
         }
         self.checkForPlacesNames(startPoint: startPoint, endPoint: endPoint)
         self.checkForRoutes(startPoint: startPoint, endPoint: endPoint, invoke: invoke)
+        var newMapData = self.state.mapData
         self.state = self.state.copy(
-            mapData: self.state.mapData.copy(
-                startPoint: startPoint ?? state.mapData.startPoint,
-                endPoint: endPoint ?? state.mapData.endPoint
-            )
+            mapData: newMapData.copy { it in
+                it.startPoint = startPoint ?? state.mapData.startPoint
+                it.endPoint = endPoint ?? state.mapData.endPoint
+                return it
+            }
         )
     }
     
@@ -206,20 +229,23 @@ class HomeObserve : ObservableObject {
     
     @MainActor
     func clearFromText() {
-        self.state = self.state.copy(
-            mapData: state.mapData.copy(
-                startPoint: nil,
-                fromText: "",
-                durationDistance: "",
-                routePoints: nil
-            ),
-            duration: nil,
-            durationText: "",
-            distance: nil,
-            distanceText: "",
-            fare: 0.0,
-            fromText: ""
-        )
+        var mapData = self.state.mapData
+        self.state = self.state.copy { currentState in
+            currentState.mapData = mapData.copy { it in
+                it.startPoint = nil
+                it.fromText = ""
+                it.durationDistance = ""
+                it.routePoints = nil
+                return it
+            }
+            currentState.duration = nil
+            currentState.durationText = ""
+            currentState.distance = nil
+            currentState.distanceText = ""
+            currentState.fare = 0.0
+            currentState.fromText = ""
+            return currentState
+        }
     }
     
     @MainActor
@@ -248,20 +274,23 @@ class HomeObserve : ObservableObject {
     
     @MainActor
     func clearToText() {
-        self.state = self.state.copy(
-            mapData: self.state.mapData.copy(
-                endPoint: nil,
-                toText: "",
-                durationDistance: "",
-                routePoints: nil
-            ),
-            duration: nil,
-            durationText: "",
-            distance: nil,
-            distanceText: "",
-            fare: 0.0,
-            toText: ""
-        )
+        var mapData = self.state.mapData
+        self.state = self.state.copy { currentState in
+            currentState.mapData = mapData.copy { it in
+                it.endPoint = nil
+                it.toText = ""
+                it.durationDistance = ""
+                it.routePoints = nil
+                return it
+            }
+            currentState.duration = nil
+            currentState.durationText = ""
+            currentState.distance = nil
+            currentState.distanceText = ""
+            currentState.fare = 0.0
+            currentState.toText = ""
+            return currentState
+        }
     }
     
     @MainActor
@@ -287,32 +316,46 @@ class HomeObserve : ObservableObject {
     }
     
     @MainActor
-    func submitFeedback(userId: Long, rate: Float) {
+    func submitFeedback(driverId: Long, rate: Float) {
         self.clearRide()
         self.scope.launchBack {
-            let _ = try? await self.project.user.addEditUserRate(userId: userId, rate: rate)
+            let _ = try? await self.project.driver.addEditDriverRate(driverId: driverId, rate: rate)
         }
     }
     
     @MainActor
     func clearRide() {
-        jobRide?.cancel()
-        jobRideInitial?.cancel()
-        jobRide = nil
-        jobRideInitial = nil
-        self.state = self.state.copy(
-            mapData: state.mapData.copy(
-                driverPoint: nil,
-                startPoint: nil,
-                fromText: "",
-                endPoint: nil,
-                toText: "",
-                durationDistance: "",
-                routePoints: nil
-            ),
-            ride: nil,
-            isProcess: false
-        )
+        if jobRide != nil || jobRideInitial != nil {
+            self.scope.launchBack {
+                try? await self.project.ride.cancelRideRealTime()
+            }
+            jobRide?.cancel()
+            jobRideInitial?.cancel()
+            jobRide = nil
+            jobRideInitial = nil
+        }
+        var mapData = self.state.mapData
+        self.state = self.state.copy { currentState in
+            currentState.mapData = mapData.copy { it in
+                it.driverPoint = nil
+                it.startPoint = nil
+                it.fromText = ""
+                it.endPoint = nil
+                it.toText = ""
+                it.durationDistance = ""
+                it.routePoints = nil
+                return it
+            }
+            currentState.duration = nil
+            currentState.durationText = ""
+            currentState.distance = nil
+            currentState.distanceText = ""
+            currentState.fare = 0.0
+            currentState.toText = ""
+            currentState.ride = nil
+            currentState.isProcess = false
+            return currentState
+        }
     }
     
     @MainActor
@@ -339,10 +382,21 @@ class HomeObserve : ObservableObject {
             }
         }
     }
-                
+    
     @MainActor
     func cancelRideRequest(rideRequest: RideRequest) {
-        state = state.copy(rideRequest: nil, isProcess: false)
+        if jobRideRequest != nil {
+            self.scope.launchBack {
+                try? await self.project.ride.cancelRideRequestRealTime()
+            }
+            jobRideRequest?.cancel()
+            jobRideRequest = nil
+        }
+        self.state = self.state.copy { currentState in
+            currentState.rideRequest = nil
+            currentState.isProcess = false
+            return currentState
+        }
         scope.launchBack {
             let _ = try? await self.project.ride.deleteRideRequest(id: rideRequest.id)
         }
@@ -382,8 +436,15 @@ class HomeObserve : ObservableObject {
         jobRideRequest = scope.launchBack {
             do {
                 try await self.project.ride.getRideRequestById(rideRequestId: rideRequestId) { rideRequest in
+                    if self.jobRideRequest == nil {
+                        return
+                    }
                     self.scope.launchMain {
-                        self.state = self.state.copy(rideRequest: rideRequest, isProcess: false)
+                        self.state = self.state.copy { currentState in
+                            currentState.rideRequest = rideRequest
+                            currentState.isProcess = false
+                            return currentState
+                        }
                     }
                 }
             } catch {
@@ -391,32 +452,58 @@ class HomeObserve : ObservableObject {
             }
         }
     }
-
+    
     private func fetchRide(rideId: Long, invoke: @escaping @MainActor () -> Unit) {
         jobRide?.cancel()
         jobRide = scope.launchBack {
             do {
                 try await self.project.ride.getRideById(rideId: rideId) { ride in
+                    if self.jobRide == nil {
+                        return
+                    }
                     self.scope.launchMain {
-                        if (self.state.ride == nil) {
+                        if self.state.ride == nil && ride != nil {
                             invoke()
                         }
-                        self.jobRideRequest?.cancel()
-                        self.jobRideRequest = nil
+                        if self.jobRideRequest != nil {
+                            self.scope.launchBack {
+                                try? await self.project.ride.cancelRideRequestRealTime()
+                            }
+                            self.jobRideRequest?.cancel()
+                            self.jobRideRequest = nil
+                        }
                         if (ride?.status == -2) {
-                            self.jobRide?.cancel()
-                            self.jobRide = nil
-                            self.state = self.state.copy(mapData: self.state.mapData.copy(driverPoint: nil), ride: nil, isProcess: false)
+                            if self.jobRide != nil {
+                                self.scope.launchBack {
+                                    try? await self.project.ride.cancelRideRealTime()
+                                }
+                                self.jobRide?.cancel()
+                                self.jobRide = nil
+                            }
+                            var mapData = self.state.mapData
+                            self.state = self.state.copy { currentState in
+                                currentState.mapData = mapData.copy { it in
+                                    it.driverPoint = nil
+                                    return it
+                                }
+                                currentState.ride = nil
+                                currentState.isProcess = false
+                                return currentState
+                            }
                         } else {
-                            self.state = self.state.copy(
-                                mapData: self.state.mapData.copy(driverPoint: ride?.currentDriver.toGoogleLatLng()),
-                                rideRequest: nil,
-                                ride: ride,
-                                isProcess: false
-                            )
+                            self.state = self.state.copy { currentState in
+                                currentState.mapData = self.state.mapData.copy { it in
+                                    it.driverPoint = ride?.currentDriver.toGoogleLatLng()
+                                    return it
+                                }
+                                currentState.rideRequest = nil
+                                currentState.ride = ride
+                                currentState.isProcess = false
+                                return currentState
+                            }
                         }
                     }
-                
+                    
                 }
             } catch {
                 self.setIsProcess(false)
@@ -479,7 +566,7 @@ class HomeObserve : ObservableObject {
             }
         }
     }
-
+    
     private func setIsProcess(_ isProcess: Bool) {
         scope.launchMain {
             self.state = self.state.copy(isProcess: isProcess)
@@ -492,19 +579,25 @@ class HomeObserve : ObservableObject {
     
     struct State {
         
-        private(set) var mapData: MapData = MapData()
-        private(set) var duration: Long? = nil
-        private(set) var durationText: String? = nil
-        private(set) var distance: Long? = nil
-        private(set) var distanceText: String = ""
-        private(set) var fare: Double = 0.0
-        private(set) var fromText: String = ""
-        private(set) var toText: String = ""
-        private(set) var locationsFrom: [Location] = []
-        private(set) var locationsTo: [Location] = []
-        private(set) var rideRequest: RideRequest? = nil
-        private(set) var ride: Ride? = nil
-        private(set) var isProcess: Bool = true
+        var mapData: MapData = MapData()
+        var duration: Long? = nil
+        var durationText: String? = nil
+        var distance: Long? = nil
+        var distanceText: String = ""
+        var fare: Double = 0.0
+        var fromText: String = ""
+        var toText: String = ""
+        var locationsFrom: [Location] = []
+        var locationsTo: [Location] = []
+        var rideRequest: RideRequest? = nil
+        var ride: Ride? = nil
+        var isProcess: Bool = true
+        
+        @MainActor
+        mutating func copy(updates: (inout Self) -> Self) -> Self { // Only helpful For struct or class with nil values
+            self = updates(&self)
+            return self
+        }
         
         @MainActor
         mutating func copy(
@@ -538,7 +631,7 @@ class HomeObserve : ObservableObject {
             return self
         }
     }
-
+    
 }
 
 /*import GoogleMaps

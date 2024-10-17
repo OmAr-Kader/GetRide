@@ -35,7 +35,6 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     private var jobDriverRideInsertsDeletes: kotlinx.coroutines.Job? = null
     private var jobDriverRideRequests: kotlinx.coroutines.Job? = null
 
-    private var jobRideRequest: kotlinx.coroutines.Job? = null
     private var jobRideInitial: kotlinx.coroutines.Job? = null
     private var jobRide: kotlinx.coroutines.Job? = null
 
@@ -51,6 +50,12 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
             project.ride.getNearRideInsertsDeletes(currentLocation, { newRequest ->
                 _uiState.update { state ->
                     state.copy(requests = state.requests + newRequest)
+                }
+            }, onChanged = { change ->
+                uiState.value.requests.indexOfFirst { it.id == change.id }.let { if (it == -1) null else it }?.let { index ->
+                    _uiState.update { state ->
+                        state.copy(requests = state.requests - state.requests[index] + change)
+                    }
                 }
             }) { id ->
                 uiState.value.requests.indexOfFirst { it.id == id }.let { if (it == -1) null else it }?.let { index ->
@@ -227,10 +232,10 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
         }
     }
 
-    fun submitFeedback(driverId: Long, rate: Float) {
+    fun submitFeedback(userId: Long, rate: Float) {
         clearRide()
         launchBack {
-            project.driver.addEditDriverRate(driverId = driverId, rate = rate)
+            project.user.addEditUserRate(userId = userId, rate = rate)
         }
     }
 
@@ -291,12 +296,10 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     override fun onCleared() {
         jobDriverRideInsertsDeletes?.cancel()
         jobDriverRideRequests?.cancel()
-        jobRideRequest?.cancel()
         jobRideInitial?.cancel()
         jobRide?.cancel()
         jobDriverRideInsertsDeletes = null
         jobDriverRideRequests = null
-        jobRideRequest = null
         jobRideInitial = null
         jobRide =null
         super.onCleared()

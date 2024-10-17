@@ -9,15 +9,6 @@
 import GoogleMaps
 import shared
 
-extension MapData {
-    
-    func copy(currentLocation: CLLocationCoordinate2D? = nil, driverPoint: CLLocationCoordinate2D? = nil, startPoint: CLLocationCoordinate2D? = nil, fromText: String? = nil, endPoint: CLLocationCoordinate2D? = nil, toText: String? = nil, durationDistance: String? = nil, routePoints: String? = nil) -> MapData {
-        MapData(currentLocation: currentLocation ?? self.currentLocation, driverPoint: driverPoint ?? self.driverPoint, startPoint: startPoint ?? self.startPoint, fromText: fromText ?? self.fromText, endPoint: endPoint ?? self.endPoint, toText: toText ?? self.toText, durationDistance: durationDistance ?? self.durationDistance, routePoints: routePoints ?? self.routePoints)
-    }
-}
-
-///
-
 extension UserPref {
     
     func copy(authId: String? = nil, id: Int64? = nil, email: String? = nil, phone: String? = nil, name: String? = nil, profilePicture: String? = nil) -> UserPref {
