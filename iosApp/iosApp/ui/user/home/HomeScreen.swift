@@ -178,7 +178,7 @@ struct MapSheetUser : View {
             Spacer().frame(height: 5)
             VStack {
                 HStack {
-                    Spacer()
+                    Spacer().frame(width: 5)
                     Text(
                         state.mapData.durationDistance
                     ).foregroundStyle(theme.textColor).font(.system(size: 20))
@@ -187,7 +187,7 @@ struct MapSheetUser : View {
                         Text(
                             "\(state.fare.toPriceFormat())"
                         ).foregroundStyle(theme.textColor).font(.system(size: 20))
-                        Spacer()
+                        Spacer().frame(width: 5)
                     }
                 }
                 Spacer().frame(height: 5)
@@ -341,14 +341,15 @@ struct RideSheet : View {
             Text(statusTitle).padding().foregroundStyle(theme.textColor).font(.system(size: 18)).onStart()
             Spacer().frame(height: 10)
             HStack {
+                Spacer().frame(width: 5)
                 Text(
                     ride.durationDistance
                 ).foregroundStyle(theme.textColor).font(.system(size: 15))
-                Spacer().frame(minWidth: 10)
+                Spacer()
                 Text(
                     "Fare: \(ride.fare.toPriceFormat())"
                 ).foregroundStyle(theme.textColor).font(.system(size: 18))
-                Spacer()
+                Spacer().frame(width: 5)
             }
             Spacer().frame(height: 10)
             if ride.status == 4 {
