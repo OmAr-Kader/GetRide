@@ -163,7 +163,7 @@ Screenshot
       <td> <img src="Screenshots/IOS/6.png"  width="300" height="533" alt="5"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/IOS/7.png"  width="300" height="667" alt="6"/> </td>
+      <td> <img src="Screenshots/IOS/7.png"  width="300" height="533" alt="6"/> </td>
     </tr>
 </table>
 
