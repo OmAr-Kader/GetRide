@@ -129,19 +129,19 @@ Screenshot
 #### Driver
 <table>
     <tr>
-      <td> <img src="Screenshots/Android/8.png"  width="300" height="667" alt="1"/> </td>
-      <td> <img src="Screenshots/Android/9.png"  width="300" height="667" alt="8"/> </td>
+      <td> <img src="Screenshots/Android/8.png"  width="300" height="480" alt="1"/> </td>
+      <td> <img src="Screenshots/Android/9.png"  width="300" height="480" alt="8"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/Android/10.png"  width="300" height="667" alt="2"/> </td>
-      <td> <img src="Screenshots/Android/11.png"  width="300" height="667" alt="3"/> </td>
+      <td> <img src="Screenshots/Android/10.png"  width="300" height="480" alt="2"/> </td>
+      <td> <img src="Screenshots/Android/11.png"  width="300" height="480" alt="3"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/Android/12.png"  width="300" height="667" alt="4"/> </td>
-      <td> <img src="Screenshots/Android/13.png"  width="300" height="667" alt="5"/> </td>
+      <td> <img src="Screenshots/Android/12.png"  width="300" height="480" alt="4"/> </td>
+      <td> <img src="Screenshots/Android/13.png"  width="300" height="480" alt="5"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/Android/14.png"  width="300" height="667" alt="6"/> </td>
+      <td> <img src="Screenshots/Android/14.png"  width="300" height="480" alt="6"/> </td>
     </tr>
 </table>
 
@@ -151,37 +151,37 @@ Screenshot
 #### Client
 <table>
     <tr>
-      <td> <img src="Screenshots/IOS/1.png"  width="300" height="667" alt="1"/> </td>
-      <td> <img src="Screenshots/IOS/2.png"  width="300" height="667" alt="8"/> </td>
+      <td> <img src="Screenshots/IOS/1.png"  width="300" height="533" alt="1"/> </td>
+      <td> <img src="Screenshots/IOS/2.png"  width="300" height="533" alt="8"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/IOS/3.png"  width="300" height="667" alt="2"/> </td>
-      <td> <img src="Screenshots/IOS/4.png"  width="300" height="667" alt="3"/> </td>
+      <td> <img src="Screenshots/IOS/3.png"  width="300" height="533" alt="2"/> </td>
+      <td> <img src="Screenshots/IOS/4.png"  width="300" height="533" alt="3"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/IOS/5.png"  width="300" height="667" alt="4"/> </td>
-      <td> <img src="Screenshots/IOS/6.png"  width="300" height="667" alt="5"/> </td>
+      <td> <img src="Screenshots/IOS/5.png"  width="300" height="533" alt="4"/> </td>
+      <td> <img src="Screenshots/IOS/6.png"  width="300" height="533" alt="5"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/IOS/7.png"  width="300" height="667" alt="6"/> </td>
+      <td> <img src="Screenshots/IOS/7.png"  width="300" height="533" alt="6"/> </td>
     </tr>
 </table>
 
 #### Driver
 <table>
     <tr>
-      <td> <img src="Screenshots/IOS/8.png"  width="300" height="667" alt="1"/> </td>
-      <td> <img src="Screenshots/IOS/9.png"  width="300" height="667" alt="8"/> </td>
+      <td> <img src="Screenshots/IOS/8.png"  width="300" height="533" alt="1"/> </td>
+      <td> <img src="Screenshots/IOS/9.png"  width="300" height="533" alt="8"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/IOS/10.png"  width="300" height="667" alt="2"/> </td>
-      <td> <img src="Screenshots/IOS/11.png"  width="300" height="667" alt="3"/> </td>
+      <td> <img src="Screenshots/IOS/10.png"  width="300" height="533" alt="2"/> </td>
+      <td> <img src="Screenshots/IOS/11.png"  width="300" height="533" alt="3"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/IOS/12.png"  width="300" height="667" alt="4"/> </td>
-      <td> <img src="Screenshots/IOS/13.png"  width="300" height="667" alt="5"/> </td>
+      <td> <img src="Screenshots/IOS/12.png"  width="300" height="533" alt="4"/> </td>
+      <td> <img src="Screenshots/IOS/13.png"  width="300" height="533" alt="5"/> </td>
     </tr>
     <tr>
-      <td> <img src="Screenshots/IOS/14.png"  width="300" height="667" alt="6"/> </td>
+      <td> <img src="Screenshots/IOS/14.png"  width="300" height="533" alt="6"/> </td>
     </tr>
 </table>
