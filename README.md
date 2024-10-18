@@ -101,7 +101,6 @@ We welcome contributions to improve GetRide! To contribute:
 [![Supabase](https://img.shields.io/static/v1?style=for-the-badge&message=Supabase&color=47A248&logo=Supabase&logoColor=FFFFFF&label=)](https://supabase.com/docs/reference/kotlin/installing)
 
 <!--suppress CheckImageSize -->
-
 Screenshot
 -------------
 
