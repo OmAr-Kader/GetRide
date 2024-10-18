@@ -1,6 +1,5 @@
 package com.ramo.getride.android
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,8 +25,6 @@ import com.ramo.getride.android.global.base.MyApplicationTheme
 import com.ramo.getride.android.global.base.Theme
 import com.ramo.getride.android.global.navigation.Screen
 import com.ramo.getride.android.global.ui.OnLaunchScreen
-import com.ramo.getride.android.global.util.checkLocationPermission
-import com.ramo.getride.android.global.util.isTablet
 import com.ramo.getride.android.ui.driver.home.HomeDriverScreen
 import com.ramo.getride.android.ui.driver.sign.AuthDriverScreen
 import com.ramo.getride.android.ui.user.home.HomeScreen
@@ -46,7 +42,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Main(isTablet) // com.ramo.getride.global.base.TEMP_IS_DRIVER
+            Main(com.ramo.getride.global.base.TEMP_IS_DRIVER)
         }
     }
 }
