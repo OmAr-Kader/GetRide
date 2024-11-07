@@ -1,7 +1,5 @@
 package com.ramo.getride.android.global.util
 
-import com.ramo.getride.global.util.loggerError
-
 inline fun android.content.Context.checkLocationPermission(invoke: () -> Unit, failed: (Array<String>) -> Unit) {
     if (androidx.core.app.ActivityCompat.checkSelfPermission(
             this,

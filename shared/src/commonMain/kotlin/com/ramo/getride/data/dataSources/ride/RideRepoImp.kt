@@ -92,7 +92,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
             rpc("edit_ride_driver_location", it)
         }
     } catch (e: Exception) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         -2
     }
 
@@ -167,7 +167,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
             rpc("append_proposal_to_requests", it)
         }
     } catch (e: Exception) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         -2
     }
 
@@ -179,7 +179,7 @@ class RideRepoImp(supabase: Supabase) : BaseRepoImp(supabase), RideRepo {
             rpc("remove_proposal_from_requests", it)
         }
     } catch (e: Exception) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         -2
     }
 

@@ -15,9 +15,7 @@ import com.ramo.getride.global.base.SUPA_DRIVER_LICENCE
 import com.ramo.getride.global.base.Supabase
 import com.ramo.getride.global.util.loggerError
 import io.github.jan.supabase.postgrest.query.Columns
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.put
 
 class DriverRepoImp(supabase: Supabase) : BaseRepoImp(supabase), DriverRepo {
@@ -91,7 +89,7 @@ class DriverRepoImp(supabase: Supabase) : BaseRepoImp(supabase), DriverRepo {
             rpc("update_driver_rate", it)
         }
     } catch (e: Exception) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         -2
     }
 

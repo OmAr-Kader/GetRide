@@ -22,7 +22,7 @@ import com.ramo.getride.di.Project
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
 import com.ramo.getride.global.util.dateNow
-import com.ramo.getride.global.util.loggerError
+import com.ramo.getride.global.util.logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -41,7 +41,7 @@ class HomeDriverViewModel(project: Project) : BaseViewModel(project) {
     fun loadRequests(driverId: Long, currentLocation: Location, popUpSheet: () -> Unit, refreshScope: (MapData) -> Unit) {
         uiState.value.mapData.currentLocation?.also {
             if (it.latitude == currentLocation.latitude && it.longitude == currentLocation.longitude && jobDriverRideInsertsDeletes != null) {
-                loggerError("request", "return")
+                logger("request", "return")
                 return
             }
         }

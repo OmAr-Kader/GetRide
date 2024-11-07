@@ -5,6 +5,7 @@ import com.ramo.getride.data.model.Preference
 import com.ramo.getride.data.util.REALM_FAILED
 import com.ramo.getride.data.util.REALM_SUCCESS
 import com.ramo.getride.global.util.logger
+import com.ramo.getride.global.util.loggerError
 import io.realm.kotlin.ext.query
 
 class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
@@ -24,6 +25,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
             try {
                 copyToRealm(pref, io.realm.kotlin.UpdatePolicy.ALL)
             } catch (e: Exception) {
+                loggerError(error = e)
                 null
             }
         }
@@ -36,6 +38,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
                     copyToRealm(pref, io.realm.kotlin.UpdatePolicy.ALL)
                 }
             } catch (e: Exception) {
+                loggerError(error = e)
                 null
             }
         }.let {
@@ -57,7 +60,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
                 }
             }
         } catch (e: Exception) {
-            logger(error = e.stackTraceToString())
+            loggerError(error = e)
             pref
         }
     }
@@ -75,7 +78,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
                 }
             }
         } catch (e: Exception) {
-            logger(error = e.stackTraceToString())
+            loggerError(error = e)
             prefs
         }
     }
@@ -87,6 +90,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
                     delete(it)
                 }
             } catch (e: Exception) {
+                loggerError(error = e)
                 return@write null
             }
         }.let {

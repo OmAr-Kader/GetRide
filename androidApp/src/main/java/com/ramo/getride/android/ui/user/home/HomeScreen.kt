@@ -84,7 +84,6 @@ import com.ramo.getride.data.model.UserPref
 import com.ramo.getride.global.base.AUTH_SCREEN_ROUTE
 import com.ramo.getride.global.base.PREF_LAST_LATITUDE
 import com.ramo.getride.global.base.PREF_LAST_LONGITUDE
-import com.ramo.getride.global.util.loggerError
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -584,7 +583,6 @@ fun RideRequestSheet(
                 Spacer(Modifier.height(10.dp))
             }
             items(rideRequest.driverProposals) { proposal ->
-                loggerError("proposal", proposal.toString())
                 Column(Modifier.padding()) {
                     Row(
                         Modifier

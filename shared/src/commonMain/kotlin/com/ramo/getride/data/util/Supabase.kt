@@ -8,8 +8,10 @@ suspend inline fun <reified T> io.github.jan.supabase.postgrest.result.Postgrest
             json.decodeFromString<List<T>?>(data)
         }
     } catch (e: kotlinx.serialization.SerializationException) {
+        loggerError("toListOfObject", e)
         null
     } catch (e: IllegalArgumentException) {
+        loggerError("toListOfObject", e)
         null
     }
 }
@@ -22,13 +24,13 @@ suspend inline fun <reified T : Any> supabase(
             operation()
         }
     } catch (e: io.github.jan.supabase.exceptions.RestException) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         null
     } catch (e: io.ktor.client.plugins.HttpRequestTimeoutException) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         null
     } catch (e: io.github.jan.supabase.exceptions.HttpRequestException) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         null
     }
 }
@@ -44,15 +46,15 @@ suspend inline fun <reified T : Any> supabase(
         }
     } catch (e: io.github.jan.supabase.exceptions.RestException) {
         failed(e.stackTraceToString())
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         null
     } catch (e: io.ktor.client.plugins.HttpRequestTimeoutException) {
         failed(e.stackTraceToString())
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         null
     } catch (e: io.github.jan.supabase.exceptions.HttpRequestException) {
         failed(e.stackTraceToString())
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         null
     }
 }

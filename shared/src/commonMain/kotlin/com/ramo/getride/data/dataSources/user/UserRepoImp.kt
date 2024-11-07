@@ -63,7 +63,7 @@ class UserRepoImp(supabase: Supabase) : BaseRepoImp(supabase), UserRepo {
             rpc("update_user_rate", it)
         }
     } catch (e: Exception) {
-        loggerError(error = e.stackTraceToString())
+        loggerError(error = e)
         -2
     }
 
