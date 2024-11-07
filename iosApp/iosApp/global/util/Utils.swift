@@ -266,7 +266,7 @@ public func logger(_ it: String) {
     logger.log("==> \(tag) \(it)")*/
 }
 public func loggerError(_ tag: String,_ it: String) {
-    LoggerKt.loggerError(tag: tag, error: it)
+    LoggerKt.logger(tag: tag, error: it)
     /*let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
     logger.log("==> \(tag) \(it)")*/
 }
