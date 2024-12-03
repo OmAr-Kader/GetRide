@@ -68,14 +68,6 @@ To install and run **GetRide** locally, follow these steps:
     - **For Android**: Run the app on an emulator or physical device.
     - **For iOS**: Open the project in Xcode, build, and run it on a simulator or a connected iPhone.
 
-
-## Contribution
-
-We welcome contributions to improve GetRide! To contribute:
-1. Fork the repository.
-2. Create a feature branch.
-3. Submit a pull request with a detailed description of your changes.
-
 ## 🔗 Links & Dependencies
 
 [![Kotlin Multiplatform Mobile](https://img.shields.io/static/v1?style=for-the-badge&message=Mobile&color=7F52FF&logo=Kotlin&logoColor=FFFFFF&label=Kotlin+Multiplatform)](https://kotlinlang.org/docs/multiplatform.html)
