@@ -2,6 +2,12 @@
 
 **GetRide** is a multi-platform mobile application developed with Kotlin Multiplatform Mobile (KMM), offering a full-featured ride-sharing service. The app integrates advanced ride management, Stripe payment processing, and Google Maps for navigation, while leveraging Supabase for real-time data handling and secure authentication. With support for both Android (Jetpack Compose) and iOS (SwiftUI), GetRide delivers a seamless user experience across platforms.
 
+## 🤩 Support Me
+
+<a href="https://www.buymeacoffee.com/omar_kader">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" width="200" height="70" alt="Buy Me a Coffee">
+</a>
+
 ## Features
 
 ### Core Functionality
